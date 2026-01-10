@@ -26,12 +26,26 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const pathname = usePathname()
   const menuGroups = getMenuByRole(role)
 
-  const isActive = (url: string) => {
-    if (url === "/dashboard") {
-      return pathname === "/dashboard" || pathname === "/"
+const ROLE_DASHBOARD_MAP: Record<string, string> = {
+    admin: "/admin",
+    doctor: "/doctor",
+    surgery: "/surgery",
+    reception: "/reception",
+    laboratory: "/laboratory",
+    radiology: "/radiology",
+    store: "/store",
+    pharmacy: "/pharmacy",
+    nurse: "/nurse",
+    cashier: "/cashier",
+}
+
+const isActive = (url: string) => {
+    const roleDashboard = ROLE_DASHBOARD_MAP[role]
+    if (roleDashboard && url === roleDashboard) {
+        return pathname === roleDashboard || pathname === "/"
     }
     return pathname.startsWith(url)
-  }
+}
 
   return (
     <Sidebar collapsible="icon" {...props}>

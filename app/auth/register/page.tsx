@@ -4,343 +4,391 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Eye, EyeOff, User, Mail, Building2, Stethoscope, FileText, Briefcase, Lock } from "lucide-react"
+import { Eye, EyeOff, User, Mail, Building2, MapPin, Lock, AlertCircle, ChevronRight, ChevronLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Icon } from "@/components/icon"
 import { BrandingCarousel } from "@/components/branding-carousel"
+import { Icon } from "@/components/icon"
+import { useAdminRegister } from "@/hooks/api"
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
 
-const USER_TYPES: { value: string; label: string; fields: string[] }[] = [
-  { value: "admin", label: "Admin", fields: [] },
-  { value: "cashier", label: "Cashier", fields: [] },
-  { value: "doctor", label: "Doctor", fields: ["specialty", "medicalLicense"] },
-  { value: "laboratory", label: "Laboratory", fields: ["department"] },
-  { value: "nurse", label: "Nurse", fields: ["department"] },
-  { value: "pharmacy", label: "Pharmacy", fields: ["licenseNumber"] },
-  { value: "radiology", label: "Radiology", fields: ["department"] },
-  { value: "reception", label: "Reception", fields: [] },
-  { value: "store", label: "Store", fields: [] },
-  { value: "surgery", label: "Surgery", fields: ["specialty"] },
+const HOSPITAL_TYPES = [
+  { value: "general_hospital", label: "General Hospital" },
+  { value: "specialty_hospital", label: "Specialty Hospital" },
+  { value: "clinic", label: "Clinic" },
+  { value: "diagnostic_center", label: "Diagnostic Center" },
+  { value: "nursing_home", label: "Nursing Home" },
+  { value: "optical_clinic", label: "Optical Clinic" },
+  { value: "dental_clinic", label: "Dental Clinic" },
+  { value: "maternity_center", label: "Maternity Center" },
 ]
 
+const COUNTRIES = [
+  { value: "ng", label: "Nigeria" },
+  { value: "gh", label: "Ghana" },
+  { value: "ke", label: "Kenya" },
+  { value: "za", label: "South Africa" },
+]
+
+const STATES_BY_COUNTRY: Record<string, { value: string; label: string }[]> = {
+  ng: [
+    { value: "abia", label: "Abia" },
+    { value: "adamawa", label: "Adamawa" },
+    { value: "akwa_ibom", label: "Akwa Ibom" },
+    { value: "anambra", label: "Anambra" },
+    { value: "bauchi", label: "Bauchi" },
+    { value: "bayelsa", label: "Bayelsa" },
+    { value: "benue", label: "Benue" },
+    { value: "borno", label: "Borno" },
+    { value: "cross_river", label: "Cross River" },
+    { value: "delta", label: "Delta" },
+    { value: "ebonyi", label: "Ebonyi" },
+    { value: "edo", label: "Edo" },
+    { value: "ekiti", label: "Ekiti" },
+    { value: "enugu", label: "Enugu" },
+    { value: "fct", label: "FCT" },
+    { value: "gombe", label: "Gombe" },
+    { value: "imo", label: "Imo" },
+    { value: "jigawa", label: "Jigawa" },
+    { value: "kaduna", label: "Kaduna" },
+    { value: "kano", label: "Kano" },
+    { value: "katsina", label: "Katsina" },
+    { value: "kebbi", label: "Kebbi" },
+    { value: "kogi", label: "Kogi" },
+    { value: "kwara", label: "Kwara" },
+    { value: "lagos", label: "Lagos" },
+    { value: "nasarawa", label: "Nasarawa" },
+    { value: "niger", label: "Niger" },
+    { value: "ogun", label: "Ogun" },
+    { value: "ondo", label: "Ondo" },
+    { value: "osun", label: "Osun" },
+    { value: "oyo", label: "Oyo" },
+    { value: "plateau", label: "Plateau" },
+    { value: "rivers", label: "Rivers" },
+    { value: "sokoto", label: "Sokoto" },
+    { value: "taraba", label: "Taraba" },
+    { value: "yobe", label: "Yobe" },
+    { value: "zamfara", label: "Zamfara" },
+  ],
+  gh: [
+    { value: "ashanti", label: "Ashanti" },
+    { value: "accra", label: "Accra" },
+    { value: "eastern", label: "Eastern" },
+    { value: "western", label: "Western" },
+  ],
+  ke: [
+    { value: "nairobi", label: "Nairobi" },
+    { value: "mombasa", label: "Mombasa" },
+    { value: "kisumu", label: "Kisumu" },
+  ],
+  za: [
+    { value: "gauteng", label: "Gauteng" },
+    { value: "western_cape", label: "Western Cape" },
+    { value: "kwazulu_natal", label: "KwaZulu-Natal" },
+  ],
+}
+
 const formSchema = z.object({
+  // Step 1: Organization
+  hospitalName: z.string().min(2, "Hospital name is required"),
+  hospitalType: z.string().min(1, "Please select a hospital type"),
+  country: z.string().min(1, "Please select a country"),
+  state: z.string().min(1, "Please select a state"),
+  city: z.string().min(1, "City is required"),
+  // Step 2: Admin
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid work email address"),
-  hospitalClinic: z.string().min(2, "Hospital/Clinic name is required"),
-  userType: z.string().min(1, "Please select a user type"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  position: z.string().optional(),
-  specialty: z.string().optional(),
-  medicalLicense: z.string().optional(),
-  department: z.string().optional(),
-  licenseNumber: z.string().optional(),
-}).superRefine((data, ctx) => {
-  if ((data.userType === "doctor" || data.userType === "surgery") && !data.specialty) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Specialty is required", path: ["specialty"] });
-  }
-  if (data.userType === "doctor" && !data.medicalLicense) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Medical License is required", path: ["medicalLicense"] });
-  }
-  if (["laboratory", "nurse", "radiology"].includes(data.userType) && !data.department) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Department is required", path: ["department"] });
-  }
-  if (data.userType === "pharmacy" && !data.licenseNumber) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "License Number is required", path: ["licenseNumber"] });
-  }
-});
+  email: z.string().email("Please enter a valid email address"),
+  otp: z.string().length(6, "Verification code must be 6 digits"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Must contain at least one number")
+    .regex(/[^A-Za-z0-9]/, "Must contain at least one special character"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+})
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof formSchema>
 
-export default function RegisterPage() {
+export default function AdminRegisterPage() {
+  const [step, setStep] = useState(1)
   const [showPassword, setShowPassword] = useState(false)
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const router = useRouter()
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema as any),
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      hospitalClinic: "",
-      userType: "",
-      position: "",
-      password: "",
-      specialty: "",
-      medicalLicense: "",
-      department: "",
-      licenseNumber: "",
+      firstName: "", lastName: "", email: "", otp: "", hospitalName: "",
+      hospitalType: "", country: "", state: "", city: "", password: "", confirmPassword: "",
     },
   })
 
-  const selectedUserType = form.watch("userType");
+  const registerMutation = useAdminRegister({
+    onSuccess: () => router.push("/admin"),
+    onError: (error) => setErrorMessage(error.message || "Registration failed."),
+  })
 
-  const onSubmit = (values: FormValues) => {
-    console.log(values)
+  const selectedCountry = form.watch("country")
+  const states = selectedCountry ? STATES_BY_COUNTRY[selectedCountry] || [] : []
+
+  const handleVerifyEmail = async () => {
+    const email = form.getValues("email")
+    const isValidEmail = await form.trigger("email")
+    
+    if (isValidEmail) {
+      setIsVerifyingEmail(true)
+      // TODO: Implement backend query to send verification email
+      console.log("Sending verification code to:", email)
+      // setTimeout(() => setIsVerifyingEmail(false), 2000) 
+    }
   }
 
-  const shouldShowField = (fieldName: string) => {
-    const userTypeConfig = USER_TYPES.find((type) => type.value === selectedUserType)
-    return userTypeConfig?.fields.includes(fieldName as any)
+  const nextStep = async () => {
+    const fieldsToValidate = step === 1 
+      ? ["hospitalName", "hospitalType", "country", "state", "city"] 
+      : ["firstName", "lastName", "email", "otp", "password", "confirmPassword"];
+    
+    const isValid = await form.trigger(fieldsToValidate as any);
+    if (isValid) setStep((s) => s + 1);
+  }
+
+  const onSubmit = async (values: FormValues) => {
+    setErrorMessage(null)
+    // Strip confirmPassword before sending to API
+    const { confirmPassword, ...payload } = values
+    registerMutation.mutate({
+      first_name: payload.firstName,
+      last_name: payload.lastName,
+      email: payload.email,
+      password: payload.password,
+      otp: payload.otp, // Passing OTP to the register mutation
+      hospital_name: payload.hospitalName,
+      hospital_type: payload.hospitalType,
+      country: payload.country,
+      state: payload.state,
+      city: payload.city,
+    })
   }
 
   return (
     <div className="min-h-screen flex bg-secondary">
       <BrandingCarousel />
 
-      <div className="flex-1 flex items-center justify-center p-8 bg-white md:rounded-l-[1.5rem] overflow-hidden ">
-        <div className="w-full max-w-md space-y-8">
-          {/* Mobile logo */}
-          <div className="lg:hidden gap-3 mb-8">
-            <Icon name="logo" size={78} className="mb-12 bg-black scale-180 ml-7 z-10" />
+      <div className="flex-1 flex items-center justify-center p-8 bg-white md:rounded-l-[32px] overflow-hidden">
+        <div className="w-full max-w-md space-y-6">
+          <div className="lg:hidden mb-8"><Icon name="logo" size={32} /></div>
+
+          <div className="space-y-2 w-full">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {step === 1 ? "Organization Profile" : "Administrator Details"}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {step === 1 ? "Tell us about your healthcare facility" : "Complete your admin security profile"}
+            </p>
+            <div className="flex items-center gap-2 mb-1 w-full pt-2">
+               <span className={`h-1.5 w-full rounded-full transition-all ${step >= 1 ? 'bg-[#2271FE]' : 'bg-gray-200'}`} />
+               <span className={`h-1.5 w-full rounded-full transition-all ${step === 2 ? 'bg-[#2271FE]' : 'bg-gray-200'}`} />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <h2 className="text-2xl font-semibold text-gray-900">Welcome to Enisle</h2>
-            <p className="text-sm text-gray-500">Enter your details to create an account on Enisle</p>
-          </div>
+          {errorMessage && (
+            <div className="flex gap-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <p>{errorMessage}</p>
+            </div>
+          )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* First Name */}
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-900">First Name</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input placeholder="Enter your first name" className="pl-10" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Last Name */}
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-900">Last Name</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input placeholder="Enter your last name" className="pl-10" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Email */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-900">Email Address (work)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input type="email" placeholder="Enter your work email address" className="pl-10" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Hospital/Clinic */}
-              <FormField
-                control={form.control}
-                name="hospitalClinic"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-900">Hospital/Clinic</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Building2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input placeholder="Enter your hospital name" className="pl-10" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* User Type */}
-              <FormField
-                control={form.control}
-                name="userType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>User Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select user type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {USER_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Conditional Fields */}
-              {/* Specialty - for Doctor and Surgery */}
-              {shouldShowField("specialty") && (
-                <FormField
-                  control={form.control}
-                  name={"specialty" as any}
-                  render={({ field }) => (
+              {step === 1 && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <FormField control={form.control} name="hospitalName" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-900">Specialty</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Stethoscope className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                          <Input placeholder="Enter your specialty" className="pl-10" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {/* Medical License Number - for Doctor only */}
-              {shouldShowField("medicalLicense") && (
-                <FormField
-                  control={form.control}
-                  name={"medicalLicense" as any}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-900">Medical License Number</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                          <Input placeholder="Enter your medical license number" className="pl-10" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {/* Department - for Laboratory, Nurse, Radiology */}
-              {shouldShowField("department") && (
-                <FormField
-                  control={form.control}
-                  name={"department" as any}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-900">Department</FormLabel>
+                      <FormLabel>Facility Name</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Building2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                          <Input placeholder="Enter your department" className="pl-10" {...field} />
+                          <Input placeholder="e.g. St. Mary's Clinic" className="pl-10" {...field} />
                         </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}
-                />
-              )}
+                  )} />
 
-              {/* License Number - for Pharmacy */}
-              {shouldShowField("licenseNumber") && (
-                <FormField
-                  control={form.control}
-                  name={"licenseNumber" as any}
-                  render={({ field }) => (
+                  <FormField control={form.control} name="hospitalType" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-900">License Number</FormLabel>
+                      <FormLabel>Facility Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger className="w-full"><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
+                        <SelectContent>{HOSPITAL_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
+                  <div className="flex flex-col gap-4">
+                    <FormField control={form.control} name="country" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger className="w-full"><SelectValue placeholder="Country" /></SelectTrigger></FormControl>
+                          <SelectContent>{COUNTRIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="state" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCountry}>
+                          <FormControl><SelectTrigger className="w-full"><SelectValue placeholder="State" /></SelectTrigger></FormControl>
+                          <SelectContent>{states.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <FormField control={form.control} name="city" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                          <Input placeholder="Enter your license number" className="pl-10" {...field} />
+                          <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input placeholder="Enter city" className="pl-10" {...field} />
                         </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}
-                />
+                  )} />
+
+                  <Button type="button" onClick={nextStep} className="w-full bg-[#2271FE] h-11">
+                    Continue <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               )}
 
-              {/* Position - Optional for all */}
-              <FormField
-                control={form.control}
-                name="position"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-900">Position (Optional)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Briefcase className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input placeholder="Enter your position" className="pl-10" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {step === 2 && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="firstName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl><Input placeholder="John" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="lastName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl><Input placeholder="Doe" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
 
-              {/* Password */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-900">Password</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Enter your password"
-                          className="pl-10 pr-10"
-                          {...field}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <div className="space-y-4 rounded-lg border border-slate-100 p-3 bg-slate-50/50">
+                    <FormField control={form.control} name="email" render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Admin Email Address</FormLabel>
+                        <FormControl>
+                            <div className="relative">
+                            <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <Input type="email" placeholder="admin@hospital.com" className="pl-10 pr-20" {...field} />
+                            <button 
+                                type="button"
+                                onClick={handleVerifyEmail}
+                                className="absolute right-2 top-1.5 px-3 py-1.5 text-xs font-semibold text-[#2271FE] hover:bg-blue-50 rounded-md transition-colors"
+                            >
+                                Verify
+                            </button>
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )} />
 
-              <Button type="submit" className="w-full bg-[#2271FE] hover:bg-blue-500 text-white">
-                Sign up
-              </Button>
+                    <FormField control={form.control} name="otp" render={({ field }) => (
+                        <FormItem>
+                        <FormLabel className="text-xs uppercase tracking-wider text-gray-500 font-bold">Verification Code</FormLabel>
+                        <FormControl>
+                            <InputOTP maxLength={6} {...field}>
+                            <InputOTPGroup className="w-full justify-between gap-2">
+                                <InputOTPSlot index={0} className="flex-1" />
+                                <InputOTPSlot index={1} className="flex-1" />
+                                <InputOTPSlot index={2} className="flex-1" />
+                                <InputOTPSlot index={3} className="flex-1" />
+                                <InputOTPSlot index={4} className="flex-1" />
+                                <InputOTPSlot index={5} className="flex-1" />
+                            </InputOTPGroup>
+                            </InputOTP>
+                        </FormControl>
+                        <FormDescription>Enter the 6-digit code sent to your email.</FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )} />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    <FormField control={form.control} name="password" render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Create Password</FormLabel>
+                        <FormControl>
+                            <div className="relative">
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <Input type={showPassword ? "text" : "password"} className="pl-10 pr-10" {...field} />
+                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-gray-400">
+                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )} />
+
+                    <FormField control={form.control} name="confirmPassword" render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                            <div className="relative">
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <Input type={showPassword ? "text" : "password"} className="pl-10" {...field} />
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )} />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1 h-11">
+                      <ChevronLeft className="mr-2 h-4 w-4" /> Back
+                    </Button>
+                    <Button type="submit" className="flex-[2] bg-[#2271FE] h-11 font-semibold" disabled={registerMutation.isPending}>
+                      {registerMutation.isPending ? "Setting up..." : "Complete Registration"}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </form>
           </Form>
 
           <p className="text-center text-sm text-gray-500">
-            Already have an account?{" "}
-            <a href="/auth/login" className="text-blue-400 hover:underline font-medium">
-              Sign in
-            </a>
+            Already have an account? <a href="/auth/login" className="text-[#2271FE] font-bold hover:underline">Sign in</a>
           </p>
         </div>
       </div>

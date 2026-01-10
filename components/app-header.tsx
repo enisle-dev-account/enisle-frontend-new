@@ -9,6 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "./ui/input";
 import { Icon } from "./icon";
 import ProfileDropDown from "./profile-dropdown";
+import { useAuth } from "@/providers/auth-provider";
+import { capitalizeNames } from "@/lib/utils";
 
 export type PageConfig = {
   title: string;
@@ -106,6 +108,7 @@ function getBackUrl(pathname: string): string {
 export function AppHeader({ pageConfig, children }: AppHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuth()
 
   const title = pageConfig?.title || getPageTitle(pathname);
   const showBackButton =
@@ -171,7 +174,7 @@ export function AppHeader({ pageConfig, children }: AppHeaderProps) {
             </div>
 
             <Separator orientation="vertical" className="h-6 mt-2" />
-            <ProfileDropDown />
+            <ProfileDropDown fullName={capitalizeNames(user?.firstName, user?.lastName)} imageUrl={user?.profilePicture || undefined} />
         </div>
       </div>
     </header>
