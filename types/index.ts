@@ -37,3 +37,29 @@ export interface PaginatedResponse<T> {
   previous: null | string
   results: T[]
 }
+
+export interface InvitationData {
+  id: string
+  email: string
+  role: string
+  position: string
+  speciality: string
+  status: "pending" | "accepted" | "expired"
+  created_at: string
+  expires_at: string
+  hospital_name: string
+}
+
+export interface InvitationResponseData {
+  count: number
+  next: null | number
+  previous: null | number
+  results: InvitationData[]
+}
+
+export interface InviteStaffPayload {
+  email: string
+  role: string
+  position?: string
+  speciality?: string
+}

@@ -27,7 +27,7 @@ const ROLE_DASHBOARD_MAP: Record<UserRole, string> = {
 };
 
 const PUBLIC_ROUTES = ["/", "/about", "/contact", "/privacy"];
-const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/forgot-password"];
+const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/forgot-password", "/auth/staff-signup"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
