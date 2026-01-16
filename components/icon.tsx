@@ -35,7 +35,9 @@ import {
   Syringe,
   SearchNormal,
   Notification,
-  Sms
+  Sms,
+  UserAdd,
+  People,
 } from "@/lib/assets/icons-compiled";
 
 // Icon registry - now all components work the same way
@@ -64,6 +66,8 @@ const iconRegistry = {
     "search-normal": SearchNormal,
     notification: Notification,
     sms: Sms,
+    "user-add": UserAdd,
+    people: People,
 
   // Lucide icons
   "lucide-star": LucideStar,

@@ -19,206 +19,211 @@ export type UserRole =
   | "cashier"
   | "admin"
   | "pharmacist"
-  | "receptionist"
+  | "reception"
   | "surgeon"
-  | "receptionist"
+  | "reception"
   | "store"
   | "laboratory"
   | "radiology";
 
 const doctorMenu: MenuGroup[] = [
-    {
-        items: [
-            {
-                title: "Dashboard",
-                url: "/doctor",
-                icon: "dashboard",
-            },
-            {
-                title: "Consultation",
-                url: "/doctor/consultation",
-                icon: "clipboard2",
-            },
-            {
-                title: "Patients",
-                url: "/doctor/patients",
-                icon: "users3",
-            },
-            {
-                title: "Appointments",
-                url: "/doctor/appointments",
-                icon: "file",
-            },
-            {
-                title: "Analytics",
-                url: "/doctor/analytics",
-                icon: "analytics",
-            },
-            {
-                title: "Communication",
-                url: "/doctor/communication",
-                icon: "communication",
-            },
-        ],
-    },
+  {
+    items: [
+      {
+        title: "Dashboard",
+        url: "/doctor",
+        icon: "dashboard",
+      },
+      {
+        title: "Consultation",
+        url: "/doctor/consultation",
+        icon: "clipboard2",
+      },
+      {
+        title: "Patients",
+        url: "/doctor/patients",
+        icon: "users3",
+      },
+      {
+        title: "Appointments",
+        url: "/doctor/appointments",
+        icon: "file",
+      },
+      {
+        title: "Analytics",
+        url: "/doctor/analytics",
+        icon: "analytics",
+      },
+      {
+        title: "Communication",
+        url: "/doctor/communication",
+        icon: "communication",
+      },
+    ],
+  },
 ];
 
 const nurseMenu: MenuGroup[] = [
-    {
-        items: [
-            {
-                title: "Dashboard",
-                url: "/nurse",
-                icon: "dashboard",
-            },
-            {
-                title: "Vitals",
-                url: "/nurse/vitals",
-                icon: "add",
-            },
-            {
-                title: "Patients",
-                url: "/nurse/patients",
-                icon: "users3",
-            },
-            {
-                title: "Appointments",
-                url: "/nurse/appointments",
-                icon: "file",
-            },
-            {
-                title: "Bed Occupancy",
-                url: "/nurse/bed-occupancy",
-                icon: "bed",
-            },
-            {
-                title: "Analytics",
-                url: "/nurse/analytics",
-                icon: "analytics",
-            },
-            {
-                title: "Communication",
-                url: "/nurse/communication",
-                icon: "communication",
-            },
-        ],
-    },
+  {
+    items: [
+      {
+        title: "Dashboard",
+        url: "/nurse",
+        icon: "dashboard",
+      },
+      {
+        title: "Vitals",
+        url: "/nurse/vitals",
+        icon: "add",
+      },
+      {
+        title: "Patients",
+        url: "/nurse/patients",
+        icon: "users3",
+      },
+      {
+        title: "Appointments",
+        url: "/nurse/appointments",
+        icon: "file",
+      },
+      {
+        title: "Bed Occupancy",
+        url: "/nurse/bed-occupancy",
+        icon: "bed",
+      },
+      {
+        title: "Analytics",
+        url: "/nurse/analytics",
+        icon: "analytics",
+      },
+      {
+        title: "Communication",
+        url: "/nurse/communication",
+        icon: "communication",
+      },
+    ],
+  },
 ];
 
 const cashierMenu: MenuGroup[] = [
-    {
-        items: [
-            {
-                title: "Overview",
-                url: "/cashier",
-                icon: "dashboard",
-            },
-            {
-                title: "Transactions",
-                url: "/cashier/transactions",
-                icon: "card",
-            },
-            {
-                title: "Appointments",
-                url: "/cashier/appointments",
-                icon: "file",
-            },
-            {
-                title: "Analytics",
-                url: "/cashier/analytics",
-                icon: "analytics",
-            },
-            {
-                title: "Communication",
-                url: "/cashier/communication",
-                icon: "communication",
-            },
-        ],
-    },
+  {
+    items: [
+      {
+        title: "Overview",
+        url: "/cashier",
+        icon: "dashboard",
+      },
+      {
+        title: "Transactions",
+        url: "/cashier/transactions",
+        icon: "card",
+      },
+      {
+        title: "Appointments",
+        url: "/cashier/appointments",
+        icon: "file",
+      },
+      {
+        title: "Analytics",
+        url: "/cashier/analytics",
+        icon: "analytics",
+      },
+      {
+        title: "Communication",
+        url: "/cashier/communication",
+        icon: "communication",
+      },
+    ],
+  },
 ];
 
 const receptionistMenu: MenuGroup[] = [
-    {
-        items: [
-            {
-                title: "Dashboard",
-                url: "/reception",
-                icon: "dashboard",
-            },
-            {
-                title: "Vitals",
-                url: "/reception/vitals",
-                icon: "add",
-            },
-            {
-                title: "Patients",
-                url: "/reception/patients",
-                icon: "users3",
-            },
-            {
-                title: "Appointments",
-                url: "/reception/appointments",
-                icon: "file",
-            },
-            {
-                title: "Bed Occupancy",
-                url: "/reception/bed-occupancy",
-                icon: "bed",
-            },
-            {
-                title: "Analytics",
-                url: "/reception/analytics",
-                icon: "analytics",
-            },
-            {
-                title: "Communication",
-                url: "/reception/communication",
-                icon: "communication",
-            },
-        ],
-    },
+  {
+    items: [
+      {
+        title: "Dashboard",
+        url: "/reception",
+        icon: "dashboard",
+      },
+      {
+        title: "New Registration",
+        url: "/reception/new-registration",
+        icon: "add",
+      },
+      {
+        title: "Patients Check-In",
+        url: "/reception/check-in",
+        icon: "users3",
+      },
+      {
+        title: "Appointments",
+        url: "/reception/appointments",
+        icon: "file",
+      },
+      {
+        title: "Doctors",
+        url: "/reception/doctors",
+        icon: "user1",
+      },
+      {
+        title: "Nurses",
+        url: "/reception/nurses",
+        icon: "user1",
+      },
+      {
+        title: "Analytics",
+        url: "/reception/analytics",
+        icon: "analytics",
+      },
+      {
+        title: "Communication",
+        url: "/reception/communication",
+        icon: "communication",
+      },
+    ],
+  },
 ];
 
 const pharmacistMenu: MenuGroup[] = [
-    {
-        items: [
-            {
-                title: "Dashboard",
-                url: "/pharmacy",
-                icon: "dashboard",
-            },
-            {
-                title: "Vitals",
-                url: "/pharmacy/vitals",
-                icon: "add",
-            },
-            {
-                title: "Patients",
-                url: "/pharmacy/patients",
-                icon: "users3",
-            },
-            {
-                title: "Appointments",
-                url: "/pharmacy/appointments",
-                icon: "file",
-            },
-            {
-                title: "Bed Occupancy",
-                url: "/pharmacy/bed-occupancy",
-                icon: "bed",
-            },
-            {
-                title: "Analytics",
-                url: "/pharmacy/analytics",
-                icon: "analytics",
-            },
-            {
-                title: "Communication",
-                url: "/pharmacy/communication",
-                icon: "communication",
-            },
-        ],
-    },
+  {
+    items: [
+      {
+        title: "Dashboard",
+        url: "/pharmacy",
+        icon: "dashboard",
+      },
+      {
+        title: "Vitals",
+        url: "/pharmacy/vitals",
+        icon: "add",
+      },
+      {
+        title: "Patients",
+        url: "/pharmacy/patients",
+        icon: "users3",
+      },
+      {
+        title: "Appointments",
+        url: "/pharmacy/appointments",
+        icon: "file",
+      },
+      {
+        title: "Bed Occupancy",
+        url: "/pharmacy/bed-occupancy",
+        icon: "bed",
+      },
+      {
+        title: "Analytics",
+        url: "/pharmacy/analytics",
+        icon: "analytics",
+      },
+      {
+        title: "Communication",
+        url: "/pharmacy/communication",
+        icon: "communication",
+      },
+    ],
+  },
 ];
 
 const adminMenu: MenuGroup[] = [
@@ -506,7 +511,7 @@ export const sidebarMenuConfig: Record<UserRole, MenuGroup[]> = {
   cashier: cashierMenu,
   admin: adminMenu,
   pharmacist: pharmacistMenu,
-  receptionist: receptionistMenu,
+  reception: receptionistMenu,
   surgeon: surgeonMenu,
   store: storeMenu,
   laboratory: laboratoryMenu,

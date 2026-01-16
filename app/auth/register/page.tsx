@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BrandingCarousel } from "@/components/branding-carousel"
 import { Icon } from "@/components/icon"
-import { useAdminRegister } from "@/hooks/api"
+import { useAdminRegister, useApiMutation } from "@/hooks/api"
 import {
   InputOTP,
   InputOTPGroup,
@@ -142,6 +142,14 @@ export default function AdminRegisterPage() {
     onError: (error) => setErrorMessage(error.message || "Registration failed."),
   })
 
+  const sendVerification = useApiMutation<any>("POST", "/auth/send-verification-email/", {
+      onSuccess: () => {
+      },
+      onError: (error: any) => {
+        console.log("[v0] Invite error:", error)
+      },
+    })
+
   const selectedCountry = form.watch("country")
   const states = selectedCountry ? STATES_BY_COUNTRY[selectedCountry] || [] : []
 
@@ -151,9 +159,8 @@ export default function AdminRegisterPage() {
     
     if (isValidEmail) {
       setIsVerifyingEmail(true)
-      // TODO: Implement backend query to send verification email
       console.log("Sending verification code to:", email)
-      // setTimeout(() => setIsVerifyingEmail(false), 2000) 
+      sendVerification.mutate({ email })
     }
   }
 
@@ -175,12 +182,12 @@ export default function AdminRegisterPage() {
       last_name: payload.lastName,
       email: payload.email,
       password: payload.password,
-      otp: payload.otp, // Passing OTP to the register mutation
       hospital_name: payload.hospitalName,
       hospital_type: payload.hospitalType,
       country: payload.country,
       state: payload.state,
       city: payload.city,
+      verification_code: payload.otp,
     })
   }
 
@@ -314,7 +321,7 @@ export default function AdminRegisterPage() {
                                 onClick={handleVerifyEmail}
                                 className="absolute right-2 top-1.5 px-3 py-1.5 text-xs font-semibold text-[#2271FE] hover:bg-blue-50 rounded-md transition-colors"
                             >
-                                Verify
+                                {( sendVerification.isPending) ? "Sending..." : "Send Code"}
                             </button>
                             </div>
                         </FormControl>
