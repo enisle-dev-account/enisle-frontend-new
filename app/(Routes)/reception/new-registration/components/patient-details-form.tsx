@@ -248,9 +248,9 @@ export default function PatientDetailsForm({ onProceed }: PatientDetailsFormProp
                       control={form.control}
                       name="country_code"
                       render={({ field: ccField }) => (
-                        <Select onValueChange={ccField.onChange} defaultValue={ccField.value}>
+                        <Select onValueChange={ccField.onChange} defaultValue={"NG"}>
                           <FormControl>
-                            <SelectTrigger className="w-24">
+                            <SelectTrigger className="w-26">
                               <SelectValue />
                             </SelectTrigger>
                           </FormControl>
@@ -265,7 +265,7 @@ export default function PatientDetailsForm({ onProceed }: PatientDetailsFormProp
                       )}
                     />
                     <FormControl>
-                      <Input placeholder="+234" {...field} />
+                      <Input placeholder="9XXXXXXXXX" {...field} />
                     </FormControl>
                   </div>
                   <FormMessage />
@@ -375,14 +375,14 @@ export default function PatientDetailsForm({ onProceed }: PatientDetailsFormProp
                       control={form.control}
                       name="next_of_kin_country_code"
                       render={({ field: ccField }) => (
-                        <Select onValueChange={ccField.onChange} defaultValue={ccField.value}>
+                        <Select onValueChange={ccField.onChange} defaultValue={"NG"}>
                           <FormControl>
-                            <SelectTrigger className="w-24">
+                            <SelectTrigger className="w-26">
                               <SelectValue />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="max-h-60">
-                            {countryCodes.slice(0, 30).map((code, index) => (
+                          <SelectContent>
+                            {countryCodes.map((code, index) => (
                               <SelectItem key={code.iso2} value={code.iso2}>
                                 {code.flag} {code.label}
                               </SelectItem>
@@ -392,7 +392,7 @@ export default function PatientDetailsForm({ onProceed }: PatientDetailsFormProp
                       )}
                     />
                     <FormControl>
-                      <Input placeholder="+234" {...field} />
+                      <Input placeholder="9XXXXXXXXX" {...field} />
                     </FormControl>
                   </div>
                   <FormMessage />

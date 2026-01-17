@@ -3,31 +3,37 @@
 import { usePatientForm } from "../context/form-context"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { SPECIALTIES } from "@/lib/constants"
+import { UsersListResponseItem } from "@/types"
 
 interface ConsultationAssignmentFormProps {
   onSubmit: () => void
   isLoading: boolean
+  userListData: UsersListResponseItem[] | undefined
+  userListLoading: boolean
 }
 
-export default function ConsultationAssignmentForm({ onSubmit, isLoading }: ConsultationAssignmentFormProps) {
+export default function ConsultationAssignmentForm({ onSubmit, isLoading, userListData, userListLoading }: ConsultationAssignmentFormProps) {
   const { form } = usePatientForm()
 
-  const nurses = [
-    { id: "nurse1", name: "Mary Johnson" },
-    { id: "nurse2", name: "Sarah Williams" },
-  ]
 
-  const specialties = [
-    { id: "cardiology", name: "Cardiology" },
-    { id: "pediatrics", name: "Pediatrics" },
-    { id: "neurology", name: "Neurology" },
-  ]
+  const nurses = userListData?.filter((user: UsersListResponseItem) => user.user_type === "nurse").map((user: UsersListResponseItem) => {
+        return ({
+            label: `${user.first_name} ${user.last_name} (${user.email})`,
+            value: user.id
+        })
+    });
+    const doctors = userListData?.filter((user: UsersListResponseItem) => {
+        return form.watch("specialty").trim() ? (
+            (user.user_type === "doctor") && (user.speciality.toLowerCase() === form.watch("specialty").toLowerCase())
+        ) : user.user_type === "doctor";
+    }).map((user: UsersListResponseItem) => ({
+            label: `${user.first_name} ${user.last_name} (${user.email})`,
+            value: user.id
+        })
+    );
 
-  const doctors = [
-    { id: "doc1", name: "Dr. James Smith" },
-    { id: "doc2", name: "Dr. Emily Brown" },
-    { id: "doc3", name: "Dr. Michael Davis" },
-  ]
+
 
   return (
     <Form {...form}>
@@ -52,16 +58,21 @@ export default function ConsultationAssignmentForm({ onSubmit, isLoading }: Cons
                 <FormLabel>Assign to a Nurse</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Please select nurse" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
+                    {(!isLoading && nurses) ? (<>
                     {nurses.map((n) => (
-                      <SelectItem key={n.id} value={n.id}>
-                        {n.name}
+                      <SelectItem key={n.value} value={n.value}>
+                        {n.label}
                       </SelectItem>
                     ))}
+                    </>): (
+                        <div>Loading...</div>
+                    )}
+                    {(!nurses || nurses?.length === 0) && <div>No nurses available</div>}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -77,14 +88,14 @@ export default function ConsultationAssignmentForm({ onSubmit, isLoading }: Cons
                 <FormLabel>Doctors Specialty</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Please select specialty" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {specialties.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.name}
+                    {SPECIALTIES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>
+                        {s.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -102,16 +113,23 @@ export default function ConsultationAssignmentForm({ onSubmit, isLoading }: Cons
                 <FormLabel>Consulting Doctor</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Please select doctor" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {doctors.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.name}
-                      </SelectItem>
-                    ))}
+                    {!isLoading && doctors ? (
+                      <>
+                        {doctors.map((d) => (
+                          <SelectItem key={d.value} value={d.value}>
+                            {d.label}
+                          </SelectItem>
+                        ))}
+                      </>
+                    ) : (
+                      <div>Loading...</div>
+                    )}
+                    { (!doctors || doctors?.length === 0) && <div>No doctors available</div>}
                   </SelectContent>
                 </Select>
                 <FormMessage />

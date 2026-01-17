@@ -5,16 +5,29 @@ import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
-import { request } from "@/hooks/api"
+import { request, useApiQuery } from "@/hooks/api"
 import PatientDetailsForm from "./components/patient-details-form"
 import ConsultationAssignmentForm from "./components/consultation-assignment-form"
 import StepIndicator from "./components/step-indicator"
 import { PatientFormProvider, usePatientForm } from "./context/form-context"
+import { UsersListResponseItem } from "@/types"
+import { PATIENT_CONSULTATION_PRIORITY_CHOICES } from "@/lib/constants"
 
 function PatientRegistrationContent() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const { form } = usePatientForm()
+
+
+    const {
+      data: userListData,
+      isLoading: userListLoading,
+      error: userListError,
+      refetch: refetchUserList,
+    } = useApiQuery<UsersListResponseItem[]>(
+      ["receptionist", 'users', "doctor,nurse"],
+      "/receptionist/users/doctor,nurse",
+    )
 
   const registerPatientMutation = useMutation({
     mutationFn: (data: any) =>
@@ -24,7 +37,7 @@ function PatientRegistrationContent() {
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
-      router.push("/reception/patients")
+      router.push("/reception/check-in")
     },
     onError: (error) => {
       console.error("Registration failed:", error)
@@ -88,7 +101,6 @@ function PatientRegistrationContent() {
           policy_holder: formData.policy_holder || "",
           is_admitted: false,
           is_vip: formData.is_vip,
-          created_by: "",
         },
         consultation: {
           is_active: true,
@@ -97,13 +109,12 @@ function PatientRegistrationContent() {
           status: "in_queue",
           admission_date: new Date().toISOString(),
           is_admitted: true,
-          priority: "normal",
+          priority: "medium",
           is_payable: true,
           status_history: {},
           doctor: formData.doctor,
           nurse: formData.nurse,
           parent_consultation: "",
-          created_by: "",
         },
       }
 
@@ -130,7 +141,7 @@ function PatientRegistrationContent() {
         {currentStep === 1 ? (
           <PatientDetailsForm onProceed={handleStep1Submit} />
         ) : (
-          <ConsultationAssignmentForm onSubmit={handleStep2Submit} isLoading={registerPatientMutation.isPending} />
+          <ConsultationAssignmentForm onSubmit={handleStep2Submit} isLoading={registerPatientMutation.isPending} userListData={userListData} userListLoading={userListLoading} />
         )}
       </div>
 
