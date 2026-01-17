@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { PhoneCountryCodes } from "@/lib/country-code"
+import countryCodes from "@/lib/country-codes"
 
 interface PatientDetailsFormProps {
   onProceed: () => void
@@ -255,9 +255,9 @@ export default function PatientDetailsForm({ onProceed }: PatientDetailsFormProp
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {PhoneCountryCodes.map((code) => (
-                              <SelectItem key={code.country} value={code.country}>
-                                {code.code}
+                            {countryCodes.map((code, index) => (
+                              <SelectItem key={code.iso2} value={code.iso2}>
+                                {code.flag} {code.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -382,9 +382,9 @@ export default function PatientDetailsForm({ onProceed }: PatientDetailsFormProp
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="max-h-60">
-                            {PhoneCountryCodes.map((code) => (
-                              <SelectItem key={code.country} value={code.country}>
-                                {code.code}
+                            {countryCodes.slice(0, 30).map((code, index) => (
+                              <SelectItem key={code.iso2} value={code.iso2}>
+                                {code.flag} {code.label}
                               </SelectItem>
                             ))}
                           </SelectContent>

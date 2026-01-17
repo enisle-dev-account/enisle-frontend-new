@@ -16,14 +16,14 @@ import { InvitationsTable } from "./components/invitations-table"
 
 const DEPARTMENTS = [
   { value: "all", label: "All Departments" },
-  { value: "Medical", label: "Medical" },
-  { value: "Nursing", label: "Nursing" },
-  { value: "Pharmacy", label: "Pharmacy" },
-  { value: "Laboratory", label: "Laboratory" },
-  { value: "Administration", label: "Administration" },
-  { value: "IT", label: "IT" },
-  { value: "Radiology", label: "Radiology" },
-  { value: "Billing and Finance", label: "Billing and Finance" },
+  { value: "medical", label: "Medical" },
+  { value: "nursing", label: "Nursing" },
+  { value: "pharmacy", label: "Pharmacy" },
+  { value: "laboratory", label: "Laboratory" },
+  { value: "administration", label: "Administration" },
+  { value: "it", label: "IT" },
+  { value: "radiology", label: "Radiology" },
+  { value: "billing_and_finance", label: "Billing and Finance" },
 ]
 
 function DepartmentsContent() {
@@ -232,6 +232,7 @@ function DepartmentsContent() {
         open={inviteModalOpen}
         onOpenChange={setInviteModalOpen}
         onSuccess={() => refetchInvitations()}
+        setViewMode={setViewMode}
       />
     </>
   )

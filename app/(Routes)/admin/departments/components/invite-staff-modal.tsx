@@ -1,25 +1,45 @@
-"use client"
-import { useState } from "react"
-import { useApiMutation } from "@/hooks/api"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { AlertCircle, CheckCircle } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+"use client";
+import { useState } from "react";
+import { useApiMutation } from "@/hooks/api";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, CheckCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const inviteSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   role: z.string().min(1, "Please select a role"),
   position: z.string().optional(),
   speciality: z.string().optional(),
-})
+});
 
-type InviteFormData = z.infer<typeof inviteSchema>
+type InviteFormData = z.infer<typeof inviteSchema>;
 
 const ROLES = [
   { value: "doctor", label: "Doctor" },
@@ -31,9 +51,16 @@ const ROLES = [
   { value: "cashier", label: "Cashier" },
   { value: "store", label: "Store Manager" },
   { value: "surgery", label: "Surgery Staff" },
-]
+];
 
-const POSITIONS = ["Chief Administrator", "Senior Nurse", "Physician", "Pharmacist", "Surgeon", "Lead"]
+const POSITIONS = [
+  "Chief Administrator",
+  "Senior Nurse",
+  "Physician",
+  "Pharmacist",
+  "Surgeon",
+  "Lead",
+];
 
 const SPECIALTIES = [
   "Cardiology",
@@ -48,16 +75,22 @@ const SPECIALTIES = [
   "Ophthalmology",
   "ENT",
   "Anesthesia",
-]
+];
 
 interface InviteStaffModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSuccess?: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
+  setViewMode: React.Dispatch<React.SetStateAction<"invitations" | "staff">>
 }
 
-export function InviteStaffModal({ open, onOpenChange, onSuccess }: InviteStaffModalProps) {
-  const [showSuccess, setShowSuccess] = useState(false)
+export function InviteStaffModal({
+  open,
+  onOpenChange,
+  onSuccess,
+  setViewMode
+}: InviteStaffModalProps) {
+  const [showSuccess, setShowSuccess] = useState(false);
   const form = useForm<InviteFormData>({
     resolver: zodResolver(inviteSchema),
     defaultValues: {
@@ -66,39 +99,53 @@ export function InviteStaffModal({ open, onOpenChange, onSuccess }: InviteStaffM
       position: "",
       speciality: "",
     },
-  })
+  });
 
   const mutation = useApiMutation<any>("POST", "/auth/invite-staff/", {
     onSuccess: () => {
-      setShowSuccess(true)
-      form.reset()
+      setShowSuccess(true);
+      form.reset();
+      setViewMode("invitations");
       setTimeout(() => {
-        setShowSuccess(false)
-        onOpenChange(false)
-        onSuccess?.()
-      }, 2000)
+        setShowSuccess(false);
+        onOpenChange(false);
+        onSuccess?.();
+      }, 1000);
     },
     onError: (error: any) => {
-      console.log("[v0] Invite error:", error)
+      console.log("[v0] Invite error:", error);
     },
-  })
+  });
 
   const onSubmit = (data: InviteFormData) => {
-    mutation.mutate(data)
-  }
+    const mutateData: Record<string, any> = {
+      email: data.email,
+      role: data.role,
+      position: data.position,
+    };
+
+    if (form.watch("role") === "doctor" && data.speciality) {
+      mutateData.speciality = data.speciality;
+    }
+    mutation.mutate(mutateData);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Invite Staff Member</DialogTitle>
-          <DialogDescription>Send an invitation to a new staff member to join your hospital</DialogDescription>
+          <DialogDescription>
+            Send an invitation to a new staff member to join your hospital
+          </DialogDescription>
         </DialogHeader>
 
         {showSuccess && (
           <Alert className="border-green-200 bg-green-50">
             <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">Invitation sent successfully!</AlertDescription>
+            <AlertDescription className="text-green-800">
+              Invitation sent successfully!
+            </AlertDescription>
           </Alert>
         )}
 
@@ -120,7 +167,12 @@ export function InviteStaffModal({ open, onOpenChange, onSuccess }: InviteStaffM
                 <FormItem>
                   <FormLabel>Email Address *</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="staff@example.com" {...field} disabled={mutation.isPending} />
+                    <Input
+                      type="email"
+                      placeholder="staff@example.com"
+                      {...field}
+                      disabled={mutation.isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -133,7 +185,11 @@ export function InviteStaffModal({ open, onOpenChange, onSuccess }: InviteStaffM
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role *</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange} disabled={mutation.isPending}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={mutation.isPending}
+                  >
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a role" />
@@ -158,7 +214,11 @@ export function InviteStaffModal({ open, onOpenChange, onSuccess }: InviteStaffM
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Position</FormLabel>
-                  <Select value={field.value || ""} onValueChange={field.onChange} disabled={mutation.isPending}>
+                  <Select
+                    value={field.value || ""}
+                    onValueChange={field.onChange}
+                    disabled={mutation.isPending}
+                  >
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a position (optional)" />
@@ -177,33 +237,44 @@ export function InviteStaffModal({ open, onOpenChange, onSuccess }: InviteStaffM
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="speciality"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Specialty</FormLabel>
-                  <Select value={field.value || ""} onValueChange={field.onChange} disabled={mutation.isPending}>
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a specialty (optional)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {SPECIALTIES.map((specialty) => (
-                        <SelectItem key={specialty} value={specialty}>
-                          {specialty}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>Optional</FormDescription>
-                </FormItem>
-              )}
-            />
+            {form.watch("role") === "doctor" && (
+              <FormField
+                control={form.control}
+                name="speciality"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Specialty</FormLabel>
+                    <Select
+                      value={field.value || ""}
+                      onValueChange={field.onChange}
+                      disabled={mutation.isPending}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a specialty (optional)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {SPECIALTIES.map((specialty) => (
+                          <SelectItem key={specialty} value={specialty}>
+                            {specialty}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>Optional</FormDescription>
+                  </FormItem>
+                )}
+              />
+            )}
 
             <div className="flex gap-3 justify-end pt-4">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={mutation.isPending}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
@@ -214,5 +285,5 @@ export function InviteStaffModal({ open, onOpenChange, onSuccess }: InviteStaffM
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

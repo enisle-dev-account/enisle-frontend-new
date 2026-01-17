@@ -2,6 +2,7 @@
 
 import type { DepartmentData } from "@/types"
 import { Badge } from "@/components/ui/badge"
+import { capitalizeNames } from "@/lib/utils"
 
 interface EmployeeTableProps {
   employees: DepartmentData[]
@@ -24,7 +25,7 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
             <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Employee ID</th>
             <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Name</th>
             <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Position</th>
-            <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Department</th>
+            <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Type</th>
             <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Contact</th>
             <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Specialty</th>
             <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Certification</th>
@@ -39,8 +40,8 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
                 {employee.first_name} {employee.last_name}
               </td>
               <td className="px-4 py-3">{employee.position}</td>
-              <td className="px-4 py-3">{employee.department}</td>
-              <td className="px-4 py-3 text-xs truncate">{employee.mobile || employee.email}</td>
+              <td className="px-4 py-3">{capitalizeNames(employee.user_type)}</td>
+              <td className="px-4 py-3 text-xs truncate">{employee.email}</td>
               <td className="px-4 py-3">{employee.speciality || "-"}</td>
               <td className="px-4 py-3">{employee.license_number || "-"}</td>
               <td className="px-4 py-3">
