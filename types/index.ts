@@ -161,12 +161,12 @@ export interface ReceptionConsultationResponse {
 
 //Store
 export interface ProductImage {
-  id: number
+  id: number| string
   file: string
   file_type: "cover_image" | "product_image"
-  file_url: string
+  file_url?: string
   is_active: boolean
-  product: string
+  product?: string
 }
 
 

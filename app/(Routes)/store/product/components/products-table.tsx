@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { request } from "@/hooks/api";
 import type { Product } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  MoreVertical,
   Edit2,
   Trash2,
   MoreHorizontal,
@@ -24,13 +24,19 @@ import Image from "next/image";
 
 interface ProductsTableProps {
   products: Product[];
+  selectedIds: string[];
+  onSelectIds: (ids: string[]) => void;
   onSelectProduct: (id: string) => void;
+  onEditProduct: (id: string) => void;
   onRefetch: () => void;
 }
 
 export function ProductsTable({
   products,
+  selectedIds,
+  onSelectIds,
   onSelectProduct,
+  onEditProduct,
   onRefetch,
 }: ProductsTableProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -49,6 +55,25 @@ export function ProductsTable({
       setDeletingId(null);
     },
   });
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      onSelectIds(products.map((p) => p.id));
+    } else {
+      onSelectIds([]);
+    }
+  };
+
+  const handleSelectOne = (productId: string, checked: boolean) => {
+    if (checked) {
+      onSelectIds([...selectedIds, productId]);
+    } else {
+      onSelectIds(selectedIds.filter((id) => id !== productId));
+    }
+  };
+
+  const isAllSelected = products.length > 0 && selectedIds.length === products.length;
+  const isSomeSelected = selectedIds.length > 0 && selectedIds.length < products.length;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -79,6 +104,12 @@ export function ProductsTable({
       <table className="w-full">
         <thead className="border-b bg-muted/30 sticky top-0 z-10">
           <tr className="text-sm font-medium text-muted-foreground">
+            <th className="px-6 py-4 text-left">
+              <Checkbox
+                checked={isAllSelected}
+                onCheckedChange={handleSelectAll}
+              />
+            </th>
             <th className="px-6 py-4 text-left">Product Details</th>
             <th className="px-6 py-4 text-left">Categories</th>
             <th className="px-6 py-4 text-left">Price</th>
@@ -89,10 +120,19 @@ export function ProductsTable({
         </thead>
         <tbody>
           {products.map((product) => (
-            <tr
+            <motion.tr
               key={product.id}
+              variants={rowVariants}
               className="border-b hover:bg-muted/20 transition-colors"
             >
+              <td className="px-6 py-4">
+                <Checkbox
+                  checked={selectedIds.includes(product.id)}
+                  onCheckedChange={(checked:boolean) =>
+                    handleSelectOne(product.id, checked)
+                  }
+                />
+              </td>
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                   <Image
@@ -100,7 +140,7 @@ export function ProductsTable({
                     alt={product.title}
                     width={40}
                     height={40}
-                    className="rounded-md h-10 w-10 w object-cover"
+                    className="rounded-md h-10 w-10 object-cover"
                   />
                   <p className="font-medium text-foreground">{product.title}</p>
                 </div>
@@ -117,10 +157,10 @@ export function ProductsTable({
               <td className="px-6 py-4 text-sm font-mono text-muted-foreground">
                 {product.sku}
               </td>
-              <td className="px-6 py-4 ">
+              <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                   <Button
-                    className="bg-primary font-bold  h-8 px-3 text-sm hover:bg-primary/90"
+                    className="bg-primary font-bold h-8 px-3 text-sm hover:bg-primary/90"
                     onClick={() => onSelectProduct(product.id)}
                   >
                     View
@@ -142,6 +182,15 @@ export function ProductsTable({
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
+                          onEditProduct(product.id);
+                        }}
+                      >
+                        <Edit2 className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setDeletingId(product.id);
                           deleteMutation.mutate(product.id);
                         }}
@@ -155,7 +204,7 @@ export function ProductsTable({
                   </DropdownMenu>
                 </div>
               </td>
-            </tr>
+            </motion.tr>
           ))}
         </tbody>
       </table>

@@ -23,7 +23,7 @@ export function SuccessStep({ count }: SuccessStepProps) {
       scale: 1,
       opacity: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 15,
         delay: 0.1,

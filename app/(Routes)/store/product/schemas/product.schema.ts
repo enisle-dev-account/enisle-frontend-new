@@ -16,8 +16,10 @@ export const ProductCategoryEnum = z.enum([
   "other",
 ]);
 export const ProductTypeEnum = z.enum([
-  "store",
-  "pharmarcy",
+  "consumable",
+  "durable",   
+  "medication",
+  "asset", 
 ]);
 
 
@@ -42,14 +44,12 @@ export const AVAILABILITY_LABELS: Record<
   available: "Available",
   out_of_stock: "Out of Stock",
 };
-export const TYPE_LABELS: Record<
-  z.infer<typeof ProductTypeEnum>,
-  string
-> = {
-  store: "Store",
-  pharmarcy: "Pharmacy",
+export const TYPE_LABELS: Record<z.infer<typeof ProductTypeEnum>, string> = {
+  consumable: "Medical Consumable",
+  durable: "Durable Medical Equipment",
+  medication: "Pharmaceutical/Medication",
+  asset: "Capital Asset/Machinery",
 };
-
 
 
 

@@ -22,7 +22,7 @@ export function SuccessModal({
       scale: 1,
       opacity: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 15,
       },
@@ -57,7 +57,7 @@ export function SuccessModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm flex flex-col items-center justify-center py-12">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold"/>
+          <DialogTitle className="text-2xl font-bold">.</DialogTitle>
 
         </DialogHeader>
         <motion.div
@@ -65,8 +65,8 @@ export function SuccessModal({
           initial="hidden"
           animate={open ? "visible" : "hidden"}
         >
-          <div className="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center">
-            <CheckCircle2 className="w-8 h-8 text-success" />
+          <div className="w-16 h-16 bg-success/20 rounded-full bg-green-400 flex items-center justify-center">
+            <CheckCircle2 className="w-8 h-8 text-white" />
           </div>
         </motion.div>
 
