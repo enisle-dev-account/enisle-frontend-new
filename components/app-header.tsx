@@ -32,6 +32,8 @@ const defaultPageTitles: Record<string, string> = {
   "/pharmacy": "Pharmacy",
   "/departments": "Departments",
   "/store": "Store",
+  "/store/product": "Products",
+  "/store/product/csv": "Import Products",
   "/finance": "Finance",
   "/communication": "Communication",
   "/nurse/patients": "Patient Management",
