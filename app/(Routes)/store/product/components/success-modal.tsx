@@ -65,8 +65,8 @@ export function SuccessModal({
           initial="hidden"
           animate={open ? "visible" : "hidden"}
         >
-          <div className="w-16 h-16 bg-success/20 rounded-full bg-green-400 flex items-center justify-center">
-            <CheckCircle2 className="w-8 h-8 text-white" />
+          <div className="w-22 h-23 bg-success/20 rounded-full bg-green-500 flex items-center justify-center">
+            <CheckCircle2 className="w-8 h-8 text-green-500 fill-white" />
           </div>
         </motion.div>
 
@@ -86,10 +86,10 @@ export function SuccessModal({
           initial={{ opacity: 0 }}
           animate={open ? { opacity: 1 } : { opacity: 0 }}
           transition={{ delay: 0.3 }}
-          className="w-full mt-6"
+          className="w-full flex items-center justify-center mt-6"
         >
           <Button
-            className="w-full bg-primary hover:bg-primary/90"
+            className="w-fit px-12 h-12 text-lg font-bold mx-auto bg-primary hover:bg-primary/90"
             onClick={() => onOpenChange(false)}
           >
             Done

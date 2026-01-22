@@ -35,7 +35,7 @@ function ProductsContent() {
   const [addDrawerOpen, setAddDrawerOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
-  const [successOpen, setSuccessOpen] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
