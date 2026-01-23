@@ -134,7 +134,7 @@ export function InviteStaffModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Invite Staff Member</DialogTitle>
+          <DialogTitle>Create User</DialogTitle>
           <DialogDescription>
             Send an invitation to a new staff member to join your hospital
           </DialogDescription>
