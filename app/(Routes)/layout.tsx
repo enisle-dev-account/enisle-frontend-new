@@ -3,7 +3,7 @@ import { AuthProvider } from "@/providers/auth-provider";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
-import type { UserRole } from "@/lib/sidebar-config";
+import { UserRole } from "@/types";
 
 export default async function DashboardLayout({
   children,

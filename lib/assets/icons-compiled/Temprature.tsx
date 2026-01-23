@@ -1,0 +1,153 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+import { Ref, forwardRef } from "react";
+const SvgTemprature = (
+  props: SVGProps<SVGSVGElement>,
+  ref: Ref<SVGSVGElement>
+) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="currentColor"
+    viewBox="0 0 19 59"
+    ref={ref}
+    {...props}
+  >
+    <path
+      stroke="#0F1114"
+      d="M2.88 4.446v42.645c-3.874 3.45-2.162 7.54-.822 9.154 3.99 4.084 8.078 1.702 9.623 0 3.263-4.131.753-7.824-.91-9.154V4.446a3.946 3.946 0 1 0-7.892 0Z"
+    />
+    <path fill="#CACACC" d="M5.344 3.172h3.051v47.002H5.344z" />
+    <path fill="#EF1D1E" d="M5.344 26.523h3.051v23.648H5.344z" />
+    <circle cx={6.869} cy={52.224} r={3.638} fill="#EF1D1E" />
+    <rect
+      width={5.105}
+      height={0.939}
+      x={13.205}
+      y={3.82}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={3.521}
+      height={0.939}
+      x={13.205}
+      y={6.285}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={5.105}
+      height={0.939}
+      x={13.205}
+      y={8.75}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={3.521}
+      height={0.939}
+      x={13.205}
+      y={11.215}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={5.105}
+      height={0.939}
+      x={13.205}
+      y={13.68}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={3.521}
+      height={0.939}
+      x={13.205}
+      y={16.141}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={5.105}
+      height={0.939}
+      x={13.205}
+      y={18.605}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={3.521}
+      height={0.939}
+      x={13.205}
+      y={21.074}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={5.105}
+      height={0.939}
+      x={13.205}
+      y={23.539}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={3.521}
+      height={0.939}
+      x={13.205}
+      y={26.004}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={5.105}
+      height={0.939}
+      x={13.205}
+      y={28.465}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={3.521}
+      height={0.939}
+      x={13.205}
+      y={30.93}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={5.105}
+      height={0.939}
+      x={13.205}
+      y={33.395}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={3.521}
+      height={0.939}
+      x={13.205}
+      y={35.859}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={5.105}
+      height={0.939}
+      x={13.205}
+      y={38.324}
+      fill="#0F1114"
+      rx={0.469}
+    />
+    <rect
+      width={3.521}
+      height={0.939}
+      x={13.205}
+      y={40.789}
+      fill="#0F1114"
+      rx={0.469}
+    />
+  </svg>
+);
+const ForwardRef = forwardRef(SvgTemprature);
+export default ForwardRef;

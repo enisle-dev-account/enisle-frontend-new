@@ -1,22 +1,9 @@
 "use client"
 
+import { User } from "@/types"
 import React, { createContext, useContext, useState } from "react"
-import { UserRole } from "@/lib/sidebar-config"
 
-interface User {
-  role: UserRole
-  hospitalId?: string
-  hospitalName?: string
-  hospitalType?: string
-  firstName?: string
-  lastName?: string
-  profilePicture?: string
-  email?: string
-  mobile?: string
-  countryCode?: string
-  address?: string
-  speciality?: string
-}
+
 
 interface AuthContextType {
   user: User | null

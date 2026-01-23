@@ -38,6 +38,18 @@ import {
   Sms,
   UserAdd,
   People,
+  Call,
+  Location,
+  BloodPressure,
+  HeartRate,
+  Breathing,
+  Temprature,
+  Spo2,
+  Height,
+  WeightScale,
+  Bmi,
+  BpMonitor,
+  PatientDetails,
 } from "@/lib/assets/icons-compiled";
 
 // Icon registry - now all components work the same way
@@ -68,6 +80,18 @@ const iconRegistry = {
     sms: Sms,
     "user-add": UserAdd,
     people: People,
+    call: Call,
+    location: Location,
+    "blood-pressure": BloodPressure,
+    "heart-rate": HeartRate,
+    "breathing": Breathing,
+    "temperature": Temprature,
+    "spo2": Spo2,
+    "height": Height,
+    "weight-scale": WeightScale,
+    "bmi": Bmi,
+    "bp-monitor": BpMonitor,
+    "patient-details": PatientDetails,
 
   // Lucide icons
   "lucide-star": LucideStar,
