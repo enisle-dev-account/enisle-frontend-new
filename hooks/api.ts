@@ -89,7 +89,9 @@ export const request = async (url: string, options: RequestInit = {}) => {
     headers,
     credentials: "include",
   });
-
+  if (res.status === 204) {
+    return null; // Don't call .json()
+  }
   const data = await res.json();
   if (!res.ok) {
     if (res.status === 401 && data.code === "token_not_valid") {
@@ -103,13 +105,13 @@ export const request = async (url: string, options: RequestInit = {}) => {
 export const useApiQuery = <T>(
   key: string[],
   url: string,
-  options?: UseQueryOptions<T>
+  options?: UseQueryOptions<T>,
 ) => useQuery<T>({ queryKey: key, queryFn: () => request(url), ...options });
 
 export const useApiMutation = <T>(
   method: "POST" | "PUT" | "PATCH" | "DELETE",
   url: string,
-  options?: UseMutationOptions<T, Error, any>
+  options?: UseMutationOptions<T, Error, any>,
 ) =>
   useMutation<T, Error, any>({
     mutationFn: (data) => {
@@ -142,7 +144,7 @@ export const useCustomUrlApiMutation = <T>(
   });
 
 export const useAdminRegister = (
-  options?: UseMutationOptions<any, Error, any>
+  options?: UseMutationOptions<any, Error, any>,
 ) => {
   return useMutation<any, Error, any>({
     mutationFn: async (data) => {
@@ -179,22 +181,24 @@ export const useLogin = (options?: UseMutationOptions<any, Error, any>) => {
   });
 };
 
-export const useStaffRegister = (options?: UseMutationOptions<any, Error, any>) => {
+export const useStaffRegister = (
+  options?: UseMutationOptions<any, Error, any>,
+) => {
   return useMutation<any, Error, any>({
     mutationFn: async (data) => {
       const response = await request("/auth/register/staff/", {
         method: "POST",
         body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },
-      })
+      });
       if (response.tokens?.access && response.tokens?.refresh) {
-        setTokens(response.tokens.access, response.tokens.refresh)
-        setUserCookies(response)
+        setTokens(response.tokens.access, response.tokens.refresh);
+        setUserCookies(response);
       }
-      return response
+      return response;
     },
     ...options,
-  })
-}
+  });
+};
 
 export { getToken, getRefreshToken, setTokens, clearTokens };
