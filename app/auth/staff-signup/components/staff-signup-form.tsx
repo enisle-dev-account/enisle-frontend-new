@@ -1,22 +1,41 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Eye, EyeOff, Lock, AlertCircle, Phone, MapPin } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Icon } from "@/components/icon"
-import { useStaffRegister } from "@/hooks/api"
-import { SPECIALTIES } from "@/lib/constants"
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Eye, EyeOff, Lock, AlertCircle, Phone, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Icon } from "@/components/icon";
+import { useStaffRegister } from "@/hooks/api";
+import { SPECIALTIES } from "@/lib/constants";
+import countryCodes from "@/lib/country-codes";
 
-const STAFF_TYPES_WITH_LICENSE = ["doctor", "nurse", "surgeon", "pharmacist", "laboratory", "radiology"]
-
-
+const STAFF_TYPES_WITH_LICENSE = [
+  "doctor",
+  "nurse",
+  "surgeon",
+  "pharmacist",
+  "laboratory",
+  "radiology",
+];
 
 const formSchema = z
   .object({
@@ -33,28 +52,34 @@ const formSchema = z
     licenseNumber: z.string().optional(),
     position: z.string().optional(),
     speciality: z.string().optional(),
-    mobile: z.string().optional(),
+    mobile: z
+      .string()
+      .min(2, "Phone number is too short")
+      .regex(
+        /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/,
+        "Invalid phone number",
+      ),
     address: z.string().optional(),
     country: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  })
+  });
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>;
 
 export function StaffSignupForm() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const [showPassword, setShowPassword] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const token = searchParams.get("token")
-  const email = searchParams.get("email")
-  const hospital = searchParams.get("hospital")
-  const role = searchParams.get("role")
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
+  const hospital = searchParams.get("hospital");
+  const role = searchParams.get("role");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -70,54 +95,56 @@ export function StaffSignupForm() {
       address: "",
       country: "",
     },
-  })
+  });
 
   const registerMutation = useStaffRegister({
     onSuccess: () => router.push("/admin"),
     onError: (error) => {
-      setErrorMessage(error.message || "Registration failed.")
-      window.scrollTo(0, 0)
+      setErrorMessage(error.message || "Registration failed.");
+      window.scrollTo(0, 0);
     },
-  })
+  });
 
   useEffect(() => {
     if (!token || !email || !role) {
-      setErrorMessage("Invalid invitation link. Please check your email for the correct link.")
-      setIsLoading(false)
-      return
+      setErrorMessage(
+        "Invalid invitation link. Please check your email for the correct link.",
+      );
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false)
-  }, [token, email, role])
+    setIsLoading(false);
+  }, [token, email, role]);
 
   const onSubmit = async (values: FormValues) => {
-    if (!token) return
+    if (!token) return;
 
-    setErrorMessage(null)
-    const { confirmPassword, ...payload } = values
+    setErrorMessage(null);
+    const { confirmPassword, ...payload } = values;
 
     const requestData: any = {
       token,
       first_name: payload.firstName,
       last_name: payload.lastName,
       password: payload.password,
-    }
+    };
 
-    if (payload.mobile) requestData.mobile = payload.mobile
-    if (payload.address) requestData.address = payload.address
-    if (payload.country) requestData.country = payload.country
-    if (payload.speciality) requestData.speciality = payload.speciality
-    if (payload.position) requestData.position = payload.position
+    if (payload.mobile) requestData.mobile = payload.mobile;
+    if (payload.address) requestData.address = payload.address;
+    if (payload.country) requestData.country = payload.country;
+    if (payload.speciality) requestData.speciality = payload.speciality;
+    if (payload.position) requestData.position = payload.position;
 
     if (STAFF_TYPES_WITH_LICENSE.includes(role || "")) {
       if (!payload.licenseNumber) {
-        setErrorMessage("License number is required for your position")
-        return
+        setErrorMessage("License number is required for your position");
+        return;
       }
-      requestData.license_number = payload.licenseNumber
+      requestData.license_number = payload.licenseNumber;
     }
 
-    registerMutation.mutate(requestData)
-  }
+    registerMutation.mutate(requestData);
+  };
 
   if (isLoading) {
     return (
@@ -126,7 +153,7 @@ export function StaffSignupForm() {
           <div className="text-gray-500">Loading...</div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -137,9 +164,12 @@ export function StaffSignupForm() {
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-gray-900">Complete Your Profile</h2>
-          <p className="text-sm text-gray-500">
-            Welcome to <span className="font-semibold text-gray-700">{hospital}</span>
+          <h2 className="text-lg font-normal text-gray-900">
+            Complete Your Profile
+          </h2>
+          <p className="text-3xl text-black font-semibold">
+            Welcome to{" "}
+            <span className="font-semibold text-gray-700">{hospital}</span>
           </p>
         </div>
 
@@ -158,7 +188,9 @@ export function StaffSignupForm() {
             </div>
             <div className="flex items-center gap-2 text-sm">
               <span className="text-gray-600">Role:</span>
-              <span className="font-medium text-gray-900 capitalize">{role}</span>
+              <span className="font-medium text-gray-900 capitalize">
+                {role}
+              </span>
             </div>
           </div>
         </div>
@@ -171,7 +203,9 @@ export function StaffSignupForm() {
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel>
+                      First Name<span className="text-destructive">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="John" {...field} />
                     </FormControl>
@@ -184,7 +218,9 @@ export function StaffSignupForm() {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel>
+                      Last Name <span className="text-destructive">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Doe" {...field} />
                     </FormControl>
@@ -199,17 +235,27 @@ export function StaffSignupForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Create Password</FormLabel>
+                  <FormLabel>
+                    Create Password <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input type={showPassword ? "text" : "password"} className="pl-10 pr-10" {...field} />
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        className="pl-10 pr-10"
+                        {...field}
+                      />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-3 text-gray-400"
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </FormControl>
@@ -223,11 +269,40 @@ export function StaffSignupForm() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>
+                    Confirm Password <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input type={showPassword ? "text" : "password"} className="pl-10" {...field} />
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        className="pl-10"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="mobile"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Mobile Number <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="+234 801 000 0000"
+                        className="pl-10"
+                        {...field}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -241,9 +316,12 @@ export function StaffSignupForm() {
                 name="licenseNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>License Number *</FormLabel>
+                    <FormLabel>License Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your license number" {...field} />
+                      <Input
+                        placeholder="Enter your license number"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -276,49 +354,36 @@ export function StaffSignupForm() {
                   </FormItem>
                 )}
               /> */}
-
-              <FormField
-                control={form.control}
-                name="speciality"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Specialty</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select specialty" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {SPECIALTIES.map((s) => (
-                          <SelectItem key={s.value} value={s.value}>
-                            {s.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="mobile"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mobile Number</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input placeholder="+234 801 000 0000" className="pl-10" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+              {role === "doctor" && (
+                <FormField
+                  control={form.control}
+                  name="speciality"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Specialty</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select specialty" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {SPECIALTIES.map((s) => (
+                            <SelectItem key={s.value} value={s.value}>
+                              {s.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
+            </div>
 
             <FormField
               control={form.control}
@@ -329,7 +394,11 @@ export function StaffSignupForm() {
                   <FormControl>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input placeholder="Enter your address" className="pl-10" {...field} />
+                      <Input
+                        placeholder="Enter your address"
+                        className="pl-10"
+                        {...field}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -343,9 +412,25 @@ export function StaffSignupForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your country" {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Country" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {countryCodes.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>
+                          <span className="text-2xl">{s.flag}</span>
+                          {s.country}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -356,7 +441,9 @@ export function StaffSignupForm() {
               className="w-full bg-[#2271FE] h-11 font-semibold"
               disabled={registerMutation.isPending}
             >
-              {registerMutation.isPending ? "Completing Registration..." : "Complete Registration"}
+              {registerMutation.isPending
+                ? "Completing Registration..."
+                : "Complete Registration"}
             </Button>
           </form>
         </Form>
@@ -366,5 +453,5 @@ export function StaffSignupForm() {
         </p>
       </div>
     </div>
-  )
+  );
 }

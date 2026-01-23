@@ -155,7 +155,7 @@ function DepartmentsContent() {
 
             {/* Invite Staff Button */}
             <Button className="bg-primary hover:bg-primary/90" onClick={() => setInviteModalOpen(true)}>
-              Invite Staff
+              Create User
             </Button>
           </div>
         </div>
