@@ -29,6 +29,7 @@ import { useCustomUrlApiMutation } from "@/hooks/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import VitalsPreviewModal from "./preview-modal";
+import { useSuccessModal } from "@/providers/success-modal-provider";
 
 const vitalsSchema = z.object({
   weight: z.string().optional(),
@@ -97,6 +98,7 @@ export function VitalsFormView({
   const params = useParams();
   const patientId = params.consultationId as string;
   const [PreviewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const { showSuccess } = useSuccessModal();
 
   const form = useForm<VitalsFormData>({
     resolver: zodResolver(vitalsSchema),
@@ -129,6 +131,7 @@ export function VitalsFormView({
   }>("POST", {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vitals", consultationId] });
+      showSuccess("Vitals added successfully");
       onCancel();
     },
     onError: (error: any) => {

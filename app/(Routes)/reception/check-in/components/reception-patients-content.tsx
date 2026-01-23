@@ -11,6 +11,7 @@ import { TablePagination } from "@/components/table-pagination";
 import { PatientsTable } from "./patients-table";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import EmptyList from "@/components/empty-list";
 
 const PATIENT_TABS = [
   { value: "in_queue", label: "In Queue" },
@@ -141,9 +142,7 @@ export function ReceptionPatientsContent() {
             <p className="text-muted-foreground">Loading patients...</p>
           </div>
         ) : patients.length === 0 ? (
-          <div className="flex items-center justify-center h-32">
-            <p className="text-muted-foreground">No patients found</p>
-          </div>
+          <EmptyList title="No patients yet" description="List of patients will appear here when patients are admitted in your hospital." />
         ) : (
           <PatientsTable patients={patients} activeTab={activeTab} />
         )}
