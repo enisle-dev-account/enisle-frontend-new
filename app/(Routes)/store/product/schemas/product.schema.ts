@@ -3,11 +3,9 @@ import z from "zod";
 const productInformationSchema = z.object({
   key: z.string().min(1, "Key is required"),
   value: z.string().min(1, "Value is required"),
-})
-export const AvailabilityEnum = z.enum([
-  "available",
-  "out_of_stock",
-]);
+});
+
+export const AvailabilityEnum = z.enum(["available", "out_of_stock"]);
 
 export const ProductCategoryEnum = z.enum([
   "protective_products",
@@ -15,17 +13,26 @@ export const ProductCategoryEnum = z.enum([
   "surgical_products",
   "other",
 ]);
+
+
 export const ProductTypeEnum = z.enum([
   "consumable",
-  "durable",   
+  "durable",
   "medication",
-  "asset", 
+  "asset",
 ]);
 
 
+
 export const createProductSchema = z.object({
-  title: z.string().min(1, "Product title is required"),
-  description: z.string().min(1, "Description is required"),
+  title: z
+    .string()
+    .min(1, "Product title is required")
+    .max(255, "Title cannot be more than 255 characters"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(255, "Description cannot be more than 255 characters"),
   price: z.coerce.number().positive("Price must be positive"),
   stock: z.coerce.number().nonnegative("Quantity must be non-negative"),
   availability: AvailabilityEnum,
@@ -34,8 +41,7 @@ export const createProductSchema = z.object({
   categories: ProductCategoryEnum,
   sku: z.string().optional(),
   information: z.array(productInformationSchema).optional(),
-})
-
+});
 
 export const AVAILABILITY_LABELS: Record<
   z.infer<typeof AvailabilityEnum>,
@@ -50,8 +56,6 @@ export const TYPE_LABELS: Record<z.infer<typeof ProductTypeEnum>, string> = {
   medication: "Pharmaceutical/Medication",
   asset: "Capital Asset/Machinery",
 };
-
-
 
 export const CATEGORY_LABELS: Record<
   z.infer<typeof ProductCategoryEnum>,
