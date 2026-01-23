@@ -7,10 +7,10 @@ import { useMutation } from "@tanstack/react-query"
 import { request } from "@/hooks/api"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
-import { StepIndicator } from "./components/step-indicator"
 import { FileUploadStep } from "./components/file-upload-step"
 import { ImportProgressStep } from "./components/import-progress-step"
 import { SuccessStep } from "./components/success-step"
+import StepIndicator from "./components/step-indicator"
 
 export default function CSVImportPage() {
   const router = useRouter()
@@ -105,24 +105,7 @@ export default function CSVImportPage() {
 
   return (
     <main className="rounded-t-2xl bg-background overflow-hidden h-full flex flex-col pt-6 px-10">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBack}
-          className="h-10 w-10"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Import Product</h1>
-          <p className="text-sm text-muted-foreground">
-            The tools allows you to import (or merge) product data to your store from a CSV or TXT file.
-          </p>
-        </div>
-      </div>
-
+ 
       {/* Step Indicator */}
       <StepIndicator currentStep={currentStep} />
 
@@ -136,7 +119,7 @@ export default function CSVImportPage() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="w-full max-w-2xl"
+              className="w-full "
             >
               <FileUploadStep onFileSelect={handleFileSelect} selectedFile={selectedFile} />
             </motion.div>

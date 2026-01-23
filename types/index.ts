@@ -236,3 +236,6 @@ export interface CreateProductPayload {
   categories?: string
   sku?: string
 }
+
+
+export type ImportProductTypes = "medicine" | "product" | "staff";

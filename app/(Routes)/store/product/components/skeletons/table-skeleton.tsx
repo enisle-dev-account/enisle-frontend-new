@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProductsTableSkeleton() {
   // Create 10 rows to fill the screen
-  const skeletonRows = Array.from({ length: 10 });
+  const skeletonRows = Array.from({ length: 5 });
 
   return (
     <div className="w-full">

@@ -35,7 +35,10 @@ import {
   TYPE_LABELS,
 } from "../schemas/product.schema";
 import { ProductDetailsDrawer } from "./products-details-drawer";
-import { FormSkeleton } from "./form-skeleton";
+import { FormSkeleton } from "./skeletons/form-skeleton";
+import { toBase64 } from "@/lib/utils";
+import { shimmer } from "@/components/image-shimmer";
+import Image from "next/image";
 
 type CreateProductFormType = z.infer<typeof createProductSchema>;
 
@@ -150,7 +153,7 @@ export function AddProductDrawer({
         stock: 0,
         vendor: "",
         sku: "",
-        information:[],
+        information: [],
         availability: "available",
       });
 
@@ -319,7 +322,7 @@ export function AddProductDrawer({
       data.append("information", JSON.stringify(informationObj));
     }
 
-   const keepImageIds: (string | number)[] = [];
+    const keepImageIds: (string | number)[] = [];
 
     if (coverImage) {
       if (coverImage.isExisting) {
@@ -379,7 +382,7 @@ export function AddProductDrawer({
                             <Input
                               {...field}
                               placeholder="Enter product title"
-                              className="bg-muted"
+                              className="bg-[#F5F5F5] border-0"
                             />
                           </FormControl>
                           <FormMessage />
@@ -401,7 +404,7 @@ export function AddProductDrawer({
                               type="number"
                               step="0.01"
                               placeholder="Enter product price"
-                              className="bg-muted"
+                              className="bg-[#F5F5F5] border-0"
                             />
                           </FormControl>
                           <FormMessage />
@@ -420,11 +423,14 @@ export function AddProductDrawer({
                           Description
                         </FormLabel>
                         <FormControl>
-                          <div className="flex gap-3 bg-muted p-4 rounded-lg">
+                          <div className="flex gap-3 bg-[#F5F5F5] border-0 p-4 rounded-lg">
                             {coverImage ? (
                               <div className="relative shrink-0">
-                                <img
+                                <Image
                                   src={getImageUrl(coverImage)}
+                                  placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
+                                  width={96}
+                                  height={96}
                                   alt="Cover"
                                   className="h-24 w-24 object-cover rounded-lg"
                                 />
@@ -441,7 +447,7 @@ export function AddProductDrawer({
                                 </button>
                               </div>
                             ) : (
-                              <label className="cursor-pointer flex items-center justify-center w-24 h-24 border-2 border-dashed border-muted-foreground rounded-lg shrink-0 hover:bg-muted/50">
+                              <label className="cursor-pointer flex items-center justify-center w-24 h-24 border-2 border-dashed border-muted-foreground rounded-lg shrink-0 hover:bg-[#F5F5F5] border-0/50">
                                 <div className="flex flex-col items-center text-xs text-center">
                                   <Upload size={20} className="mb-1" />
                                   <span>Cover</span>
@@ -482,7 +488,7 @@ export function AddProductDrawer({
                               {...field}
                               type="number"
                               placeholder="Enter product stock"
-                              className="bg-muted"
+                              className="bg-[#F5F5F5] border-0"
                             />
                           </FormControl>
                           <FormMessage />
@@ -503,7 +509,7 @@ export function AddProductDrawer({
                             value={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger className="bg-muted">
+                              <SelectTrigger className="bg-[#F5F5F5] w-full border-0">
                                 <SelectValue placeholder="Select availability" />
                               </SelectTrigger>
                             </FormControl>
@@ -535,7 +541,7 @@ export function AddProductDrawer({
                             value={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger className="bg-muted">
+                              <SelectTrigger className="bg-[#F5F5F5] w-full border-0">
                                 <SelectValue placeholder="Select product type" />
                               </SelectTrigger>
                             </FormControl>
@@ -567,7 +573,7 @@ export function AddProductDrawer({
                             value={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger className="bg-muted">
+                              <SelectTrigger className="bg-[#F5F5F5 w-full border-0">
                                 <SelectValue placeholder="Select vendor" />
                               </SelectTrigger>
                             </FormControl>
@@ -596,7 +602,7 @@ export function AddProductDrawer({
                             value={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger className="bg-muted">
+                              <SelectTrigger className="bg-[#F5F5F5] w-full border-0">
                                 <SelectValue placeholder="Select category" />
                               </SelectTrigger>
                             </FormControl>
@@ -627,7 +633,7 @@ export function AddProductDrawer({
                             <Input
                               {...field}
                               placeholder="Enter SKU"
-                              className="bg-muted"
+                              className="bg-[#F5F5F5] border-0"
                             />
                           </FormControl>
                           <FormMessage />
@@ -651,8 +657,11 @@ export function AddProductDrawer({
                             exit={{ opacity: 0, scale: 0.8 }}
                             className="relative shrink-0"
                           >
-                            <img
+                            <Image
                               src={getImageUrl(image)}
+                              placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
+                              width={123}
+                              height={123}
                               alt={`Product ${index + 1}`}
                               className="h-32 w-32 object-cover rounded-lg"
                             />
@@ -671,7 +680,7 @@ export function AddProductDrawer({
                         ))}
                       </AnimatePresence>
 
-                      <label className="cursor-pointer flex items-center justify-center w-32 h-32 rounded-lg border-2 border-dashed border-muted-foreground hover:bg-muted/50 shrink-0">
+                      <label className="cursor-pointer flex items-center justify-center w-32 h-32 rounded-lg border-2 border-dashed border-muted-foreground hover:bg-[#F5F5F5] border-0/50 shrink-0">
                         <div className="flex flex-col items-center text-xs text-center">
                           <div className="border border-primary p-2 rounded-lg mb-2">
                             <Upload
@@ -730,7 +739,7 @@ export function AddProductDrawer({
                                   <Input
                                     {...field}
                                     placeholder="Key (e.g., Weight)"
-                                    className="bg-muted"
+                                    className="bg-[#F5F5F5] border-0"
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -746,7 +755,7 @@ export function AddProductDrawer({
                                   <Input
                                     {...field}
                                     placeholder="Value (e.g., 500g)"
-                                    className="bg-muted"
+                                    className="bg-[#F5F5F5] border-0"
                                   />
                                 </FormControl>
                                 <FormMessage />

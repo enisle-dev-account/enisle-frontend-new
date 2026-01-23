@@ -6,7 +6,6 @@ import { useApiQuery } from "@/hooks/api";
 import type { ProductsResponse } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -19,24 +18,25 @@ import { ProductsTable } from "./components/products-table";
 import { ProductsPagination } from "./components/products-pagination";
 import { AddProductDrawer } from "./components/add-product-drawer";
 import { ProductDetailsDrawer } from "./components/products-details-drawer";
-import { SuccessModal } from "./components/success-modal";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { request } from "@/hooks/api";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ProductsTableSkeleton } from "./components/table-skeleton";
+import { ProductsTableSkeleton } from "./components/skeletons/table-skeleton";
+import { useSuccessModal } from "@/providers/success-modal-provider";
+import { useConfirm } from "@/providers/confirm-box-provider";
 
 function ProductsContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
-  const [sortBy, setSortBy] = useState<string>("newest");
+  const { confirm } = useConfirm();
+  const [sortBy, setSortBy] = useState<string>();
   const [addDrawerOpen, setAddDrawerOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
-  const [successOpen, setSuccessOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const { showSuccess } = useSuccessModal();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const searchParams = useSearchParams();
@@ -58,7 +58,7 @@ function ProductsContent() {
 
   const url = `/store/list/?${queryParams.toString()}`;
   const { data, isLoading, error, refetch } = useApiQuery<ProductsResponse>(
-    ["products", searchQuery, currentPage.toString(), sortBy],
+    ["products", searchQuery, currentPage.toString(), sortBy ? sortBy : ""],
     url,
   );
 
@@ -68,8 +68,7 @@ function ProductsContent() {
         method: "DELETE",
       }),
     onSuccess: () => {
-      setSuccessMessage("Products deleted successfully!");
-      setSuccessOpen(true);
+      showSuccess(`${selectedIds.length} product(s) deleted successfully.`);
       setSelectedIds([]);
       refetch();
     },
@@ -84,14 +83,18 @@ function ProductsContent() {
     setCurrentPage(1);
   };
 
-  const handleBulkDelete = () => {
+  const handleBulkDelete =async  () => {
     if (selectedIds.length === 0) return;
 
-    if (
-      window.confirm(
-        `Are you sure you want to delete ${selectedIds.length} product(s)?`,
-      )
-    ) {
+    const confirmed = await confirm({
+      title: "Delete Product?",
+      message: `Are you sure you want to delete ${selectedIds.length} product(s)?`,
+      confirmText: "Yes, Delete",
+      variant: "destructive", 
+    });
+
+    if (confirmed)
+   {
       bulkDeleteMutation.mutate(selectedIds);
     }
   };
@@ -99,8 +102,7 @@ function ProductsContent() {
   const totalPages = data ? Math.ceil(data.count / pageSize) : 1;
 
   const handleAddSuccess = (message: string) => {
-    setSuccessMessage(message);
-    setSuccessOpen(true);
+    showSuccess(message);
     setAddDrawerOpen(false);
     setEditingProductId(null);
     refetch();
@@ -120,116 +122,114 @@ function ProductsContent() {
 
   return (
     <>
-      {/* Header and Controls */}
-      <div className="space-y-4 border-b bg-background p-4">
-        <div className="flex items-start justify-between">
-          {/* Search and Filters */}
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by product name..."
-                value={searchQuery}
-                onChange={handleSearch}
-                className="pl-10"
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href={"/store/product/csv"}
-              className="border-primary flex items-center gap-1 text-primary hover:bg-primary/10 font-medium px-3 py-1 rounded-full border"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Import CSV
-            </Link>
-            <Button
-              className="bg-primary font-bold uppercase hover:bg-primary/90"
-              onClick={() => setAddDrawerOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add Product
-            </Button>
-          </div>
-        </div>
-
-        {/* Action Bar */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-45">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="oldest">Oldest First</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {selectedIds.length > 0 && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleBulkDelete}
-                disabled={bulkDeleteMutation.isPending}
-                className="gap-2"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete ({selectedIds.length})
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Current Products Count */}
-        {isLoading ? (
-          <Card className="p-4 border-0">
+      <div className="flex flex-col h-full gap-4">
+        {/* Header and Controls */}
+        <div className="space-y-4 rounded-3xl bg-background p-4">
+          {/* Current Products Count */}
+          {isLoading ? (
             <div className="flex items-center gap-3">
               <Skeleton className="h-6 w-32" />
               <Skeleton className="h-6 w-12" />
             </div>
-          </Card>
-        ) : data ? (
-          <Card className="p-4 border-0">
+          ) : data ? (
             <div className="flex items-center gap-3">
-              <div className="flex items-center text-lg gap-x-3">
+              <div className="flex items-center text-[17px] gap-x-3">
                 <p className="font-medium text-muted-foreground">
                   Total Products
                 </p>
                 <p className="font-semibold">{data.count}</p>
               </div>
             </div>
-          </Card>
-        ) : null}
-      </div>
-
-      {/* Table Content */}
-      <div className="flex-1 overflow-auto">
-        {isLoading ? (
-          <ProductsTableSkeleton />
-        ) : error ? (
-          <div className="flex items-center justify-center py-12">
-            <p className="text-destructive">Failed to load products</p>
+          ) : null}
+          <div className="flex items-start justify-between">
+            {/* Search and Filters */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search by product name..."
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  className="pl-10 bg-transparent"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link
+                href={"/store/product/csv"}
+                className="border-primary flex items-center gap-1 text-primary hover:bg-primary/10 font-medium px-3 py-1 rounded-full border"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Import CSV
+              </Link>
+              <Button
+                className="bg-primary font-bold uppercase hover:bg-primary/90"
+                onClick={() => setAddDrawerOpen(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Product
+              </Button>
+            </div>
           </div>
-        ) : data?.results && data.results.length > 0 ? (
-          <ProductsTable
-            products={data.results}
-            selectedIds={selectedIds}
-            onSelectIds={setSelectedIds}
-            onSelectProduct={setSelectedProduct}
-            onEditProduct={handleEdit}
-            onRefetch={refetch}
-          />
-        ) : (
-          <div className="flex items-center justify-center py-12">
-            <p className="text-muted-foreground">No products found</p>
-          </div>
-        )}
-      </div>
 
+          {/* Action Bar */}
+        </div>
+
+        {/* Table Content */}
+        <div className="flex-1 rounded-3xl bg-background overflow-auto">
+          <div className="flex p-4 items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-muted-2 text-sm">Action</div>
+
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-fit min-w-10 bg-transparent border-[#177BE53B]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {selectedIds.length > 0 && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  disabled={bulkDeleteMutation.isPending}
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete ({selectedIds.length})
+                </Button>
+              )}
+            </div>
+          </div>
+          {isLoading ? (
+            <ProductsTableSkeleton />
+          ) : error ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-destructive">Failed to load products</p>
+            </div>
+          ) : data?.results && data.results.length > 0 ? (
+            <ProductsTable
+              products={data.results}
+              selectedIds={selectedIds}
+              onSelectIds={setSelectedIds}
+              onSelectProduct={setSelectedProduct}
+              onEditProduct={handleEdit}
+              onRefetch={refetch}
+            />
+          ) : (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-muted-foreground">No products found</p>
+            </div>
+          )}
+        </div>
+      </div>
       {/* Pagination */}
       {data && data.count > 0 && (
-        <div className="border-t bg-background p-4">
+        <div className="  p-4">
           <ProductsPagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -252,19 +252,13 @@ function ProductsContent() {
         onOpenChange={(open) => !open && setSelectedProduct(null)}
         onRefetch={refetch}
       />
-
-      <SuccessModal
-        open={successOpen}
-        onOpenChange={setSuccessOpen}
-        message={successMessage}
-      />
     </>
   );
 }
 
 export default function ProductsPage() {
   return (
-    <main className="rounded-t-2xl bg-background overflow-hidden h-full flex flex-col">
+    <main className="rounded-t-2xl  overflow-hidden h-full flex flex-col">
       <Suspense
         fallback={
           <div className="flex items-center justify-center py-12">

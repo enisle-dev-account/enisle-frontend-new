@@ -14,13 +14,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Edit2,
-  Trash2,
-  MoreHorizontal,
-  Loader2,
-} from "lucide-react";
+import { Edit2, Trash2, MoreHorizontal, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { toBase64 } from "@/lib/utils";
+import { shimmer } from "@/components/image-shimmer";
+import { useSuccessModal } from "@/providers/success-modal-provider";
+import { useConfirm } from "@/providers/confirm-box-provider";
 
 interface ProductsTableProps {
   products: Product[];
@@ -40,7 +39,8 @@ export function ProductsTable({
   onRefetch,
 }: ProductsTableProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
+  const { showSuccess } = useSuccessModal();
+  const { confirm } = useConfirm();
   const deleteMutation = useMutation({
     mutationFn: (productId: string) =>
       request(`/store/products/${productId}/delete/`, {
@@ -64,6 +64,20 @@ export function ProductsTable({
     }
   };
 
+  const handleDelete = async (id: string) => {
+    const confirmed = await confirm({
+      title: "Delete Product?",
+      message:
+        "This action cannot be undone. This will permanently delete the product from our servers.",
+      variant: "destructive",
+    });
+    if (confirmed) {
+      deleteMutation.mutate(id);
+    } else {
+      setDeletingId(null);
+    }
+  };
+
   const handleSelectOne = (productId: string, checked: boolean) => {
     if (checked) {
       onSelectIds([...selectedIds, productId]);
@@ -72,8 +86,10 @@ export function ProductsTable({
     }
   };
 
-  const isAllSelected = products.length > 0 && selectedIds.length === products.length;
-  const isSomeSelected = selectedIds.length > 0 && selectedIds.length < products.length;
+  const isAllSelected =
+    products.length > 0 && selectedIds.length === products.length;
+  const isSomeSelected =
+    selectedIds.length > 0 && selectedIds.length < products.length;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -102,10 +118,11 @@ export function ProductsTable({
       className="w-full"
     >
       <table className="w-full">
-        <thead className="border-b bg-muted/30 sticky top-0 z-10">
+        <thead className=" sticky top-0 z-10">
           <tr className="text-sm font-medium text-muted-foreground">
             <th className="px-6 py-4 text-left">
               <Checkbox
+                className="border-custom-gray-1"
                 checked={isAllSelected}
                 onCheckedChange={handleSelectAll}
               />
@@ -123,12 +140,13 @@ export function ProductsTable({
             <motion.tr
               key={product.id}
               variants={rowVariants}
-              className="border-b hover:bg-muted/20 transition-colors"
+              className="transition-colors"
             >
               <td className="px-6 py-4">
                 <Checkbox
+                  className="border-custom-gray-1"
                   checked={selectedIds.includes(product.id)}
-                  onCheckedChange={(checked:boolean) =>
+                  onCheckedChange={(checked: boolean) =>
                     handleSelectOne(product.id, checked)
                   }
                 />
@@ -138,6 +156,7 @@ export function ProductsTable({
                   <Image
                     src={product.cover_image.file}
                     alt={product.title}
+                    placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
                     width={40}
                     height={40}
                     className="rounded-md h-10 w-10 object-cover"
@@ -192,7 +211,7 @@ export function ProductsTable({
                         onClick={(e) => {
                           e.stopPropagation();
                           setDeletingId(product.id);
-                          deleteMutation.mutate(product.id);
+                          handleDelete(product.id);
                         }}
                         className="text-destructive focus:text-destructive"
                         disabled={deletingId === product.id}

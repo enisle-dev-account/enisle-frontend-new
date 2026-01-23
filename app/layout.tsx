@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/providers/react-query";
+import { SuccessModalProvider } from "@/providers/success-modal-provider";
+import { ConfirmProvider } from "@/providers/confirm-box-provider";
 
 const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
@@ -34,7 +36,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <SuccessModalProvider>
+            <ConfirmProvider>{children}</ConfirmProvider>
+          </SuccessModalProvider>
+        </QueryProvider>
       </body>
     </html>
   );
