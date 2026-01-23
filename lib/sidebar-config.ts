@@ -1,5 +1,6 @@
 import type React from "react";
 import { IconName } from "@/components/icon";
+import { UserRole } from "@/types";
 
 export type MenuItem = {
   title: string;
@@ -13,18 +14,6 @@ export type MenuGroup = {
   items: MenuItem[];
 };
 
-export type UserRole =
-  | "doctor"
-  | "nurse"
-  | "cashier"
-  | "admin"
-  | "pharmacist"
-  | "reception"
-  | "surgeon"
-  | "reception"
-  | "store"
-  | "laboratory"
-  | "radiology";
 
 const doctorMenu: MenuGroup[] = [
   {

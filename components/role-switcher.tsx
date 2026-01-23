@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import type { UserRole } from "@/lib/sidebar-config"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown } from "lucide-react"
+import { UserRole } from "@/types"
 
 export function RoleSwitcher() {
   const [currentRole, setCurrentRole] = React.useState<UserRole>("doctor")

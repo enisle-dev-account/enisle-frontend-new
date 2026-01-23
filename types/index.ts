@@ -1,3 +1,31 @@
+export type UserRole =
+  | "doctor"
+  | "nurse"
+  | "cashier"
+  | "admin"
+  | "pharmacist"
+  | "reception"
+  | "surgeon"
+  | "reception"
+  | "store"
+  | "laboratory"
+  | "radiology";
+
+export interface User {
+  role: UserRole
+  hospitalId?: string
+  hospitalName?: string
+  hospitalType?: string
+  firstName?: string
+  lastName?: string
+  profilePicture?: string
+  email?: string
+  mobile?: string
+  countryCode?: string
+  address?: string
+  speciality?: string
+}
+
 export interface DepartmentData {
   id: string
   employee_id: number
@@ -133,30 +161,114 @@ export interface RegisterPatientPayload {
 }
 
 export interface ReceptionConsultationData {
-  id: string
-  first_name: string
-  middle_name?: string
-  surname: string
-  gender: string
-  age: number
-  phone: string
-  email: string
-  billing_status: string | null
-  status: string | null
-  vital_taken: boolean
-  queue_number: number | null
-  consultation_id: string
+  id: string; // Patient ID
+  mrn: string; // Medical Record Number
+  first_name: string;
+  middle_name?: string;
+  surname: string;
+  gender: string;
+  age: number;
+  phone?: string; // May be optional in consultation view
+  email?: string;
+  billing_status: string | null;
+  status: string | null;
+  vital_taken: boolean;
+  queue_number: number | null;
+  consultation_id: string; // The specific visit ID
 }
 
 export interface ReceptionConsultationResponse {
-  count: number
+  count: number;
+  next: string | null;
+  previous: string | null;
+  // Note: The paginator usually puts the custom data inside 'results'
   results: {
-    patients: ReceptionConsultationData[]
-    total_patients: number
-    total_in_queue_patients: number
-    total_finished_patients: number
-    total_canceled_patients: number
-  }
+    results: ReceptionConsultationData[]; // The list of rows
+    total_patients: number;
+    total_in_queue: number;
+    total_finished: number;
+    total_canceled: number;
+  };
+}
+
+export interface CheckInExistingPatientPayload {
+  patient: string; // Patient ID
+  doctor?: string; // UUID, optional
+  nurse?: string; // UUID, optional
+  priority: string;
+  consultation_date_time: string;
+}
+
+export interface NurseConsultationPatientData {
+  id: number;
+  first_name: string;
+  surname: string;
+  middle_name: string;
+  gender: string;
+  is_vip: boolean;
+  mrn: string;
+}
+
+export interface NurseConsultationDoctorData {
+  first_name: string;
+  last_name: string;
+}
+
+export interface NurseConsultationData {
+  id: string;
+  status: string;
+  patient: NurseConsultationPatientData;
+  billing_status: string;
+  doctor: NurseConsultationDoctorData;
+  has_vital: boolean;
+  vital_id: string;
+  consultation_date_time: string;
+}
+
+export interface ConsultationVitalsDataResponse {
+  count: number;
+  next: null | string;
+  previous: null | string;
+  results: NurseConsultationData[];
+}
+
+export interface CreatorInfo {
+  id: string;
+  first_name: string;
+  last_name: string;
+  is_on_duty: boolean;
+  is_on_leave: boolean;
+  profile_picture: string;
+}
+
+export interface DetailedConsultationResponsePatientVital {
+  id: string;
+  vital_info: Record<string, any>;
+  other_notes: string;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  taken_by: CreatorInfo;
+  is_admitted: boolean;
+  billing_status: string;
+}
+
+export interface DetailedConsultationResponsePatient {
+  id: string;
+  first_name: string;
+  middle_name: string;
+  surname: string;
+  gender: string;
+  age: number;
+  address: string;
+  phone: string;
+  country_code: string;
+  email: string;
+  profile_picture_location: string;
+  created_at: string;
+  mrn: string;
+  billing_status: string;
+  vital: DetailedConsultationResponsePatientVital;
 }
 
 //Store

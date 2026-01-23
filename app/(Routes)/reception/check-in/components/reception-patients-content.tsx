@@ -6,9 +6,11 @@ import { useApiQuery } from "@/hooks/api";
 import type { ReceptionConsultationResponse } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import { TablePagination } from "@/components/table-pagination";
 import { PatientsTable } from "./patients-table";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 const PATIENT_TABS = [
   { value: "in_queue", label: "In Queue" },
@@ -45,7 +47,7 @@ export function ReceptionPatientsContent() {
       searchQuery,
       currentPage.toString(),
     ],
-    url
+    url,
   );
 
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,14 +61,14 @@ export function ReceptionPatientsContent() {
   };
 
   const tabCounts = {
-    in_queue: data?.results.total_in_queue_patients || 0,
-    finished: data?.results.total_finished_patients || 0,
-    canceled: data?.results.total_canceled_patients || 0,
+    in_queue: data?.results.total_in_queue || 0,
+    finished: data?.results.total_finished || 0,
+    canceled: data?.results.total_canceled || 0,
     all: data?.results.total_patients || 0,
   };
 
   const totalItems = data?.count || 0;
-  const patients = data?.results.patients || [];
+  const patients = data?.results.results || [];
 
   return (
     <main className="rounded-t-2xl bg-background overflow-hidden h-full flex flex-col">
@@ -90,11 +92,14 @@ export function ReceptionPatientsContent() {
                 <TabsTrigger
                   key={tab.value ?? "all"}
                   value={tab.value ?? "all"}
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-0 px-0 py-3"
+                  className="data-[state=active]:border-b-2 data-[state=active]:text-primary font-bold data-[state=active]:border-primary rounded-none border-0 px-0 py-3 flex gap-x-3"
                 >
                   <span>
-                    {displayLabel}{" "}
-                    <span className="text-muted-foreground">({count})</span>
+                    {displayLabel}
+                    {"  "}
+                  </span>
+                  <span className="text-muted-foreground">
+                    <Badge>{count}</Badge>
                   </span>
                 </TabsTrigger>
               );
@@ -103,7 +108,7 @@ export function ReceptionPatientsContent() {
         </Tabs>
 
         <div className="flex items-center justify-between gap-4 mt-6">
-          <div className="flex-1 relative">
+          <div className="flex-1 relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
             <Input
               placeholder="Search by last name, middle name or first name"
@@ -114,6 +119,20 @@ export function ReceptionPatientsContent() {
           </div>
         </div>
       </div>
+
+      <div className="px-4 py-4 border-b">
+          <Card className="p-4 border-0">
+            <div className="flex items-center gap-3">
+              <Users className="h-5 w-5 text-primary" />
+              <div className="flex items-center text-lg gap-x-3">
+                <p className="font-medium text-muted-foreground">
+                  All Patients
+                </p>
+                <p className="font-semibold">{tabCounts.all}</p>
+              </div>
+            </div>
+          </Card>
+        </div>
 
       {/* Table Section */}
       <div className="flex-1 overflow-auto p-6">

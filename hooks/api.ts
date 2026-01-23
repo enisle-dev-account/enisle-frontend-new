@@ -127,14 +127,15 @@ export const useApiMutation = <T>(
   });
 
 export const useCustomUrlApiMutation = <T>(
-  options?: UseMutationOptions<T, Error, any>,
+    method: "POST" | "PUT" | "PATCH" | "DELETE",
+  options?: UseMutationOptions<T, Error, any>
 ) =>
   useMutation<T, Error, any>({
     mutationFn: (data: { url: string; data: any }) => {
       const isFormData = data.data instanceof FormData;
 
       return request(data.url, {
-        method: "POST",
+        method,
         body: isFormData ? data.data : JSON.stringify(data.data),
         headers: isFormData ? {} : { "Content-Type": "application/json" },
       });

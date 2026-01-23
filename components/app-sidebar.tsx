@@ -15,8 +15,9 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { getMenuByRole, type UserRole, type MenuGroup } from "@/lib/sidebar-config"
+import { getMenuByRole,  type MenuGroup } from "@/lib/sidebar-config"
 import { Icon } from "./icon"
+import { UserRole } from "@/types"
 
 export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   role: UserRole
