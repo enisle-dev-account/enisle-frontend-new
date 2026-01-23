@@ -137,9 +137,8 @@ export function ProductsTable({
         </thead>
         <tbody>
           {products.map((product) => (
-            <motion.tr
+            <tr
               key={product.id}
-              variants={rowVariants}
               className="transition-colors"
             >
               <td className="px-6 py-4">
@@ -223,7 +222,7 @@ export function ProductsTable({
                   </DropdownMenu>
                 </div>
               </td>
-            </motion.tr>
+            </tr>
           ))}
         </tbody>
       </table>

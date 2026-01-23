@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/select";
 import { Search, Plus, Trash2 } from "lucide-react";
 import { ProductsTable } from "./components/products-table";
-import { ProductsPagination } from "./components/products-pagination";
 import { AddProductDrawer } from "./components/add-product-drawer";
 import { ProductDetailsDrawer } from "./components/products-details-drawer";
 import { useSearchParams } from "next/navigation";
@@ -26,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProductsTableSkeleton } from "./components/skeletons/table-skeleton";
 import { useSuccessModal } from "@/providers/success-modal-provider";
 import { useConfirm } from "@/providers/confirm-box-provider";
+import { Pagination } from "@/components/pagination";
 
 function ProductsContent() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -230,7 +230,7 @@ function ProductsContent() {
       {/* Pagination */}
       {data && data.count > 0 && (
         <div className="  p-4">
-          <ProductsPagination
+          <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}

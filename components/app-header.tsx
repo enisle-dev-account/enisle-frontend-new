@@ -62,6 +62,7 @@ const defaultPageTitles: Record<string, string> = {
   "/pharmacy/reports": "Reports",
   "/admin/staff": "Staff Management",
   "/admin/billing": "Billing Overview",
+  "/admin/store": "Store",
 };
 
 function getPageTitle(pathname: string): string {

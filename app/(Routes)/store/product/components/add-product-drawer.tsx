@@ -165,8 +165,8 @@ export function AddProductDrawer({
   const createProductMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const endpoint = isEditMode
-        ? `/store/product/update/${editingProductId}`
-        : "/store/product/create";
+        ? `/store/product/update/${editingProductId}/`
+        : "/store/product/create/";
 
       const method = isEditMode ? "PATCH" : "POST";
 
@@ -306,6 +306,7 @@ export function AddProductDrawer({
     data.append("availability", formData.availability);
     data.append("type", formData.type);
     data.append("vendor", formData.vendor);
+    data.append("is_active", "true");
     data.append("currency", currencySymbol);
 
     if (formData.categories) data.append("categories", formData.categories);

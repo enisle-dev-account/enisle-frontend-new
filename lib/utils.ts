@@ -52,3 +52,8 @@ export const getCSVContent = (csvType: ImportProductTypes) => {
     staff: [],
   }[csvType];
 };
+
+
+export const getInitials = (first: string, last: string) => {
+  return `${first?.charAt(0) || ""}${last?.charAt(0) || ""}`.toUpperCase();
+};

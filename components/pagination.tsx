@@ -9,7 +9,7 @@ interface ProductsPaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export function ProductsPagination({
+export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
