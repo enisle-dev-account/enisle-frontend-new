@@ -30,6 +30,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import VitalsPreviewModal from "./preview-modal";
 import { useSuccessModal } from "@/providers/success-modal-provider";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const vitalsSchema = z.object({
   weight: z.string().optional(),
@@ -49,7 +52,7 @@ const vitalsSchema = z.object({
   respiration: z.string().optional(),
   respiratory_pattern: z.string().optional(),
   other_notes: z.string().optional(),
-});
+}).catchall(z.string().optional());
 
 export type VitalsFormData = z.infer<typeof vitalsSchema>;
 
@@ -99,6 +102,9 @@ export function VitalsFormView({
   const patientId = params.consultationId as string;
   const [PreviewDialogOpen, setPreviewDialogOpen] = useState(false);
   const { showSuccess } = useSuccessModal();
+  const [customFields, setCustomFields] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newFieldName, setNewFieldName] = useState("");
 
   const form = useForm<VitalsFormData>({
     resolver: zodResolver(vitalsSchema),
@@ -123,6 +129,27 @@ export function VitalsFormView({
     },
   });
 
+  const addField = (name: string) => {
+    if (!name || customFields.includes(name)) return;
+    setCustomFields((prev) => [...prev, name]);
+    form.setValue(name, ""); // Initialize in form state
+    setNewFieldName("");
+    setIsModalOpen(false);
+  };
+
+  const removeField = (name: string) => {
+    setCustomFields((prev) => prev.filter((f) => f !== name));
+    form.unregister(name); // Clean up form state
+  };
+
+  const handleSelectAdd = (value: string) => {
+    if (value === "new_field") {
+      setIsModalOpen(true);
+    } else if (value === "emergency") {
+      addField("Emergency/Immediate Needs");
+    }
+  };
+
   const submitVitalsMutation = useCustomUrlApiMutation<{
     consultation: string;
     vital_info: Record<string, any>;
@@ -143,37 +170,25 @@ export function VitalsFormView({
   });
 
   const onSubmit = async (data: VitalsFormData) => {
-    const vital_info = {
-      weight: data.weight ? parseFloat(data.weight) : undefined,
-      height: data.height ? parseFloat(data.height) : undefined,
-      bmi: data.bmi ? parseFloat(data.bmi) : undefined,
-      temperature: data.temperature ? parseFloat(data.temperature) : undefined,
-      temperature_method: data.temperature_method,
-      pulse: data.pulse ? parseInt(data.pulse) : undefined,
-      pulse_rhythm: data.pulse_rhythm,
-      systolic_bp: data.systolic_bp ? parseInt(data.systolic_bp) : undefined,
-      diastolic_bp: data.diastolic_bp ? parseInt(data.diastolic_bp) : undefined,
-      patient_position: data.patient_position,
-      cuff_location: data.cuff_location,
-      cuff_size: data.cuff_size,
-      sp02: data.sp02 ? parseFloat(data.sp02) : undefined,
-      fi02: data.fi02 ? parseFloat(data.fi02) : undefined,
-      respiration: data.respiration ? parseInt(data.respiration) : undefined,
-      respiratory_pattern: data.respiratory_pattern,
-    };
+    // Separate standard vitals from custom fields
+    const standardKeys = ["weight", "height", "bmi", "temperature", "temperature_method", "pulse", "pulse_rhythm", "systolic_bp", "diastolic_bp", "patient_position", "cuff_location", "cuff_size", "sp02", "fi02", "respiration", "respiratory_pattern"];
+    
+    const vital_info: any = {};
+    const additional_info: any = {};
 
-    // Remove undefined values
-    Object.keys(vital_info).forEach(
-      (key) =>
-        vital_info[key as keyof typeof vital_info] === undefined &&
-        delete vital_info[key as keyof typeof vital_info],
-    );
+    Object.entries(data).forEach(([key, value]) => {
+      if (standardKeys.includes(key)) {
+        vital_info[key] = value;
+      } else if (key !== "other_notes") {
+        additional_info[key] = value;
+      }
+    });
 
     const payload = {
       consultation: consultationId,
-      vital_info,
-      status: "draft",
-      is_draft: true,
+      vital_info: {...vital_info, ...additional_info},
+      status: "completed",
+      is_draft: false,
       other_notes: data.other_notes || "",
     };
 
@@ -246,9 +261,31 @@ export function VitalsFormView({
               >
                 Cancel
               </Button>
-              <Button variant="default" type="button">
-                Add Field
-              </Button>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button className="rounded-full bg-primary text-white w-fit" variant="outline" type="button">
+                        Add Field
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56">
+                    <div className="flex flex-col">
+                        <button
+                            type="button"
+                            className="text-left px-3 py-2 hover:bg-muted rounded"
+                            onClick={() => handleSelectAdd("new_field")}
+                        >
+                            New Field
+                        </button>
+                        <button
+                            type="button"
+                            className="text-left px-3 py-2 hover:bg-muted rounded mt-1"
+                            onClick={() => handleSelectAdd("emergency")}
+                        >
+                            Emergency/Immediate Needs
+                        </button>
+                    </div>
+                </PopoverContent>
+            </Popover>
             </div>
           </div>
           <div className="space-y-18.25">
@@ -607,6 +644,41 @@ export function VitalsFormView({
             </div>
           </div>
 
+          {customFields.length > 0 && (
+              <div className="space-y-8">
+                <h3 className="font-semibold text-2xl">Additional Fields</h3>
+                <div className="grid grid-cols-2 gap-6">
+                  {customFields.map((fieldName) => (
+                    <FormField
+                      key={fieldName}
+                      control={form.control}
+                      name={fieldName}
+                      render={({ field }) => (
+                        <FormItem className="relative">
+                          <div className="flex justify-between items-center">
+                            <FormLabel className="font-semibold">{fieldName}</FormLabel>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-destructive"
+                              onClick={() => removeField(fieldName)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <FormControl>
+                            <Input placeholder={`Enter ${fieldName}`} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
           {/* Other Notes */}
           <div className="space-y-8">
             <h3 className="font-semibold text-2xl ">Additional Information</h3>
@@ -636,6 +708,27 @@ export function VitalsFormView({
               {form.formState.errors.root.message}
             </div>
           )}
+
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Custom Field</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <FormLabel>Field Name</FormLabel>
+            <Input
+              value={newFieldName}
+              onChange={(e) => setNewFieldName(e.target.value)}
+              placeholder="e.g. Blood Sugar"
+              className="mt-2"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button onClick={() => addField(newFieldName)}>Add Field</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <VitalsPreviewModal
         open={PreviewDialogOpen}
