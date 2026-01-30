@@ -75,15 +75,27 @@ export function PatientsTable({ patients, activeTab }: PatientsTableProps) {
       finished: "bg-green-100 text-green-800",
       canceled: "bg-red-100 text-red-800",
     };
-    const statusVariantMap: Record<string, "default" | "destructive" | "link" | "secondary" | "outline" | "ghost" | null | undefined> = {
+    const statusVariantMap: Record<
+      string,
+      | "default"
+      | "destructive"
+      | "link"
+      | "secondary"
+      | "outline"
+      | "ghost"
+      | null
+      | undefined
+    > = {
       in_queue: "default",
       finished: "default",
       canceled: "destructive",
     };
 
-
     return (
-      <Badge variant={statusVariantMap[status] || "default"} className={`${statusMap[status] || "bg-gray-100 text-gray-800"} border-0 capitalize`}>
+      <Badge
+        variant={statusVariantMap[status] || "default"}
+        className={`${statusMap[status] || "bg-gray-100 text-gray-800"} border-0 capitalize`}
+      >
         {status || "N/A"}
       </Badge>
     );
@@ -161,18 +173,14 @@ export function PatientsTable({ patients, activeTab }: PatientsTableProps) {
               )}
               {!isAllPatients && (
                 <td className="px-4 py-3">
-                  { patient.status && getStatusBadge(patient.status)}
+                  {patient.status && getStatusBadge(patient.status)}
                 </td>
               )}
               <td className="px-4 py-3 font-medium">
                 {patient.first_name} {patient.middle_name || ""}{" "}
                 {patient.surname}
               </td>
-              {isAllPatients && (
-                <td className="px-4 py-3">
-                  {patient.mrn}
-                </td>
-              )}
+              {isAllPatients && <td className="px-4 py-3">{patient.mrn}</td>}
               {!isAllPatients && (
                 <td className="px-4 py-3">
                   {getVitalsBadge(patient.vital_taken)}
@@ -214,7 +222,7 @@ export function PatientsTable({ patients, activeTab }: PatientsTableProps) {
                         setCheckInOpen(true);
                         setPatientId(patient.id);
                         setSelectedPatientName(
-                          `${patient.first_name} ${patient.middle_name || ""} ${patient.surname}`
+                          `${patient.first_name} ${patient.middle_name || ""} ${patient.surname}`,
                         );
                       }}
                     >

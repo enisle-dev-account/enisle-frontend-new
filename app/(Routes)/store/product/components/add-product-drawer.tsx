@@ -39,6 +39,7 @@ import { FormSkeleton } from "./skeletons/form-skeleton";
 import { toBase64 } from "@/lib/utils";
 import { shimmer } from "@/components/image-shimmer";
 import Image from "next/image";
+import { CURRENCY_LABELS, CURRENCY_SYMBOLS } from "@/app/(Routes)/pharmacy/medicine/schemas/medicine.schems";
 
 type CreateProductFormType = z.infer<typeof createProductSchema>;
 
@@ -46,7 +47,6 @@ interface AddProductDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (message: string) => void;
-  currencySymbol?: string;
   editingProductId?: string | null;
 }
 
@@ -68,7 +68,6 @@ export function AddProductDrawer({
   open,
   onOpenChange,
   onSuccess,
-  currencySymbol = "₦",
   editingProductId,
 }: AddProductDrawerProps) {
   const [coverImage, setCoverImage] = useState<ImageType | null>(null);
@@ -109,12 +108,19 @@ export function AddProductDrawer({
     name: "information",
   });
 
+  const selectedCurrency = form.watch("currency");
+
+2  
+  const currencySymbol = CURRENCY_SYMBOLS[selectedCurrency] || "₦";
+
   // Populate form when editing
   useEffect(() => {
     if (existingProduct && isEditMode) {
+      
       form.reset({
         title: existingProduct.title,
         description: existingProduct.description,
+        currency: existingProduct.currency as keyof typeof CURRENCY_SYMBOLS,
         price: existingProduct.price,
         stock: existingProduct.stock,
         vendor: existingProduct.vendor,
@@ -151,6 +157,7 @@ export function AddProductDrawer({
         description: "",
         price: 0,
         stock: 0,
+        currency: "NGN",
         vendor: "",
         sku: "",
         information: [],
@@ -258,7 +265,7 @@ export function AddProductDrawer({
       type: values.type,
       vendor: values.vendor,
       sku: values.sku,
-      currency: currencySymbol,
+      currency: values.currency || "NGN",
       cover_image: coverImage
         ? {
             id: coverImage.isExisting ? coverImage.id : "preview",
@@ -299,6 +306,8 @@ export function AddProductDrawer({
   const onSubmit = async (formData: CreateProductFormType) => {
     const data = new FormData();
 
+    console.log(formData.currency);
+    
     data.append("title", formData.title);
     data.append("description", formData.description);
     data.append("price", String(formData.price));
@@ -307,7 +316,7 @@ export function AddProductDrawer({
     data.append("type", formData.type);
     data.append("vendor", formData.vendor);
     data.append("is_active", "true");
-    data.append("currency", currencySymbol);
+    data.append("currency", formData.currency);
 
     if (formData.categories) data.append("categories", formData.categories);
     if (formData.sku) data.append("sku", formData.sku);
@@ -386,6 +395,37 @@ export function AddProductDrawer({
                               className="bg-[#F5F5F5] border-0"
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="currency"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold">
+                            Currency
+                          </FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="bg-[#F5F5F5] w-full border-0">
+                                <SelectValue placeholder="Select currency" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Object.entries(CURRENCY_LABELS).map(
+                                ([value, label]) => (
+                                  <SelectItem key={value} value={value}>
+                                    {label}
+                                  </SelectItem>
+                                ),
+                              )}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}

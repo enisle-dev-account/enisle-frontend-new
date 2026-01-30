@@ -1,3 +1,4 @@
+import { CurrencyEnum } from "@/app/(Routes)/pharmacy/medicine/schemas/medicine.schems";
 import z from "zod";
 
 const productInformationSchema = z.object({
@@ -37,6 +38,7 @@ export const createProductSchema = z.object({
   stock: z.coerce.number().nonnegative("Quantity must be non-negative"),
   availability: AvailabilityEnum,
   type: ProductTypeEnum,
+  currency:CurrencyEnum,
   vendor: z.string().min(1, "Vendor is required"),
   categories: ProductCategoryEnum,
   sku: z.string().optional(),

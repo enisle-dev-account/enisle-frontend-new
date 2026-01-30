@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
 import { request } from "@/hooks/api";
-import type { Product } from "@/types";
+import type { MedicinesData } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -20,34 +20,37 @@ import { toBase64 } from "@/lib/utils";
 import { shimmer } from "@/components/image-shimmer";
 import { useSuccessModal } from "@/providers/success-modal-provider";
 import { useConfirm } from "@/providers/confirm-box-provider";
-import { CURRENCY_SYMBOLS } from "@/app/(Routes)/pharmacy/medicine/schemas/medicine.schems";
+import { format } from "date-fns";
+import { CURRENCY_SYMBOLS } from "../schemas/medicine.schems";
 
-interface ProductsTableProps {
-  products: Product[];
+interface MedicinesTableProps {
+  medicines: MedicinesData[];
   selectedIds: string[];
   onSelectIds: (ids: string[]) => void;
-  onSelectProduct: (id: string) => void;
-  onEditProduct: (id: string) => void;
+  onSelectMedicine: (id: string) => void;
+  onEditMedicine: (id: string) => void;
   onRefetch: () => void;
 }
 
-export function ProductsTable({
-  products,
+export function MedicinesTable({
+  medicines,
   selectedIds,
   onSelectIds,
-  onSelectProduct,
-  onEditProduct,
+  onSelectMedicine,
+  onEditMedicine,
   onRefetch,
-}: ProductsTableProps) {
+}: MedicinesTableProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { showSuccess } = useSuccessModal();
   const { confirm } = useConfirm();
+
   const deleteMutation = useMutation({
-    mutationFn: (productId: string) =>
-      request(`/store/products/${productId}/delete/`, {
+    mutationFn: (medicineId: string) =>
+      request(`/pharmacy/product/${medicineId}/delete/`, {
         method: "DELETE",
       }),
     onSuccess: () => {
+      showSuccess("Medicine deleted successfully");
       setDeletingId(null);
       onRefetch();
     },
@@ -59,7 +62,7 @@ export function ProductsTable({
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      onSelectIds(products.map((p) => p.id));
+      onSelectIds(medicines.map((m) => m.id));
     } else {
       onSelectIds([]);
     }
@@ -67,9 +70,9 @@ export function ProductsTable({
 
   const handleDelete = async (id: string) => {
     const confirmed = await confirm({
-      title: "Delete Product?",
+      title: "Delete Medicine?",
       message:
-        "This action cannot be undone. This will permanently delete the product from our servers.",
+        "This action cannot be undone. This will permanently delete the medicine from our servers.",
       variant: "destructive",
     });
     if (confirmed) {
@@ -79,18 +82,16 @@ export function ProductsTable({
     }
   };
 
-  const handleSelectOne = (productId: string, checked: boolean) => {
+  const handleSelectOne = (medicineId: string, checked: boolean) => {
     if (checked) {
-      onSelectIds([...selectedIds, productId]);
+      onSelectIds([...selectedIds, medicineId]);
     } else {
-      onSelectIds(selectedIds.filter((id) => id !== productId));
+      onSelectIds(selectedIds.filter((id) => id !== medicineId));
     }
   };
 
   const isAllSelected =
-    products.length > 0 && selectedIds.length === products.length;
-  const isSomeSelected =
-    selectedIds.length > 0 && selectedIds.length < products.length;
+    medicines.length > 0 && selectedIds.length === medicines.length;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -111,6 +112,12 @@ export function ProductsTable({
     },
   };
 
+  const getAvailabilityColor = (availability: string) => {
+    return availability === "available"
+      ? "text-green-600 bg-green-50"
+      : "text-orange-600 bg-orange-50";
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -119,7 +126,7 @@ export function ProductsTable({
       className="w-full"
     >
       <table className="w-full">
-        <thead className=" sticky top-0 z-10">
+        <thead className="sticky top-0 z-10">
           <tr className="text-sm font-medium text-muted-foreground">
             <th className="px-6 py-4 text-left">
               <Checkbox
@@ -128,56 +135,81 @@ export function ProductsTable({
                 onCheckedChange={handleSelectAll}
               />
             </th>
-            <th className="px-6 py-4 text-left">Product Details</th>
-            <th className="px-6 py-4 text-left">Categories</th>
+            <th className="px-6 py-4 text-left">Name</th>
+            <th className="px-6 py-4 text-left">Generic Name</th>
+            <th className="px-6 py-4 text-left">Weight</th>
+            <th className="px-6 py-4 text-left">Category</th>
             <th className="px-6 py-4 text-left">Price</th>
             <th className="px-6 py-4 text-left">Stock</th>
-            <th className="px-6 py-4 text-left">SKU</th>
+            <th className="px-6 py-4 text-left">Status</th>
             <th className="px-6 py-4 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => (
-            <tr key={product.id} className="transition-colors">
+          {medicines.map((medicine) => (
+            <motion.tr
+              key={medicine.id}
+              variants={rowVariants}
+              className="transition-colors hover:bg-muted/50"
+            >
               <td className="px-6 py-4">
                 <Checkbox
                   className="border-custom-gray-1"
-                  checked={selectedIds.includes(product.id)}
+                  checked={selectedIds.includes(medicine.id)}
                   onCheckedChange={(checked: boolean) =>
-                    handleSelectOne(product.id, checked)
+                    handleSelectOne(medicine.id, checked)
                   }
                 />
               </td>
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
-                  <Image
-                    src={product.cover_image.file}
-                    alt={product.title}
-                    placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
-                    width={40}
-                    height={40}
-                    className="rounded-md h-10 w-10 object-cover"
-                  />
-                  <p className="font-medium text-foreground">{product.title}</p>
+                  {medicine.cover_image ? (
+                    <Image
+                      src={medicine.cover_image.file}
+                      alt={medicine.title}
+                      placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
+                      width={40}
+                      height={40}
+                      className="rounded-md h-10 w-10 object-cover"
+                    />
+                  ) : null}
+                  <p className="font-medium text-foreground max-w-50 truncate">
+                    {medicine.title}
+                  </p>
                 </div>
               </td>
-              <td className="px-6 py-4 text-sm capitalize text-muted-foreground">
-                {product.categories?.replaceAll("_", " ") || "—"}
+              <td className="px-6 py-4 text-sm text-muted-foreground">
+                {medicine.generic_name || "—"}
               </td>
-              <td className="px-6 py-4 font-medium">
-                {typeof product.price === "number"
-                  ? `${CURRENCY_SYMBOLS[product.currency as keyof typeof CURRENCY_SYMBOLS] || ""}${product.price.toLocaleString()}`
-                  : product.price}
+              <td className="px-6 py-4 text-sm">{medicine.weight}</td>
+              <td className="px-6 py-4 text-sm capitalize">
+                {medicine.category?.replaceAll("_", " ") || "—"}
               </td>
-              <td className="px-6 py-4 text-sm">{product.stock}</td>
-              <td className="px-6 py-4 text-sm font-mono text-muted-foreground">
-                {product.sku}
+              <td className="px-6 py-4 text-sm font-medium">
+                {CURRENCY_SYMBOLS[medicine.currency as keyof typeof CURRENCY_SYMBOLS] || ""}
+                {typeof medicine.price === "number"
+                  ? medicine.price.toLocaleString()
+                  : medicine.price} 
+              </td>
+              <td className="px-6 py-4 text-sm">
+                {medicine.current_stock || medicine.quantity}
+              </td>
+
+            
+              <td className="px-6 py-4">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getAvailabilityColor(
+                    medicine.availability,
+                  )}`}
+                >
+                  {medicine.availability.replaceAll("_", " ")}
+                </span>
               </td>
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                   <Button
                     className="bg-primary font-bold h-8 px-3 text-sm hover:bg-primary/90"
-                    onClick={() => onSelectProduct(product.id)}
+                    onClick={() => onSelectMedicine(medicine.id)}
                   >
                     View
                   </Button>
@@ -187,7 +219,7 @@ export function ProductsTable({
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        {deletingId === product.id ? (
+                        {deletingId === medicine.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <MoreHorizontal className="h-4 w-4" />
@@ -198,7 +230,7 @@ export function ProductsTable({
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
-                          onEditProduct(product.id);
+                          onEditMedicine(medicine.id);
                         }}
                       >
                         <Edit2 className="mr-2 h-4 w-4" />
@@ -207,20 +239,20 @@ export function ProductsTable({
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
-                          setDeletingId(product.id);
-                          handleDelete(product.id);
+                          setDeletingId(medicine.id);
+                          handleDelete(medicine.id);
                         }}
                         className="text-destructive focus:text-destructive"
-                        disabled={deletingId === product.id}
+                        disabled={deletingId === medicine.id}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        {deletingId === product.id ? "Deleting..." : "Delete"}
+                        {deletingId === medicine.id ? "Deleting..." : "Delete"}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
               </td>
-            </tr>
+            </motion.tr>
           ))}
         </tbody>
       </table>
