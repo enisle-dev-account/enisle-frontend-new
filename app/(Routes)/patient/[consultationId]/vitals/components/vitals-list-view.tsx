@@ -19,6 +19,7 @@ import type { DetailedConsultationResponsePatientVital } from "@/types";
 import { VitalDetailPage } from "./vital-details";
 import { Badge } from "@/components/ui/badge";
 import { getAdmissionStatusColor, getBillingStatusColor } from "@/lib/utils";
+import EmptyList from "@/components/empty-list";
 
 interface VitalsListViewProps {
   consultationId: string;
@@ -38,7 +39,7 @@ export function VitalsListView({ consultationId }: VitalsListViewProps) {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 px-10">
         <Skeleton className="h-10 w-40" />
         <Skeleton className="h-64 w-full" />
       </div>
@@ -58,9 +59,7 @@ export function VitalsListView({ consultationId }: VitalsListViewProps) {
 
       { !selectedVital && (<>
       {vitals.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          No vitals recorded yet
-        </div>
+        <EmptyList title="No Vitals Yet" description="There are no recorded vitals for this consultation." />
       ) : (
         <div className="overflow-hidden">
           <Table>

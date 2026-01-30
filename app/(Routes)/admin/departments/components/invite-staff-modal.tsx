@@ -31,6 +31,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useSuccessModal } from "@/providers/success-modal-provider";
 
 const inviteSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -90,7 +91,6 @@ export function InviteStaffModal({
   onSuccess,
   setViewMode,
 }: InviteStaffModalProps) {
-  const [showSuccess, setShowSuccess] = useState(false);
   const form = useForm<InviteFormData>({
     resolver: zodResolver(inviteSchema),
     defaultValues: {
@@ -100,17 +100,15 @@ export function InviteStaffModal({
       speciality: "",
     },
   });
+  const { showSuccess } = useSuccessModal();
 
   const mutation = useApiMutation<any>("POST", "/auth/invite-staff/", {
     onSuccess: () => {
-      setShowSuccess(true);
+      showSuccess("Invitation sent successfully!");
       form.reset();
       setViewMode("invitations");
-      setTimeout(() => {
-        setShowSuccess(false);
-        onOpenChange(false);
-        onSuccess?.();
-      }, 1000);
+      onOpenChange(false);
+      onSuccess?.();
     },
     onError: (error: any) => {
       console.log("[v0] Invite error:", error);
@@ -140,14 +138,6 @@ export function InviteStaffModal({
           </DialogDescription>
         </DialogHeader>
 
-        {showSuccess && (
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              Invitation sent successfully!
-            </AlertDescription>
-          </Alert>
-        )}
 
         {mutation.error && (
           <Alert className="border-red-200 bg-red-50">

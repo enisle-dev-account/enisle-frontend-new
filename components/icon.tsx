@@ -50,6 +50,8 @@ import {
   Bmi,
   BpMonitor,
   PatientDetails,
+  Success,
+  EmptyPlaceholder,
 } from "@/lib/assets/icons-compiled";
 
 // Icon registry - now all components work the same way
@@ -92,6 +94,8 @@ const iconRegistry = {
     "bmi": Bmi,
     "bp-monitor": BpMonitor,
     "patient-details": PatientDetails,
+    "success": Success,
+    "empty-placeholder": EmptyPlaceholder,
 
   // Lucide icons
   "lucide-star": LucideStar,

@@ -13,6 +13,7 @@ import { EmployeePagination } from "./components/employee-pagination"
 import { Search, Users } from "lucide-react"
 import { InviteStaffModal } from "./components/invite-staff-modal"
 import { InvitationsTable } from "./components/invitations-table"
+import EmptyList from "@/components/empty-list"
 
 const DEPARTMENTS = [
   { value: "all", label: "All Departments" },
@@ -191,9 +192,7 @@ function DepartmentsContent() {
                 ) : data?.results && data.results.length > 0 ? (
                   <EmployeeTable employees={data.results} />
                 ) : (
-                  <div className="flex items-center justify-center py-12">
-                    <p className="text-muted-foreground">No employees found</p>
-                  </div>
+                  <EmptyList title="No Employees Yet" description="There are no employees in this department." />
                 )}
               </>
             ) : (
@@ -209,9 +208,7 @@ function DepartmentsContent() {
                 ) : invitationsData?.results && invitationsData.results.length > 0 ? (
                   <InvitationsTable invitations={invitationsData.results} />
                 ) : (
-                  <div className="flex items-center justify-center py-12">
-                    <p className="text-muted-foreground">No invitations found</p>
-                  </div>
+                  <EmptyList title="No Invitations Yet" description="There are no pending invitations for this department." />
                 )}
               </>
             )}

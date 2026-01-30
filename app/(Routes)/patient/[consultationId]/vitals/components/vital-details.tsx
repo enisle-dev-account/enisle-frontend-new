@@ -1,8 +1,10 @@
 "use client";
 
 import { Icon, IconName } from "@/components/icon";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import type { DetailedConsultationResponsePatientVital } from "@/types";
+import { format } from "date-fns";
 
 interface VitalDetailModalProps {
   vital: DetailedConsultationResponsePatientVital;
@@ -107,16 +109,39 @@ export function VitalDetailPage({ vital, onClose }: VitalDetailModalProps) {
         )}
 
         {/* Status and Timestamps */}
-        <div className="border-t pt-4 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Status:</span>
-            <span className="font-medium capitalize">{vital.status}</span>
+        <div className="border-t pt-4 flex justify-between text-sm">
+          <div className="flex gap-x-4 items-center">
+            <span className="text-muted-foreground">Taken By:</span>
+
+            <div className="flex items-center space-x-3">
+              {/* Avatar (shadcn) */}
+              <Avatar className="h-10 w-10">
+                {vital.taken_by?.profile_picture ? (
+                  <AvatarImage
+                    src={vital.taken_by.profile_picture}
+                    alt={`${vital.taken_by.first_name} ${vital.taken_by.last_name}`}
+                  />
+                ) : (
+                  <AvatarFallback>
+                    {`${(vital.taken_by?.first_name?.[0] ?? "")}${(vital.taken_by?.last_name?.[0] ?? "")}`.toUpperCase()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+
+              <div className="text-left">
+                <div className="font-medium capitalize">
+                  {vital.taken_by
+                    ? `${vital.taken_by.first_name} ${vital.taken_by.last_name}`
+                    : "Unknown"}
+                </div>
+                <div className="text-xs text-muted-foreground">Nurse</div>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Last Updated:</span>
-            {/* <span className="font-medium">
-                {format(new Date(vital.updated_at), "PPp")}
-              </span> */}
+          <div className="text-muted-foreground">
+            {/* time taken */}
+            <span className="text-muted-foreground">Time Taken: {" "}</span>
+            <span className="font-medium">{format(new Date(vital.created_at), "MMM dd, yyyy   'at' hh:mm a") || "Unknown"}</span>
           </div>
         </div>
       </div>

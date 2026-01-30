@@ -13,12 +13,12 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 bg-secondary backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
-            <Icon name="logo" size={42} className="scale-230" />
+            <Icon name="logo" size={42} className="scale-230 md:ml-0 ml-7" />
             {/* <span className="text-xl font-semibold text-white">Enisle</span> */}
           </div>
           <div className="flex items-center gap-4">
             <Link href="/auth/login">
-              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 bg-transparent">
+              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 bg-transparent hover:text-white">
                 Sign in
               </Button>
             </Link>
@@ -60,7 +60,7 @@ export default function LandingPage() {
             </Button>
           </Link>
           <Link href="/auth/login" className="flex-1 sm:flex-none">
-            <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 bg-transparent">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 bg-transparent hover:text-white">
               Sign in
             </Button>
           </Link>

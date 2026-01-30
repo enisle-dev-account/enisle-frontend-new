@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, CheckCircle2 } from "lucide-react";
+import { Icon } from "./icon";
 
 interface SuccessModalProps {
   open: boolean;
@@ -57,7 +58,7 @@ export function SuccessModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm flex flex-col items-center justify-center py-12">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">.</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">{" "}</DialogTitle>
 
         </DialogHeader>
         <motion.div
@@ -65,9 +66,7 @@ export function SuccessModal({
           initial="hidden"
           animate={open ? "visible" : "hidden"}
         >
-          <div className="w-22 h-23 bg-success/20 rounded-full bg-green-500 flex items-center justify-center">
-            <CheckCircle2 className="w-8 h-8 text-green-500 fill-white" />
-          </div>
+          <Icon name="success" className="w-43 h-43 fill-none" />
         </motion.div>
 
         <motion.div
