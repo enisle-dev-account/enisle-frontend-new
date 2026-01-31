@@ -16,7 +16,7 @@ export default function MedicineDetailsPage() {
 
   const { data: medicine, isLoading } = useApiQuery<MedicinesData>(
     ["medicine-detail", medicineId],
-    `/pharmacy/products/list/${medicineId}`,
+    `/pharmacy/products/list/${medicineId}/`,
   );
 
   if (isLoading) {

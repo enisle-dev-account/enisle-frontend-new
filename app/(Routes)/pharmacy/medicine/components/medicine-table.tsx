@@ -147,9 +147,8 @@ export function MedicinesTable({
         </thead>
         <tbody>
           {medicines.map((medicine) => (
-            <motion.tr
+            <tr
               key={medicine.id}
-              variants={rowVariants}
               className="transition-colors hover:bg-muted/50"
             >
               <td className="px-6 py-4">
@@ -252,7 +251,7 @@ export function MedicinesTable({
                   </DropdownMenu>
                 </div>
               </td>
-            </motion.tr>
+            </tr>
           ))}
         </tbody>
       </table>

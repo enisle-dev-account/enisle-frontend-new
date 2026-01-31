@@ -32,6 +32,8 @@ const clearTokens = () => {
 
   Cookies.remove("access_token");
   Cookies.remove("user_role");
+  Cookies.remove("user_role");
+  Cookies.remove("pk");
   Cookies.remove("first_name");
   Cookies.remove("last_name");
   Cookies.remove("hospital_id");
@@ -58,6 +60,7 @@ const setUserCookies = (userData: any) => {
 
   Cookies.set("access_token", userData.tokens.access, cookieOptions);
   Cookies.set("refresh_token", userData.tokens.refresh, cookieOptions);
+  Cookies.set("pk", userData.pk, cookieOptions);
 
   Cookies.set("user_role", userData.user_type, cookieOptions);
   Cookies.set("first_name", userData.first_name, cookieOptions);
@@ -127,8 +130,8 @@ export const useApiMutation = <T>(
   });
 
 export const useCustomUrlApiMutation = <T>(
-    method: "POST" | "PUT" | "PATCH" | "DELETE",
-  options?: UseMutationOptions<T, Error, any>
+  method: "POST" | "PUT" | "PATCH" | "DELETE",
+  options?: UseMutationOptions<T, Error, any>,
 ) =>
   useMutation<T, Error, any>({
     mutationFn: (data: { url: string; data: any }) => {

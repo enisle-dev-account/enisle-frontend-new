@@ -21,7 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { request } from "@/hooks/api";
-import { AssignPatientFormValues } from "../schemas/encounters.schema";
+import { AssignPatientFormValues } from "../../encounter-notes/schemas/encounters.schema";
 
 interface UserInfo {
   id: string;
@@ -66,13 +66,13 @@ const departments = [
 
 export function AssignPatientForm({ form }: AssignPatientFormProps) {
   const [expandedDepartment, setExpandedDepartment] = useState<string | null>(
-    null
+    null,
   );
 
   const { data: allUsers, isLoading } = useQuery<UserInfo[]>({
     queryKey: ["users"],
     queryFn: async () => {
-      const response = await request("/authentication/users/list/", {
+      const response = await request("/admin/list-users/", {
         method: "GET",
       });
       return response;
@@ -80,6 +80,10 @@ export function AssignPatientForm({ form }: AssignPatientFormProps) {
     refetchOnMount: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+
+  console.log(allUsers);
+  
 
   const selectedDepartment = form.watch("department");
 
@@ -129,8 +133,7 @@ export function AssignPatientForm({ form }: AssignPatientFormProps) {
               <FormControl>
                 <div className="space-y-2">
                   {departments.map((department) => {
-                    const isExpanded =
-                      expandedDepartment === department.name;
+                    const isExpanded = expandedDepartment === department.name;
                     const isSelected = selectedDepartment === department.name;
                     const team = getTeamForDepartment(department.userType);
 
@@ -140,7 +143,7 @@ export function AssignPatientForm({ form }: AssignPatientFormProps) {
                         <div
                           className={cn(
                             "flex items-center gap-2 py-3 cursor-pointer hover:bg-muted/50 rounded transition-colors",
-                            isSelected && "bg-[#E3EDFF]"
+                            isSelected && "bg-[#E3EDFF]",
                           )}
                           onClick={() =>
                             handleDepartmentSelect(department.name)
@@ -148,19 +151,19 @@ export function AssignPatientForm({ form }: AssignPatientFormProps) {
                         >
                           <RadioGroup
                             value={field.value}
-                            className="flex items-center"
+                            className="flex items-center w-fit"
                           >
                             <RadioGroupItem
                               value={department.name}
                               id={department.name}
-                              className="border-[#A7AEC1]"
+                              className="border-[#A7AEC1] w-fit"
                             />
                           </RadioGroup>
                           <Label
                             htmlFor={department.name}
                             className={cn(
                               "text-sm font-normal cursor-pointer flex-1",
-                              isSelected && "text-primary font-medium"
+                              isSelected && "text-primary font-medium",
                             )}
                           >
                             {department.name}
@@ -209,15 +212,13 @@ export function AssignPatientForm({ form }: AssignPatientFormProps) {
                                           />
                                           <Avatar className="h-8 w-8">
                                             <AvatarImage
-                                              src={
-                                                member.profile_picture || ""
-                                              }
+                                              src={member.profile_picture || ""}
                                               alt={`${member.first_name} ${member.last_name}`}
                                             />
                                             <AvatarFallback className="bg-primary/10 text-primary text-xs">
                                               {getInitials(
                                                 member.first_name,
-                                                member.last_name
+                                                member.last_name,
                                               )}
                                             </AvatarFallback>
                                           </Avatar>

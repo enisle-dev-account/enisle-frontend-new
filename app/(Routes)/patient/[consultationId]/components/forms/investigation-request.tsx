@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { InvestigationRequestFormValues } from "../schemas/encounters.schema";
+import { InvestigationRequestFormValues } from "../../encounter-notes/schemas/encounters.schema";
 
 interface InvestigationRequestFormProps {
   form: UseFormReturn<InvestigationRequestFormValues>;
@@ -29,7 +29,7 @@ export function InvestigationRequestForm({
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredTests = labTests.filter((test) =>
-    test.label.toLowerCase().includes(searchQuery.toLowerCase())
+    test.label.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (

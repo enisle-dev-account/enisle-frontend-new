@@ -47,7 +47,7 @@ export default function PatientProfileLayout({ children }: { children: React.Rea
   }
 
   return (
-    <main className="rounded-t-2xl bg-background overflow-hidden h-full flex flex-col">
+    <main className="rounded-t-2xl space-y-4  overflow-hidden h-full flex flex-col">
       <PatientProfileHeader patientData={patientData} userRole={user.role} />
       <div className=" overflow-y-auto">
         <PatientProfileTabs

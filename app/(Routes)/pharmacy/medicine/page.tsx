@@ -16,7 +16,7 @@ import {
 import { Search, Plus, Trash2 } from "lucide-react";
 import { MedicinesTable } from "./components/medicine-table";
 import { AddMedicineDrawer } from "./components/add-medicine-drawer";
-import { useSearchParams, useRouter } from "next/navigation";
+import {  useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { request } from "@/hooks/api";
@@ -34,7 +34,6 @@ function MedicinesContent() {
   const [productType, setProductType] = useState<string>();
   const [productStatus, setProductStatus] = useState<string>();
   const [addDrawerOpen, setAddDrawerOpen] = useState(false);
-  const [selectedMedicine, setSelectedMedicine] = useState<string | null>(null);
   const [editingMedicineId, setEditingMedicineId] = useState<string | null>(
     null,
   );
@@ -42,7 +41,6 @@ function MedicinesContent() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const router = useRouter();
 
-  const searchParams = useSearchParams();
 
   const queryParams = new URLSearchParams();
   if (searchQuery.trim()) {

@@ -33,7 +33,7 @@ import {
   PrescribeMedicationFormValues,
   frequencyOptions,
   medicineTypeOptions,
-} from "../schemas/encounters.schema";
+} from "../../encounter-notes/schemas/encounters.schema";
 
 interface PrescribeMedicationFormProps {
   form: UseFormReturn<PrescribeMedicationFormValues>;
@@ -108,7 +108,7 @@ export function PrescribeMedicationForm({
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="bg-white border-[#E8ECF0]">
+                      <SelectTrigger className="bg-white w-full border-[#E8ECF0]">
                         <SelectValue placeholder="Select medicine" />
                       </SelectTrigger>
                     </FormControl>
@@ -136,7 +136,7 @@ export function PrescribeMedicationForm({
                   <FormControl>
                     <Input
                       placeholder="Enter quantity"
-                      className="bg-white border-[#E8ECF0]"
+                      className="bg-white w-full border-[#E8ECF0]"
                       {...field}
                     />
                   </FormControl>
@@ -159,7 +159,7 @@ export function PrescribeMedicationForm({
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="bg-white border-[#E8ECF0]">
+                      <SelectTrigger className="bg-white w-full border-[#E8ECF0]">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                     </FormControl>
@@ -213,8 +213,8 @@ export function PrescribeMedicationForm({
                         <Button
                           variant="outline"
                           className={cn(
-                            "bg-white border-[#E8ECF0] pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            "bg-white border-[#E8ECF0] rounded-none w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value ? (
@@ -255,8 +255,8 @@ export function PrescribeMedicationForm({
                         <Button
                           variant="outline"
                           className={cn(
-                            "bg-white border-[#E8ECF0] pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            "bg-white border-[#E8ECF0] rounded-none w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value ? (
@@ -296,7 +296,7 @@ export function PrescribeMedicationForm({
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="bg-white border-[#E8ECF0]">
+                      <SelectTrigger className="bg-white w-full border-[#E8ECF0]">
                         <SelectValue placeholder="Select frequency" />
                       </SelectTrigger>
                     </FormControl>

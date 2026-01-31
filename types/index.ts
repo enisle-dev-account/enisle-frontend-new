@@ -24,6 +24,7 @@ export interface User {
   countryCode?: string;
   address?: string;
   speciality?: string;
+  pk:string
 }
 
 export interface DepartmentData {
@@ -562,3 +563,54 @@ export interface DoctorConsultationResponse {
 }
 
 export type ConsultationStatus = "in_queue" | "checkout" | "finished" | "canceled" | null;
+
+
+
+export interface PharmacyPatient {
+  id: string;
+  queue_number: number;
+  consultation: {
+    id: string;
+    status: string;
+    patient: {
+      id: string;
+      first_name: string;
+      middle_name?: string;
+      surname: string;
+      gender: string;
+      profile_picture_location?: string;
+    };
+    doctor: {
+      first_name: string;
+      last_name: string;
+    };
+  };
+  prescribed_medicines: Array<{
+    id: number;
+    medicine: {
+      id: string;
+      title: string;
+      generic_name: string;
+      price: number;
+    };
+    quantity: string;
+    dosage: string;
+    medicine_type: string;
+    start_date: string;
+    end_date: string;
+    frequency: string;
+    notes: string;
+    pharmacist_notes: string;
+    status: string;
+  }>;
+  billing_status: string;
+  is_vitals_taken: boolean;
+  vital_id: string | null;
+}
+
+export interface PatientsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: PharmacyPatient[];
+}

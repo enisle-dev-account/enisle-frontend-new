@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { SurgicalRequestFormValues } from "../schemas/encounters.schema";
+import { SurgicalRequestFormValues } from "../../encounter-notes/schemas/encounters.schema";
 
 interface SurgicalRequestFormProps {
   form: UseFormReturn<SurgicalRequestFormValues>;

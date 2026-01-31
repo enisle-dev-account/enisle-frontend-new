@@ -22,6 +22,7 @@ export default async function DashboardLayout({
   const profilePicture = cookieStore.get("profile_picture")?.value;
   const email = cookieStore.get("email")?.value;
   const mobile = cookieStore.get("mobile")?.value;
+  const pk = cookieStore.get("pk")?.value as string;
   const countryCode = cookieStore.get("country_code")?.value;
   const address = cookieStore.get("address")?.value;
   const speciality = cookieStore.get("speciality")?.value;
@@ -39,6 +40,7 @@ export default async function DashboardLayout({
     hospitalId,
     hospitalName,
     hospitalType,
+    pk
   };
 
   return (
