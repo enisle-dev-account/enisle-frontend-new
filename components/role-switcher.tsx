@@ -21,7 +21,7 @@ export function RoleSwitcher() {
     { value: "nurse", label: "Nurse" },
     { value: "cashier", label: "Cashier" },
     { value: "reception", label: "Receptionist" },
-    { value: "pharmacist", label: "Pharmacist" },
+    { value: "pharmacy", label: "Pharmacist" },
     { value: "admin", label: "Administrator" },
   ]
 

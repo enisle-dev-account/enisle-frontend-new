@@ -3,7 +3,7 @@ export type UserRole =
   | "nurse"
   | "cashier"
   | "admin"
-  | "pharmacist"
+  | "pharmacy"
   | "reception"
   | "surgeon"
   | "reception"
@@ -12,152 +12,152 @@ export type UserRole =
   | "radiology";
 
 export interface User {
-  role: UserRole
-  hospitalId?: string
-  hospitalName?: string
-  hospitalType?: string
-  firstName?: string
-  lastName?: string
-  profilePicture?: string
-  email?: string
-  mobile?: string
-  countryCode?: string
-  address?: string
-  speciality?: string
+  role: UserRole;
+  hospitalId?: string;
+  hospitalName?: string;
+  hospitalType?: string;
+  firstName?: string;
+  lastName?: string;
+  profilePicture?: string;
+  email?: string;
+  mobile?: string;
+  countryCode?: string;
+  address?: string;
+  speciality?: string;
+  pk:string
 }
 
 export interface DepartmentData {
-  id: string
-  employee_id: number
-  first_name: string
-  last_name: string
-  email: string
-  position: string
-  user_type: string
-  profile_picture: string
-  profile_picture_link: string
-  department: string
-  speciality: string
-  address: string
-  gender: string
-  country_code: string
-  mobile: string
-  emergency_contact_country_code: string
-  emergency_contact: string
-  about: string
-  date_joined: string
-  supervisor: string
-  shift_schedule: string
-  license_number: string
-  is_on_leave: boolean
+  id: string;
+  employee_id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  position: string;
+  user_type: string;
+  profile_picture: string;
+  profile_picture_link: string;
+  department: string;
+  speciality: string;
+  address: string;
+  gender: string;
+  country_code: string;
+  mobile: string;
+  emergency_contact_country_code: string;
+  emergency_contact: string;
+  about: string;
+  date_joined: string;
+  supervisor: string;
+  shift_schedule: string;
+  license_number: string;
+  is_on_leave: boolean;
 }
 
 export interface DepartmentEmployeeResponseData {
-  count: number
-  next: null | number
-  previous: null | number
-  results: DepartmentData[]
+  count: number;
+  next: null | number;
+  previous: null | number;
+  results: DepartmentData[];
 }
 
 export interface PaginatedResponse<T> {
-  count: number
-  next: null | string
-  previous: null | string
-  results: T[]
+  count: number;
+  next: null | string;
+  previous: null | string;
+  results: T[];
 }
 
 export interface InvitationData {
-  id: string
-  email: string
-  role: string
-  position: string
-  speciality: string
-  status: "pending" | "accepted" | "expired"
-  created_at: string
-  expires_at: string
-  hospital_name: string
+  id: string;
+  email: string;
+  role: string;
+  position: string;
+  speciality: string;
+  status: "pending" | "accepted" | "expired";
+  created_at: string;
+  expires_at: string;
+  hospital_name: string;
 }
 
 export interface InvitationResponseData {
-  count: number
-  next: null | number
-  previous: null | number
-  results: InvitationData[]
+  count: number;
+  next: null | number;
+  previous: null | number;
+  results: InvitationData[];
 }
 
 export interface InviteStaffPayload {
-  email: string
-  role: string
-  position?: string
-  speciality?: string
+  email: string;
+  role: string;
+  position?: string;
+  speciality?: string;
 }
 
 export interface UsersListResponseItem {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  profile_picture: string;
+  user_type: string;
+  country: string;
+  speciality: string;
+  hospital: {
+    name: string;
     id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    profile_picture: string;
-    user_type: string;
     country: string;
-    speciality: string;
-    hospital: {
-        name: string;
-        id: string;
-        country: string;
-        city: string;
-    };
+    city: string;
+  };
 }
 
-
 export interface PatientData {
-  is_active: boolean
-  title: string
-  gender: string
-  first_name: string
-  middle_name: string
-  surname: string
-  dob: string
-  marital_status: string
-  occupation: string
-  religion: string
-  phone: string
-  country_code: string
-  email: string
-  address: string
-  date_joined: string
-  next_of_kin_first_name: string
-  next_of_kin_surname: string
-  next_of_kin_relationship: string
-  next_of_kin_country_code: string
-  next_of_kin_phone: string
-  next_of_kin_address: string
-  insurance_hmo: string
-  policy_holder: string
-  is_admitted: boolean
-  is_vip: boolean
-  created_by: string
+  is_active: boolean;
+  title: string;
+  gender: string;
+  first_name: string;
+  middle_name: string;
+  surname: string;
+  dob: string;
+  marital_status: string;
+  occupation: string;
+  religion: string;
+  phone: string;
+  country_code: string;
+  email: string;
+  address: string;
+  date_joined: string;
+  next_of_kin_first_name: string;
+  next_of_kin_surname: string;
+  next_of_kin_relationship: string;
+  next_of_kin_country_code: string;
+  next_of_kin_phone: string;
+  next_of_kin_address: string;
+  insurance_hmo: string;
+  policy_holder: string;
+  is_admitted: boolean;
+  is_vip: boolean;
+  created_by: string;
 }
 
 export interface ConsultationData {
-  is_active: boolean
-  consultation_date_time: string
-  billing_status: string
-  status: string
-  admission_date: string
-  is_admitted: boolean
-  priority: string
-  is_payable: boolean
-  status_history: Record<string, unknown>
-  doctor: string
-  nurse: string
-  parent_consultation: string
-  created_by: string
+  is_active: boolean;
+  consultation_date_time: string;
+  billing_status: string;
+  status: string;
+  admission_date: string;
+  is_admitted: boolean;
+  priority: string;
+  is_payable: boolean;
+  status_history: Record<string, unknown>;
+  doctor: string;
+  nurse: string;
+  parent_consultation: string;
+  created_by: string;
 }
 
 export interface RegisterPatientPayload {
-  patient: Partial<PatientData>
-  consultation: Partial<ConsultationData>
+  patient: Partial<PatientData>;
+  consultation: Partial<ConsultationData>;
 }
 
 export interface ReceptionConsultationData {
@@ -273,82 +273,79 @@ export interface DetailedConsultationResponsePatient {
 
 //Store
 export interface ProductImage {
-  id: number| string
-  file: string
-  file_type: "cover_image" | "product_image"
-  file_url?: string
-  is_active: boolean
-  product?: string
+  id: number | string;
+  file: string;
+  file_type: "cover_image" | "product_image";
+  file_url?: string;
+  is_active: boolean;
+  product?: string;
 }
-
-
 
 // Product Information Item Type (for repeater field)
 export interface ProductInformationItem {
-  key: string
-  value: string
+  key: string;
+  value: string;
 }
 
 // Product Types - Backend matching
 export interface Product {
-  id: string
-  title: string
-  description: string
-  price: number
-  availability: string
-  type: string
-  vendor: string
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  availability: string;
+  type: string;
+  vendor: string;
   stock: number;
-  currency: string
-  cover_image: ProductImage
-  product_images: ProductImage[]
-  information: Record<string, string>
-  is_active: boolean
-  hospital: string
-  created_by: string
-  categories?: string
-  sku?: string
-  created_at?: string
-  updated_at?: string
+  currency: string;
+  cover_image: ProductImage;
+  product_images: ProductImage[];
+  information: Record<string, string>;
+  is_active: boolean;
+  hospital: string;
+  created_by: string;
+  categories?: string;
+  sku?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ProductsResponse {
-  count: number
-  next?: string
-  previous?: string
-  results: Product[]
+  count: number;
+  next?: string;
+  previous?: string;
+  results: Product[];
 }
 
 // Form Types - for React Hook Form
 export interface CreateProductFormData {
-  title: string
-  description: string
-  price: number | string
-  quantity: number | string
-  availability: string
-  type: string
-  vendor: string
-  currency?: string
-  categories?: string
-  sku?: string
-  cover_image?: File | null
-  product_images?: File[]
-  information?: ProductInformationItem[]
+  title: string;
+  description: string;
+  price: number | string;
+  quantity: number | string;
+  availability: string;
+  type: string;
+  vendor: string;
+  currency?: string;
+  categories?: string;
+  sku?: string;
+  cover_image?: File | null;
+  product_images?: File[];
+  information?: ProductInformationItem[];
 }
 
 export interface CreateProductPayload {
-  title: string
-  description: string
-  price: number
-  quantity: number
-  availability: string
-  type: string
-  vendor: string
-  currency?: string
-  categories?: string
-  sku?: string
+  title: string;
+  description: string;
+  price: number;
+  quantity: number;
+  availability: string;
+  type: string;
+  vendor: string;
+  currency?: string;
+  categories?: string;
+  sku?: string;
 }
-
 
 export type ImportProductTypes = "medicine" | "product" | "staff";
 
@@ -510,4 +507,269 @@ export interface WardResponse {
   description: string;
   rooms: Room[];
   status: string;
+}
+export interface MedicinesData {
+  id: string;
+  is_active: boolean;
+  title: string;
+  generic_name: string;
+  weight: string;
+  category: string;
+  description: string;
+  price: number;
+  currency: string;
+  quantity: number;
+  availability: string;
+  type: string;
+  vendor: string;
+  vendor_price: number;
+  information: Record<string, any>;
+  expiry_date: string;
+  popularity_rating: number;
+  starting_stock: string;
+  current_stock: string;
+  created_by: string;
+  hospital: string;
+  cover_image: ProductImage;
+  product_images: ProductImage[];
+}
+
+export interface MedicineResponseData {
+  count: number;
+  next: null | number;
+  previous: null | number;
+  results: MedicinesData[];
+}
+
+
+
+
+
+
+export interface EncounterConsultationDoctor {
+  id: string;
+  doctor: CreatorInfo;
+}
+
+export interface Encounter {
+  id: string;
+  main_complaints: string;
+  previous_operations: string;
+  present_illness_history: string;
+  past_medical_history: string;
+  impressions: string;
+  recommendation: string;
+  additional_notes: Record<string, any>;
+  received_medication: string;
+  consultation: EncounterConsultationDoctor;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  created_by: CreatorInfo;
+}
+
+export interface EncountersListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Encounter[];
+}
+
+export interface PrescribedMedicine {
+  id: number;
+  medicine: {
+    id: string;
+    title: string;
+    generic_name: string;
+  };
+  dosage: string;
+  medicine_type: string;
+  start_date: string;
+  end_date: string;
+  frequency: string;
+  quantity: string;
+  notes: string;
+  pharmacist_notes: string;
+  status: string;
+  status_history: any[];
+}
+
+export interface MedicationPrescription {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  consultation: string;
+  billing_status: string;
+  status: string;
+  prescribed_medicines: PrescribedMedicine[];
+  doctor: CreatorInfo;
+}
+
+export interface LabTest {
+  id: string;
+  test: string;
+  status: string;
+  result: Record<string, string>[];
+  billing_status: string;
+  created_at: string;
+  updated_at: string;
+  is_admitted: boolean;
+  doctor: CreatorInfo;
+  investigation_request: {
+    request_type: string;
+    notes: string;
+  };
+}
+
+export interface Surgery {
+  id: string;
+  additional_fields: Record<string, any>;
+  procedure: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  billing_status: string;
+  doctor: CreatorInfo;
+  recovery_notes: string;
+  operative_site: string;
+  anesthesia_type: string;
+  status: string;
+  cpt_code: string;
+}
+
+export interface RadiologyStudy {
+  id: string;
+  study_type: string;
+  status: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+  billing_status: string;
+  doctor: CreatorInfo;
+}
+
+
+// Doctor Patients API Types
+
+export interface DoctorPatientData {
+  id: number;
+  first_name: string;
+  middle_name?: string;
+  surname: string;
+  gender: string;
+  address?: string;
+  phone?: string;
+  country_code?: string;
+  email?: string;
+  profile_picture_location?: string | null;
+  created_at: string;
+  mrn?: string;
+  age?: number;
+}
+
+export interface DoctorPatientsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: DoctorPatientsResults;
+}
+
+
+export interface DoctorPatientsResults {
+
+  data: DoctorPatientData[];
+  in_patient: number;
+  out_patient: number;
+  all_patient: number;
+}
+
+export type PatientAdmissionStatus = "admitted" | "out_patient" | null;
+
+
+
+export interface DoctorConsultationPatientData {
+  id: number;
+  first_name: string;
+  middle_name?: string;
+  surname: string;
+  gender: string;
+  is_vip: boolean;
+  mrn?: string;
+}
+
+export interface DoctorConsultationData {
+  id: string; 
+  patient: DoctorConsultationPatientData;
+  billing_status: string | null;
+  status: string; 
+  is_vitals_taken: boolean;
+  vital_id: string | null;
+  queue_number: number | null;
+  consultation_date_time?: string;
+}
+
+export interface DoctorConsultationResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: {
+    consultations: DoctorConsultationData[];
+    in_queue: number;
+    checkout: number;
+    finished: number;
+    canceled: number;
+  };
+}
+
+export type ConsultationStatus = "in_queue" | "checkout" | "finished" | "canceled" | null;
+
+
+
+export interface PharmacyPatient {
+  id: string;
+  queue_number: number;
+  consultation: {
+    id: string;
+    status: string;
+    patient: {
+      id: string;
+      first_name: string;
+      middle_name?: string;
+      surname: string;
+      gender: string;
+      profile_picture_location?: string;
+    };
+    doctor: {
+      first_name: string;
+      last_name: string;
+    };
+  };
+  prescribed_medicines: Array<{
+    id: number;
+    medicine: {
+      id: string;
+      title: string;
+      generic_name: string;
+      price: number;
+    };
+    quantity: string;
+    dosage: string;
+    medicine_type: string;
+    start_date: string;
+    end_date: string;
+    frequency: string;
+    notes: string;
+    pharmacist_notes: string;
+    status: string;
+  }>;
+  billing_status: string;
+  is_vitals_taken: boolean;
+  vital_id: string | null;
+}
+
+export interface PatientsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: PharmacyPatient[];
 }

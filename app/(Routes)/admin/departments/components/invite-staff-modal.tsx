@@ -45,7 +45,7 @@ type InviteFormData = z.infer<typeof inviteSchema>;
 const ROLES = [
   { value: "doctor", label: "Doctor" },
   { value: "nurse", label: "Nurse" },
-  { value: "pharmacist", label: "Pharmacist" },
+  { value: "pharmacy", label: "Pharmacist" },
   { value: "laboratory", label: "Laboratory Staff" },
   { value: "radiology", label: "Radiology Staff" },
   { value: "reception", label: "Reception" },
@@ -82,14 +82,14 @@ interface InviteStaffModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
-  setViewMode: React.Dispatch<React.SetStateAction<"invitations" | "staff">>
+  setViewMode: React.Dispatch<React.SetStateAction<"invitations" | "staff">>;
 }
 
 export function InviteStaffModal({
   open,
   onOpenChange,
   onSuccess,
-  setViewMode
+  setViewMode,
 }: InviteStaffModalProps) {
   const form = useForm<InviteFormData>({
     resolver: zodResolver(inviteSchema),

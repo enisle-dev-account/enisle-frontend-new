@@ -20,6 +20,7 @@ import { toBase64 } from "@/lib/utils";
 import { shimmer } from "@/components/image-shimmer";
 import { useSuccessModal } from "@/providers/success-modal-provider";
 import { useConfirm } from "@/providers/confirm-box-provider";
+import { CURRENCY_SYMBOLS } from "@/app/(Routes)/pharmacy/medicine/schemas/medicine.schems";
 
 interface ProductsTableProps {
   products: Product[];
@@ -137,10 +138,7 @@ export function ProductsTable({
         </thead>
         <tbody>
           {products.map((product) => (
-            <tr
-              key={product.id}
-              className="transition-colors"
-            >
+            <tr key={product.id} className="transition-colors">
               <td className="px-6 py-4">
                 <Checkbox
                   className="border-custom-gray-1"
@@ -168,7 +166,7 @@ export function ProductsTable({
               </td>
               <td className="px-6 py-4 font-medium">
                 {typeof product.price === "number"
-                  ? `₦${product.price.toLocaleString()}`
+                  ? `${CURRENCY_SYMBOLS[product.currency as keyof typeof CURRENCY_SYMBOLS] || ""}${product.price.toLocaleString()}`
                   : product.price}
               </td>
               <td className="px-6 py-4 text-sm">{product.stock}</td>

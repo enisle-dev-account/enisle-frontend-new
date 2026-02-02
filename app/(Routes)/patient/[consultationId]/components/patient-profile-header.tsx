@@ -33,7 +33,7 @@ export function PatientProfileHeader({
     userRole === "nurse" || userRole === "doctor" || userRole === "surgeon";
 
   return (
-    <div className="bg-background border-b border-border p-6">
+    <div className="bg-background rounded-xl border-b border-border p-6">
       <div className="flex justify-between items-start mb-6">
         {/* Left: Patient Info */}
         <div className="flex gap-4 w-1/2">

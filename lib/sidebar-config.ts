@@ -14,7 +14,6 @@ export type MenuGroup = {
   items: MenuItem[];
 };
 
-
 const doctorMenu: MenuGroup[] = [
   {
     items: [
@@ -30,7 +29,7 @@ const doctorMenu: MenuGroup[] = [
       },
       {
         title: "Patients",
-        url: "/doctor/patients",
+        url: "/doctor/patient",
         icon: "users3",
       },
       {
@@ -181,31 +180,23 @@ const pharmacistMenu: MenuGroup[] = [
         url: "/pharmacy",
         icon: "dashboard",
       },
-      {
-        title: "Vitals",
-        url: "/pharmacy/vitals",
-        icon: "add",
-      },
+
       {
         title: "Patients",
         url: "/pharmacy/patients",
         icon: "users3",
       },
       {
+        title: "Medicine",
+        url: "/pharmacy/medicine",
+        icon: "cart",
+      },
+      {
         title: "Appointments",
         url: "/pharmacy/appointments",
         icon: "file",
       },
-      {
-        title: "Bed Occupancy",
-        url: "/pharmacy/bed-occupancy",
-        icon: "bed",
-      },
-      {
-        title: "Analytics",
-        url: "/pharmacy/analytics",
-        icon: "analytics",
-      },
+
       {
         title: "Communication",
         url: "/pharmacy/communication",
@@ -499,7 +490,7 @@ export const sidebarMenuConfig: Record<UserRole, MenuGroup[]> = {
   nurse: nurseMenu,
   cashier: cashierMenu,
   admin: adminMenu,
-  pharmacist: pharmacistMenu,
+  pharmacy: pharmacistMenu,
   reception: receptionistMenu,
   surgeon: surgeonMenu,
   store: storeMenu,
