@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -79,6 +80,26 @@ const isActive = (url: string) => {
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <SidebarFooter>
+            <SidebarMenu className="gap-y-4 pt-2 border-t border-[#3F3D51]">
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={isActive("/settings")} tooltip={"settings"} className="data-active:bg-[#1b1930] pl-8 h-10 data-active:text-white data-active:border-primary border-r-5 border-transparent rounded-none hover:bg-[#1b1930] hover:text-white">
+                      <Link href={"/settings"}>
+                        <Icon name={"settings"} className=" fill-none scale-150" size={60} />
+                        <span className="font-semibold  ml-2">{"Settings"}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={isActive("/help")} tooltip={"settings"} className="data-active:bg-[#1b1930] pl-8 h-10 data-active:text-white data-active:border-primary border-r-5 border-transparent rounded-none hover:bg-[#1b1930] hover:text-white">
+                      <Link href={"/support"}>
+                        <Icon name={"help-support"} className=" fill-none scale-150" size={60} />
+                        <span className="font-semibold  ml-2">{"Help and Support"}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+              </SidebarMenu>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
