@@ -9,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 interface ConfirmDeleteDialogProps {
   open: boolean;
@@ -36,13 +37,13 @@ export default function ConfirmDeleteDialog({
         </AlertDialogHeader>
         <div className="flex gap-3 justify-end">
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
+          <Button
             onClick={onConfirm}
             disabled={isLoading}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-white hover:bg-destructive/90"
           >
             {isLoading ? "Deleting..." : "Delete"}
-          </AlertDialogAction>
+          </Button>
         </div>
       </AlertDialogContent>
     </AlertDialog>

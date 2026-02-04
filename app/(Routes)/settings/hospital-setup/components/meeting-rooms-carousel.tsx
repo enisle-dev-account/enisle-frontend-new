@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { MeetingRoomInfo } from "@/types";
+import { Icon } from "@/components/icon";
 
 interface MeetingRoomsCarouselProps {
   rooms: MeetingRoomInfo[];
@@ -41,22 +42,16 @@ export default function MeetingRoomsCarousel({
     <Carousel className="w-full">
       <CarouselContent>
         {rooms.map((room) => (
-          <CarouselItem key={room.id} className="md:basis-1/2 lg:basis-1/3">
-            <Card className="h-full">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-base">{room.name}</CardTitle>
-                    <CardDescription className="text-xs mt-1">
-                      {room.room_type}
-                    </CardDescription>
-                  </div>
+          <CarouselItem key={room.id} className="md:basis-1/2 lg:basis-1/3 py-1 mx-1">
+            <Card className="h-full pt-0 border-[#E9EBF2]">
+              <CardHeader className="relative bg-[#EDF2FF] h-full pt-8 flex items-center justify-center ">
+                    <Icon name="meeting-room" size={100} className="fill-none" />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 absolute top-2 right-2"
                       >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
@@ -75,9 +70,16 @@ export default function MeetingRoomsCarousel({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div>
               </CardHeader>
               <CardContent>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-base">{room.name}</CardTitle>
+                    <CardDescription className="text-xs mt-1">
+                      {room.room_type}
+                    </CardDescription>
+                  </div>
+                </div>
                 <p className="text-sm text-muted-foreground line-clamp-2">
                   {room.description || "No description"}
                 </p>

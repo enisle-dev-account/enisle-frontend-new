@@ -407,6 +407,7 @@ export interface DoctorPatientsData extends Patient {
   age: number;
   billing_status: string;
   status: string;
+  priority: "high" | "low" | "medium"
   ward_name: string;
   room_name: string;
   consultation_id: string | null;

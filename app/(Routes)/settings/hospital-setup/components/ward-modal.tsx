@@ -34,8 +34,17 @@ const wardSchema = z.object({
 type WardFormData = z.infer<typeof wardSchema>;
 
 interface WardBedsFormData {
-  beds: Record<number, number>;
+  beds: Array<{ roomId: number; count: number }>;
 }
+
+const wardBedsSchema = z.object({
+  beds: z.array(
+    z.object({
+      roomId: z.number(),
+      count: z.number().min(0),
+    }),
+  ),
+});
 
 interface WardModalProps {
   open: boolean;
@@ -65,8 +74,9 @@ export default function WardModal({
     },
   });
   const formBed = useForm<WardBedsFormData>({
+    resolver: zodResolver(wardBedsSchema),
     defaultValues: {
-      beds: {},
+      beds: [],
     },
   });
 
@@ -89,6 +99,14 @@ export default function WardModal({
     }
   }, [ward, open]);
 
+  useEffect(() => {
+    if (resultWard?.rooms) {
+      formBed.reset({
+        beds: resultWard.rooms.map((room) => ({ roomId: room.id, count: 0 })),
+      });
+    }
+  }, [resultWard]);
+
   const handleSubmit = async (data: WardFormData) => {
     if (!ward) {
       const res: WardResponse = await createWardMutation.mutateAsync({
@@ -109,19 +127,17 @@ export default function WardModal({
   };
 
   const handleFormBedSubmit = async (data: WardBedsFormData) => {
-    // Transform the beds object to the expected payload format
-    const bedData = Object.entries(data.beds).map(([roomId, bedCount]) => ({
-      room: parseInt(roomId),
-      beds: bedCount,
-    }));
+    const bedData = data.beds.map((bed) => ({
+    room: bed.roomId,
+    beds: bed.count,
+  }));
 
     await createWardBedMutation.mutateAsync({
       url: "/hospital/wards/beds/create/",
       method: "POST",
-      data: { data: bedData },
+      data: bedData,
     });
 
-    // Reset and close modal after successful creation
     setResultWard(null);
     setStep(0);
     onOpenChange(false);
@@ -131,9 +147,7 @@ export default function WardModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {ward ? "Edit Ward" : "Add Ward"}
-          </DialogTitle>
+          <DialogTitle>{ward ? "Edit Ward" : "Add Ward"}</DialogTitle>
           <DialogDescription>
             {ward ? "Update ward details" : "Create a new ward"}
           </DialogDescription>
@@ -152,10 +166,7 @@ export default function WardModal({
                   <FormItem>
                     <FormLabel>Ward Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter ward name"
-                        {...field}
-                      />
+                      <Input placeholder="Enter ward name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -179,7 +190,7 @@ export default function WardModal({
                 )}
               />
 
-              <FormField
+              {!ward && (<FormField
                 control={form.control}
                 name="rooms"
                 render={({ field }) => (
@@ -195,7 +206,7 @@ export default function WardModal({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              />)}
 
               <div className="flex gap-3 justify-end pt-4">
                 <Button
@@ -206,7 +217,7 @@ export default function WardModal({
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Saving..." : "Next Step"}
+                  {isLoading ? "Saving..." : ward ? "Save": "Next Step"}
                 </Button>
               </div>
             </form>
@@ -217,29 +228,35 @@ export default function WardModal({
               onSubmit={formBed.handleSubmit(handleFormBedSubmit)}
               className="space-y-4"
             >
-              {resultWard?.rooms.map((room) => (
-                <FormField
-                  key={room.id}
-                  control={formBed.control}
-                  name={`beds.${room.id}` as "beds"}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{room.name}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder={`Enter number of beds for ${room.name}`}
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(parseInt(e.target.value) || 0)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              ))}
+              {formBed.watch("beds").map((bed, index) => {
+                const room = resultWard?.rooms[index];
+                return (
+                  <FormField
+                    key={room?.id}
+                    control={formBed.control}
+                    name={`beds.${index}.count`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{room?.name}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder={`Enter number of beds for ${room?.name}`}
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(
+                                value === "" ? 0 : parseInt(value),
+                              );
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                );
+              })}
 
               <div className="flex gap-3 justify-end pt-4">
                 <Button

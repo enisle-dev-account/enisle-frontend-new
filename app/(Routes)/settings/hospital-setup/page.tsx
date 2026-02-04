@@ -11,6 +11,7 @@ import WardModal from "./components/ward-modal";
 import MeetingRoomsCarousel from "./components/meeting-rooms-carousel";
 import WardsCarousel from "./components/wards-carousel";
 import ConfirmDeleteDialog from "./components/confirm-delete-dialog";
+import { useSuccessModal } from "@/providers/success-modal-provider";
 
 export default function HospitalSetupPage() {
   const [roomModalOpen, setRoomModalOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function HospitalSetupPage() {
   const [selectedWard, setSelectedWard] = useState<WardBedOccupancyData | null>(
     null,
   );
+  const { showSuccess } = useSuccessModal();
 
   const queryClient = useQueryClient();
 
@@ -48,9 +50,9 @@ export default function HospitalSetupPage() {
   }>("POST", {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["hospital", "rooms"] });
+      showSuccess("Room created successfully!");
       setRoomModalOpen(false);
       setSelectedRoom(null);
-      console.log(res);
     },
   });
 
@@ -60,6 +62,7 @@ export default function HospitalSetupPage() {
   }>("PATCH", {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hospital", "rooms"] });
+      showSuccess("Room updated successfully!");
       setRoomModalOpen(false);
       setSelectedRoom(null);
     },
@@ -68,6 +71,7 @@ export default function HospitalSetupPage() {
   const deleteRoomMutation = useCustomUrlApiMutation("DELETE", {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hospital", "rooms"] });
+      showSuccess("Room deleted successfully!");
       setDeleteConfirmOpen(false);
       setSelectedItem(null);
     },
@@ -83,6 +87,7 @@ export default function HospitalSetupPage() {
   const createWardBedMutation = useCustomUrlApiMutation<any>("POST", {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hospital", "wards"] });
+      showSuccess("Ward, Rooms and Beds created successfully!");
       setWardModalOpen(false);
       setSelectedWard(null);
     },
@@ -91,6 +96,7 @@ export default function HospitalSetupPage() {
   const updateWardMutation = useCustomUrlApiMutation<any>("PATCH", {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hospital", "wards"] });
+      showSuccess("Ward updated successfully!");
       setWardModalOpen(false);
       setSelectedWard(null);
     },
@@ -99,6 +105,7 @@ export default function HospitalSetupPage() {
   const deleteWardMutation = useCustomUrlApiMutation("DELETE", {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hospital", "wards"] });
+      showSuccess("Ward deleted successfully!");
       setDeleteConfirmOpen(false);
       setSelectedItem(null);
     },
@@ -161,7 +168,10 @@ export default function HospitalSetupPage() {
       });
     } else if (deleteType === "ward") {
       await deleteWardMutation.mutateAsync({
-        url: `/hospital/wards/delete/${selectedItem}/`,
+        url: `/hospital/wards/delete/`,
+        data: {
+            ward_id: selectedItem
+        }
       });
     }
   };

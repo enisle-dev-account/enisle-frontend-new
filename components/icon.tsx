@@ -56,7 +56,9 @@ import {
   PasswordCheck,
   Candle2,
   Category2,
-  InfoCircle
+  InfoCircle,
+  Ward,
+  MeetingRoom,
 } from "@/lib/assets/icons-compiled";
 
 // Icon registry - now all components work the same way
@@ -106,7 +108,8 @@ const iconRegistry = {
     "candel-2": Candle2,
     "category-2": Category2,
     "info-circle": InfoCircle,
-
+    ward: Ward,
+    "meeting-room": MeetingRoom,
   // Lucide icons
   "lucide-star": LucideStar,
   "lucide-heart": LucideHeart,
