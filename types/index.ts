@@ -469,13 +469,46 @@ export interface CreateWardBedsRequestData {
   room: number;
 }
 
+export enum ConsultationStatusEnum {
+  IN_QUEUE = 'in_queue',
+  CHECKED_IN = 'checked_in',
+  ADMITTED = 'admitted',
+  CHECKOUT = 'checkout',
+  FINISHED = 'finished',
+  CANCELED = 'canceled',
+  REFERRED = 'referred',
+}
+
+export interface UserSummary {
+  id: string; // UUID string
+  first_name: string;
+  last_name: string;
+}
+
+export interface PatientSummary {
+  id: number;
+  first_name: string;
+  middle_name: string;
+  surname: string;
+  gender: string;
+  age: number;
+}
+
+export interface PatientConsultation {
+  doctor: UserSummary | null;
+  nurse: UserSummary | null;
+  patient: PatientSummary;
+  status: ConsultationStatusEnum;
+  admission_date: string | null; // ISO Date string
+}
+
 export interface WardBedData {
   billing_status: string;
   description: string;
   id: number;
   is_active: boolean;
   name: string;
-  patient_consultation?: any;
+  patient_consultation?: PatientConsultation;
   state: string;
 }
 

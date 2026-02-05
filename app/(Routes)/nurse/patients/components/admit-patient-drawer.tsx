@@ -75,7 +75,6 @@ export function AdmitPatientDrawer({
     [wards, selectedWardId],
   );
 
-  // Get all beds from selected ward
   const availableBeds = useMemo(() => {
     if (!selectedWard) return [];
     return selectedWard.rooms.flatMap((room) =>
