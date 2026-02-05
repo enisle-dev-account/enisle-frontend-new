@@ -349,6 +349,166 @@ export interface CreateProductPayload {
 
 export type ImportProductTypes = "medicine" | "product" | "staff";
 
+export interface Patient {
+    mrn: string;
+  id: string;
+  title?: 'mr' | 'mrs' | 'miss' | 'dr' | 'prof' | null;
+  gender: string;
+  first_name: string;
+  middle_name?: string | null;
+  surname: string;
+  dob: string;
+  marital_status?: 'single' | 'married' | 'divorced' | 'widowed' | null;
+  occupation?: string | null;
+  religion?: string | null;
+  phone?: string | null;
+  country_code?: string | null;
+  email?: string | null;
+  address?: string | null;
+  date_joined?: string | null;
+  next_of_kin_first_name?: string | null;
+  next_of_kin_surname?: string | null;
+  next_of_kin_relationship?: string | null;
+  next_of_kin_country_code?: string | null;
+  next_of_kin_phone?: string | null;
+  next_of_kin_address?: string | null;
+  insurance_hmo?: string | null;
+  policy_holder?: string | null;
+  is_admitted: boolean;
+  admission_date: string | null;
+  profile_picture_location?: string | null;
+  created_by?: string | null;
+  created_at: string;
+  is_vip: boolean;
+}
+
+export interface FeesListItem {
+  name: string;
+  billing_status: string;
+}
+
+export interface PatientsListEncounter {
+  id: string;
+  main_complaints: string;
+  previous_operations: string;
+  present_illness_history: string;
+  past_medical_history: string;
+  impressions: string;
+  recommendation: string;
+  additional_notes: Record<string, any>;
+  received_medication: string;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  doctor: CreatorInfo;
+}
+
+export interface DoctorPatientsData extends Patient {
+  age: number;
+  billing_status: string;
+  status: string;
+  priority: "high" | "low" | "medium"
+  ward_name: string;
+  room_name: string;
+  consultation_id: string | null;
+  vital_taken: boolean;
+  encounter: PatientsListEncounter | null;
+  fees: FeesListItem[];
+  doctor: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    profile_picture: string | null;
+  };
+  nurse: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    profile_picture: string | null;
+  };
+}
+
+export interface PatientsResultData {
+  data: DoctorPatientsData[];
+  in_patient: number;
+  out_patient: number;
+  all_patient: number;
+}
+
+export interface PatientsDataResponse {
+  count: number;
+  next: null | number;
+  previous: null | number;
+  results: PatientsResultData;
+}
+
+
+export interface MeetingRoomInfo {
+  id: string;
+  is_active: boolean;
+  name: string;
+  description: string;
+  room_type: string;
+}
+
+export interface WardsInfo {
+  name: string;
+  description: string;
+  rooms: number;
+}
+
+export interface CreateWardResponse {
+  rooms: {
+    id: number;
+    name: string;
+  }[];
+}
+
+export interface CreateWardBedsRequestData {
+  beds: number;
+  room: number;
+}
+
+export interface WardBedData {
+  billing_status: string;
+  description: string;
+  id: number;
+  is_active: boolean;
+  name: string;
+  patient_consultation?: any;
+  state: string;
+}
+
+export interface WardRoomData {
+  beds: WardBedData[];
+  description: string;
+  id: string;
+  is_active: boolean;
+  name: string;
+  state: string;
+}
+
+export interface WardBedOccupancyData {
+  description: string;
+  id: string;
+  is_active: boolean;
+  name: string;
+  rooms: WardRoomData[];
+}
+
+export interface Room {
+  id: number;
+  name: string;
+}
+
+export interface WardResponse {
+  id: string; // UUID
+  is_active: boolean;
+  name: string;
+  description: string;
+  rooms: Room[];
+  status: string;
+}
 export interface MedicinesData {
   id: string;
   is_active: boolean;

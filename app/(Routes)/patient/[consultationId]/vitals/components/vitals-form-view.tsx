@@ -30,29 +30,48 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import VitalsPreviewModal from "./preview-modal";
 import { useSuccessModal } from "@/providers/success-modal-provider";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { X } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
-const vitalsSchema = z.object({
-  weight: z.string().optional(),
-  height: z.string().optional(),
-  bmi: z.string().optional(),
-  temperature: z.string().optional(),
-  temperature_method: z.string().optional(),
-  pulse: z.string().optional(),
-  pulse_rhythm: z.string().optional(),
-  systolic_bp: z.string().optional(),
-  diastolic_bp: z.string().optional(),
-  patient_position: z.string().optional(),
-  cuff_location: z.string().optional(),
-  cuff_size: z.string().optional(),
-  sp02: z.string().optional(),
-  fi02: z.string().optional(),
-  respiration: z.string().optional(),
-  respiratory_pattern: z.string().optional(),
-  other_notes: z.string().optional(),
-}).catchall(z.string().optional());
+const optionalNumber = z
+  .string()
+  .optional()
+  .refine((val) => !val || /^-?\d*\.?\d*$/.test(val), {
+    message: "Must be a valid number",
+  });
+
+const vitalsSchema = z
+  .object({
+    weight: optionalNumber,
+    height: optionalNumber,
+    bmi: optionalNumber,
+    temperature: optionalNumber,
+    temperature_method: z.string().optional(),
+    pulse: optionalNumber,
+    pulse_rhythm: z.string().optional(),
+    systolic_bp: optionalNumber,
+    diastolic_bp: optionalNumber,
+    patient_position: z.string().optional(),
+    cuff_location: z.string().optional(),
+    cuff_size: z.string().optional(),
+    sp02: optionalNumber,
+    fi02: optionalNumber,
+    respiration: optionalNumber,
+    respiratory_pattern: z.string().optional(),
+    other_notes: z.string().optional(),
+  })
+  .catchall(z.string().optional());
 
 export type VitalsFormData = z.infer<typeof vitalsSchema>;
 
@@ -171,8 +190,25 @@ export function VitalsFormView({
 
   const onSubmit = async (data: VitalsFormData) => {
     // Separate standard vitals from custom fields
-    const standardKeys = ["weight", "height", "bmi", "temperature", "temperature_method", "pulse", "pulse_rhythm", "systolic_bp", "diastolic_bp", "patient_position", "cuff_location", "cuff_size", "sp02", "fi02", "respiration", "respiratory_pattern"];
-    
+    const standardKeys = [
+      "weight",
+      "height",
+      "bmi",
+      "temperature",
+      "temperature_method",
+      "pulse",
+      "pulse_rhythm",
+      "systolic_bp",
+      "diastolic_bp",
+      "patient_position",
+      "cuff_location",
+      "cuff_size",
+      "sp02",
+      "fi02",
+      "respiration",
+      "respiratory_pattern",
+    ];
+
     const vital_info: any = {};
     const additional_info: any = {};
 
@@ -186,7 +222,7 @@ export function VitalsFormView({
 
     const payload = {
       consultation: consultationId,
-      vital_info: {...vital_info, ...additional_info},
+      vital_info: { ...vital_info, ...additional_info },
       status: "completed",
       is_draft: false,
       other_notes: data.other_notes || "",
@@ -215,25 +251,24 @@ export function VitalsFormView({
     <div className="space-y-6">
       {/* Header with user info */}
       <div className="flex justify-between items-center border-b pb-3.75 px-6">
-      <div className="flex items-center gap-3 ">
-        <Avatar>
-          <AvatarImage src={user?.profilePicture || "/placeholder.svg"} />
-          <AvatarFallback>{userInitials}</AvatarFallback>
-        </Avatar>
-        <div>
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">
-              {user?.firstName} {user?.lastName}
-            </span>{" "}
-            is submitting{" "}
-            <span className="text-blue-500 font-semibold">Vitals</span>
-          </p>
+        <div className="flex items-center gap-3 ">
+          <Avatar>
+            <AvatarImage src={user?.profilePicture || "/placeholder.svg"} />
+            <AvatarFallback>{userInitials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">
+                {user?.firstName} {user?.lastName}
+              </span>{" "}
+              is submitting{" "}
+              <span className="text-blue-500 font-semibold">Vitals</span>
+            </p>
+          </div>
         </div>
-      </div>
         <div>
-            <p className="text-muted-foreground">
-            {format(new Date(), "MMM dd, yyyy")} |{" "}
-            {format(new Date(), "HH:mm")}
+          <p className="text-muted-foreground">
+            {format(new Date(), "MMM dd, yyyy")} | {format(new Date(), "HH:mm")}
           </p>
         </div>
       </div>
@@ -242,7 +277,10 @@ export function VitalsFormView({
 
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 px-10">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8 px-10"
+        >
           <div className="flex justify-between items-center pb-4">
             <h2 className="text-lg font-bold">Vitals</h2>
             <div className="flex gap-3">
@@ -261,100 +299,56 @@ export function VitalsFormView({
               >
                 Cancel
               </Button>
-            <Popover>
+              <Popover>
                 <PopoverTrigger asChild>
-                    <Button className="rounded-full bg-primary text-white w-fit" variant="outline" type="button">
-                        Add Field
-                    </Button>
+                  <Button
+                    className="rounded-full bg-primary text-white w-fit"
+                    variant="outline"
+                    type="button"
+                  >
+                    Add Field
+                  </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-56">
-                    <div className="flex flex-col">
-                        <button
-                            type="button"
-                            className="text-left px-3 py-2 hover:bg-muted rounded"
-                            onClick={() => handleSelectAdd("new_field")}
-                        >
-                            New Field
-                        </button>
-                        <button
-                            type="button"
-                            className="text-left px-3 py-2 hover:bg-muted rounded mt-1"
-                            onClick={() => handleSelectAdd("emergency")}
-                        >
-                            Emergency/Immediate Needs
-                        </button>
-                    </div>
+                  <div className="flex flex-col">
+                    <button
+                      type="button"
+                      className="text-left px-3 py-2 hover:bg-muted rounded"
+                      onClick={() => handleSelectAdd("new_field")}
+                    >
+                      New Field
+                    </button>
+                    <button
+                      type="button"
+                      className="text-left px-3 py-2 hover:bg-muted rounded mt-1"
+                      onClick={() => handleSelectAdd("emergency")}
+                    >
+                      Emergency/Immediate Needs
+                    </button>
+                  </div>
                 </PopoverContent>
-            </Popover>
+              </Popover>
             </div>
           </div>
           <div className="space-y-18.25">
-          {/* Section 1: Weight, Height, BMI */}
-          <div className="space-y-8">
-            <div className="grid grid-cols-3 gap-6">
-              <FormField
-                control={form.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Weight</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter patient's weight" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="height"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Height</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter patient's height" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="bmi"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">BMI</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter patient's BMI" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Sections 2 & 3: Temperature and Pulse */}
-          <div className="grid grid-cols-2 gap-8">
-            {/* Temperature */}
+            {/* Section 1: Weight, Height, BMI */}
             <div className="space-y-8">
-              <div>
-                <h3 className="font-semibold text-2xl ">Temperature</h3>
-                <p className="text-sm text-muted-foreground">
-                  Please fill in patient's temperature details
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
-                  name="temperature"
+                  name="weight"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="font-semibold">
-                        Temperature
+                        Weight (kg)
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter temperature" {...field} />
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Enter patient's weight"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -362,13 +356,37 @@ export function VitalsFormView({
                 />
                 <FormField
                   control={form.control}
-                  name="temperature_method"
+                  name="height"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-semibold">Method</FormLabel>
+                      <FormLabel className="font-semibold">
+                        Height (cm)
+                      </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter temperature method"
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Enter patient's height"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="bmi"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-semibold">
+                        BMI (kg/m)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Enter patient's BMI"
                           {...field}
                         />
                       </FormControl>
@@ -379,23 +397,143 @@ export function VitalsFormView({
               </div>
             </div>
 
-            {/* Pulse */}
+            {/* Sections 2 & 3: Temperature and Pulse */}
+            <div className="grid grid-cols-2 gap-8">
+              {/* Temperature */}
+              <div className="space-y-8">
+                <div>
+                  <h3 className="font-semibold text-2xl ">Temperature</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Please fill in patient's temperature details
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="temperature"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-semibold">
+                          Temperature (°C)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            placeholder="Enter temperature"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="temperature_method"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-semibold">Method</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter temperature method"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Pulse */}
+              <div className="space-y-8">
+                <div>
+                  <h3 className="font-semibold text-2xl ">Pulse</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Please fill in patient's pulse details
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="pulse"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-semibold">
+                          Pulse (bpm)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            placeholder="Enter pulse count"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pulse_rhythm"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-semibold">Rhythm</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select rhythm" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {PULSE_RHYTHM_OPTIONS.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 4: Blood Pressure */}
             <div className="space-y-8">
               <div>
-                <h3 className="font-semibold text-2xl ">Pulse</h3>
+                <h3 className="font-semibold text-2xl ">Blood Pressure</h3>
                 <p className="text-sm text-muted-foreground">
-                  Please fill in patient's pulse details
+                  Please fill in patient's blood pressure details
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-5 gap-4">
                 <FormField
                   control={form.control}
-                  name="pulse"
+                  name="systolic_bp"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-semibold">Pulse</FormLabel>
+                      <FormLabel className="font-semibold">
+                        Systolic BP (mmHg)
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter pulse count" {...field} />
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Systolic"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -403,21 +541,97 @@ export function VitalsFormView({
                 />
                 <FormField
                   control={form.control}
-                  name="pulse_rhythm"
+                  name="diastolic_bp"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-semibold">Rhythm</FormLabel>
+                      <FormLabel className="font-semibold">
+                        Diastolic BP (mmHg)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Diastolic"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="patient_position"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-semibold">Position</FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select rhythm" />
+                            <SelectValue placeholder="Position" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {PULSE_RHYTHM_OPTIONS.map((option) => (
+                          {PATIENT_POSITION_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="cuff_location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-semibold">
+                        Cuff Location
+                      </FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Location" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {CUFF_LOCATION_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="cuff_size"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-semibold">Cuff Size</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Size" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {CUFF_SIZE_OPTIONS.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
                             </SelectItem>
@@ -430,221 +644,111 @@ export function VitalsFormView({
                 />
               </div>
             </div>
-          </div>
 
-          {/* Section 4: Blood Pressure */}
-          <div className="space-y-8">
-            <div>
-              <h3 className="font-semibold text-2xl ">Blood Pressure</h3>
-              <p className="text-sm text-muted-foreground">
-                Please fill in patient's blood pressure details
-              </p>
-            </div>
-            <div className="grid grid-cols-5 gap-4">
-              <FormField
-                control={form.control}
-                name="systolic_bp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Systolic BP</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Systolic" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="diastolic_bp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">
-                      Diastolic BP
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Diastolic" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="patient_position"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Position</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Position" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {PATIENT_POSITION_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="cuff_location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">
-                      Cuff Location
-                    </FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Location" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {CUFF_LOCATION_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="cuff_size"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Cuff Size</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Size" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {CUFF_SIZE_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Sections 5 & 6: Oxygenation and Respiration */}
-          <div className="grid grid-cols-2 gap-8">
-            {/* Oxygenation */}
-            <div className="space-y-8">
-              <div>
-                <h3 className="font-semibold text-2xl ">Oxygenation</h3>
-                <p className="text-sm text-muted-foreground">
-                  Please fill in patient's oxygenation details
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="sp02"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-semibold">SpO2</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter SpO2" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="fi02"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-semibold">FiO2</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter FiO2" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Respiration */}
-            <div className="space-y-8">
-              <div>
-                <h3 className="font-semibold text-2xl ">Respiration</h3>
-                <p className="text-sm text-muted-foreground">
-                  Please fill in patient's respiration details
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="respiration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-semibold">
-                        Respiration
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter respiration count"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="respiratory_pattern"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-semibold">Pattern</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
+            {/* Sections 5 & 6: Oxygenation and Respiration */}
+            <div className="grid grid-cols-2 gap-8">
+              {/* Oxygenation */}
+              <div className="space-y-8">
+                <div>
+                  <h3 className="font-semibold text-2xl ">Oxygenation</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Please fill in patient's oxygenation details
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="sp02"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-semibold">SpO2</FormLabel>
                         <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select pattern" />
-                          </SelectTrigger>
+                          <Input placeholder="Enter SpO2" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {RESPIRATORY_PATTERN_OPTIONS.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fi02"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-semibold">FiO2</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter FiO2" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Respiration */}
+              <div className="space-y-8">
+                <div>
+                  <h3 className="font-semibold text-2xl ">Respiration</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Please fill in patient's respiration details
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="respiration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-semibold">
+                          Respiration
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            placeholder="Enter respiration count"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="respiratory_pattern"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-semibold">Pattern</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select pattern" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {RESPIRATORY_PATTERN_OPTIONS.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {customFields.length > 0 && (
+            {customFields.length > 0 && (
               <div className="space-y-8">
                 <h3 className="font-semibold text-2xl">Additional Fields</h3>
                 <div className="grid grid-cols-2 gap-6">
@@ -656,7 +760,9 @@ export function VitalsFormView({
                       render={({ field }) => (
                         <FormItem className="relative">
                           <div className="flex justify-between items-center">
-                            <FormLabel className="font-semibold">{fieldName}</FormLabel>
+                            <FormLabel className="font-semibold">
+                              {fieldName}
+                            </FormLabel>
                             <Button
                               type="button"
                               variant="ghost"
@@ -668,7 +774,10 @@ export function VitalsFormView({
                             </Button>
                           </div>
                           <FormControl>
-                            <Input placeholder={`Enter ${fieldName}`} {...field} />
+                            <Input
+                              placeholder={`Enter ${fieldName}`}
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -679,28 +788,29 @@ export function VitalsFormView({
               </div>
             )}
 
-          {/* Other Notes */}
-          <div className="space-y-8">
-            <h3 className="font-semibold text-2xl ">Additional Information</h3>
-            <FormField
-              control={form.control}
-              name="other_notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-semibold">Other Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Add any additional notes..."
-                      {...field}
-                      className="min-h-24"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
+            {/* Other Notes */}
+            <div className="space-y-8">
+              <h3 className="font-semibold text-2xl ">
+                Additional Information
+              </h3>
+              <FormField
+                control={form.control}
+                name="other_notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-semibold">Other Notes</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Add any additional notes..."
+                        {...field}
+                        className="min-h-24"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
           {form.formState.errors.root && (
@@ -710,36 +820,39 @@ export function VitalsFormView({
           )}
 
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Custom Field</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <FormLabel>Field Name</FormLabel>
-            <Input
-              value={newFieldName}
-              onChange={(e) => setNewFieldName(e.target.value)}
-              placeholder="e.g. Blood Sugar"
-              className="mt-2"
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button onClick={() => addField(newFieldName)}>Add Field</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Custom Field</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <FormLabel>Field Name</FormLabel>
+                <Input
+                  value={newFieldName}
+                  onChange={(e) => setNewFieldName(e.target.value)}
+                  placeholder="e.g. Blood Sugar"
+                  className="mt-2"
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => addField(newFieldName)}>
+                  Add Field
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
-      <VitalsPreviewModal
-        open={PreviewDialogOpen}
-        onOpenChange={setPreviewDialogOpen}
-        vitalsData={form.getValues() as VitalsFormData}
-        submitVitalsMutation={submitVitalsMutation}
-        handleSubmitFromPreview={handleSubmitFromPreview}
-      />
+          <VitalsPreviewModal
+            open={PreviewDialogOpen}
+            onOpenChange={setPreviewDialogOpen}
+            vitalsData={form.getValues() as VitalsFormData}
+            submitVitalsMutation={submitVitalsMutation}
+            handleSubmitFromPreview={handleSubmitFromPreview}
+          />
         </form>
       </Form>
-
     </div>
   );
 }

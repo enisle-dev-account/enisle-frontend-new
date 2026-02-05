@@ -11,14 +11,14 @@ interface PatientProfileTabsProps {
 
 // Define which roles can see which tabs
 const TAB_ACCESS: Record<string, UserRole[]> = {
-  vitals: ["nurse", "doctor", "surgeon", "admin"],
+  vitals: ["nurse", "doctor", "surgeon", "admin",],
   medication: ["nurse", "doctor", "surgeon", "admin"],
   encounter_notes: ["doctor", "surgeon", "admin"],
   labs: ["doctor", "surgeon", "admin"],
   scan: ["doctor", "surgeon", "admin"],
   all: ["doctor", "surgeon", "admin"],
   surgery: ["doctor", "surgeon", "admin"],
-  receipt: ["doctor", "surgeon", "admin"],
+  receipt: ["doctor", "surgeon", "admin", "reception"],
 };
 
 const TAB_CONFIG = [

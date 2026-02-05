@@ -52,6 +52,13 @@ import {
   PatientDetails,
   Success,
   EmptyPlaceholder,
+  ShieldTick,
+  PasswordCheck,
+  Candle2,
+  Category2,
+  InfoCircle,
+  Ward,
+  MeetingRoom,
 } from "@/lib/assets/icons-compiled";
 
 // Icon registry - now all components work the same way
@@ -96,7 +103,13 @@ const iconRegistry = {
     "patient-details": PatientDetails,
     "success": Success,
     "empty-placeholder": EmptyPlaceholder,
-
+    "shield-tick": ShieldTick,
+    "password-check": PasswordCheck,
+    "candel-2": Candle2,
+    "category-2": Category2,
+    "info-circle": InfoCircle,
+    ward: Ward,
+    "meeting-room": MeetingRoom,
   // Lucide icons
   "lucide-star": LucideStar,
   "lucide-heart": LucideHeart,

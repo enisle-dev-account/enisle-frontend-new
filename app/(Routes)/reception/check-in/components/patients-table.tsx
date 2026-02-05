@@ -9,6 +9,7 @@ import { ConfirmAction } from "@/components/reuse-confirm-modal";
 import { useCustomUrlApiMutation } from "@/hooks/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { CheckInModal } from "./check-in-modal";
+import Link from "next/link";
 
 interface PatientsTableProps {
   patients: ReceptionConsultationData[];
@@ -236,7 +237,9 @@ export function PatientsTable({ patients, activeTab }: PatientsTableProps) {
                     variant="outline"
                     className="gap-1 bg-transparent border-primary text-primary"
                   >
+                    <Link href={`/patient/${patient.consultation_id}/receipt`}>
                     View
+                    </Link>
                   </Button>
                   {isInQueue && (
                     <Button
