@@ -73,6 +73,7 @@ export const surgicalRequestSchema = z.object({
   procedure: z.string().min(1, "Procedure is required"),
   reason: z.string().min(1, "Reason for referral is required"),
   notes: z.string().optional(),
+  surgery_date: z.date().optional()
 });
 
 export const investigationRequestSchema = z.object({

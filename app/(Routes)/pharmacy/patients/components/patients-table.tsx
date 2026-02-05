@@ -10,14 +10,17 @@ import { toBase64 } from "@/lib/utils";
 import { shimmer } from "@/components/image-shimmer";
 import { PharmacyPatient } from "@/types";
 
-
 interface PatientsTableProps {
   patients: PharmacyPatient[];
   onViewPatient: (patient: PharmacyPatient) => void;
   status: string;
 }
 
-export function PatientsTable({ patients, onViewPatient, status }: PatientsTableProps) {
+export function PatientsTable({
+  patients,
+  onViewPatient,
+  status,
+}: PatientsTableProps) {
   const getStatusBadge = (consultationStatus: string) => {
     if (consultationStatus === "in_queue") {
       return (
@@ -34,7 +37,9 @@ export function PatientsTable({ patients, onViewPatient, status }: PatientsTable
   };
 
   const getMedicineStatus = (medicines: Array<{ status: string }>) => {
-    const allCompleted = medicines.every((m) => m.status?.toLowerCase() === "completed");
+    const allCompleted = medicines.every(
+      (m) => m.status?.toLowerCase() === "completed",
+    );
     if (allCompleted) {
       return <p className="text-[#2271FE]">Completed</p>;
     }
@@ -42,11 +47,19 @@ export function PatientsTable({ patients, onViewPatient, status }: PatientsTable
   };
 
   const getBillingStatus = (billingStatus: string) => {
-    return billingStatus.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
+    return billingStatus
+      .replace("_", " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
-  const constructName = (patient: PharmacyPatient["consultation"]["patient"]) => {
-    const parts = [patient.first_name, patient.middle_name, patient.surname].filter(Boolean);
+  const constructName = (
+    patient: PharmacyPatient["consultation"]["patient"],
+  ) => {
+    const parts = [
+      patient.first_name,
+      patient.middle_name,
+      patient.surname,
+    ].filter(Boolean);
     return parts.join(" ");
   };
 
@@ -79,7 +92,9 @@ export function PatientsTable({ patients, onViewPatient, status }: PatientsTable
       <table className="w-full">
         <thead className="sticky top-0 z-10 bg-background">
           <tr className="text-sm font-medium text-muted-foreground border-b">
-            {status === "in_queue" && <th className="px-6 py-4 text-left">Queue No. / Status</th>}
+            {status === "in_queue" && (
+              <th className="px-6 py-4 text-left">Queue No. / Status</th>
+            )}
             <th className="px-6 py-4 text-left">Name</th>
             <th className="px-6 py-4 text-left">Status</th>
             <th className="px-6 py-4 text-left">Vitals</th>
@@ -90,7 +105,7 @@ export function PatientsTable({ patients, onViewPatient, status }: PatientsTable
         </thead>
         <tbody>
           {patients.map((patient) => (
-            <motion.tr
+            <tr
               key={patient.id}
               variants={rowVariants}
               className="border-b transition-colors hover:bg-muted/50"
@@ -115,7 +130,9 @@ export function PatientsTable({ patients, onViewPatient, status }: PatientsTable
                 <div className="flex items-center gap-3">
                   {patient.consultation.patient.profile_picture_location ? (
                     <Image
-                      src={patient.consultation.patient.profile_picture_location}
+                      src={
+                        patient.consultation.patient.profile_picture_location
+                      }
                       alt={constructName(patient.consultation.patient)}
                       placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(40, 40))}`}
                       width={40}
@@ -130,22 +147,34 @@ export function PatientsTable({ patients, onViewPatient, status }: PatientsTable
                       </span>
                     </div>
                   )}
-                  <p className="font-medium">{constructName(patient.consultation.patient)}</p>
+                  <p className="font-medium">
+                    {constructName(patient.consultation.patient)}
+                  </p>
                 </div>
               </td>
-              <td className="px-6 py-4">{getMedicineStatus(patient.prescribed_medicines)}</td>
+              <td className="px-6 py-4">
+                {getMedicineStatus(patient.prescribed_medicines)}
+              </td>
               <td className="px-6 py-4">
                 {patient.is_vitals_taken ? (
-                  <p className="text-[#2271FE] cursor-pointer hover:underline">Taken</p>
+                  <p className="text-[#2271FE] cursor-pointer hover:underline">
+                    Taken
+                  </p>
                 ) : (
                   <p>Not Taken</p>
                 )}
               </td>
               <td className="px-6 py-4">
-                <p className="capitalize">{patient.consultation.patient.gender}</p>
+                <p className="capitalize">
+                  {patient.consultation.patient.gender}
+                </p>
               </td>
               <td className="px-6 py-4">
-                <p className={patient.billing_status === "paid" ? "text-[#00D261]" : ""}>
+                <p
+                  className={
+                    patient.billing_status === "paid" ? "text-[#00D261]" : ""
+                  }
+                >
                   {getBillingStatus(patient.billing_status)}
                 </p>
               </td>
@@ -164,7 +193,7 @@ export function PatientsTable({ patients, onViewPatient, status }: PatientsTable
                   )}
                 </div>
               </td>
-            </motion.tr>
+            </tr>
           ))}
         </tbody>
       </table>

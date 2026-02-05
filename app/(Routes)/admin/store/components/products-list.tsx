@@ -19,7 +19,7 @@ export default function ProductsListView({
   onSelectProduct,
   onDelete,
   deletingIds,
-  isDeleting
+  isDeleting,
 }: {
   products: Product[];
   selectedIds: string[];
@@ -80,12 +80,11 @@ export default function ProductsListView({
         </thead>
         <tbody>
           {products.map((product) => {
-            const isItemDeleting = deletingIds.includes(product.id) && isDeleting;
+            const isItemDeleting =
+              deletingIds.includes(product.id) && isDeleting;
             return (
-              <motion.tr
+              <tr
                 key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
                 className=" hover:bg-[#E6F0FF] transition-colors"
               >
                 <td className="px-6 py-4">
@@ -162,7 +161,7 @@ export default function ProductsListView({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </td>
-              </motion.tr>
+              </tr>
             );
           })}
         </tbody>
