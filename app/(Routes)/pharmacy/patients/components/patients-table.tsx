@@ -107,7 +107,6 @@ export function PatientsTable({
           {patients.map((patient) => (
             <tr
               key={patient.id}
-              variants={rowVariants}
               className="border-b transition-colors hover:bg-muted/50"
             >
               {status === "in_queue" && (

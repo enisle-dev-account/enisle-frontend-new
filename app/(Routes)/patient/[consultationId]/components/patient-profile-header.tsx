@@ -34,7 +34,7 @@ export function PatientProfileHeader({
   };
 
   const showStartVitalsButton =
-    userRole === "nurse" || userRole === "doctor" || userRole === "surgeon";
+    userRole === "nurse" || userRole === "doctor" || userRole === "surgery";
 
   return (
     <div className="bg-background rounded-xl border-b border-border p-6">
