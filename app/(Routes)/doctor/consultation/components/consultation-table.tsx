@@ -84,21 +84,18 @@ export function ConsultationsTable({
     router.push(`/patient/${consultationId}/vitals`);
   };
 
-  const getQueueNumberBadge = (
-    queueNumber: number | null,
-    status: string
-  ) => {
+  const getQueueNumberBadge = (queueNumber: number | null, status: string) => {
     if (!queueNumber) return null;
 
     const getBgColor = () => {
       if (status === "checked_in") return "bg-green-500";
-      if (status === "not_present") return "bg-orange-500";
-      return "bg-green-500";
+      if (status === "not_present") return "bg-amber-500";
+      return "bg-amber-500";
     };
 
     return (
       <div
-        className={`h-10 w-10 rounded-full ${getBgColor()} flex items-center justify-center text-white font-bold text-sm`}
+        className={`h-7 w-10 rounded-full ${getBgColor()} flex items-center justify-center text-white font-bold text-sm`}
       >
         {queueNumber}
       </div>
@@ -106,21 +103,18 @@ export function ConsultationsTable({
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<
-      string,
-      { label: string; className: string }
-    > = {
+    const statusConfig: Record<string, { label: string; className: string }> = {
       checked_in: {
         label: "Checked In",
         className: "bg-green-50 text-green-600 border-green-200",
       },
       not_present: {
         label: "Not Present",
-        className: "bg-orange-50 text-orange-600 border-orange-200",
+        className: "bg-amber-50 text-amber-600 border-amber-200",
       },
       in_queue: {
         label: "In Queue",
-        className: "bg-blue-50 text-blue-600 border-blue-200",
+        className: "bg-amber-50 text-amber-600 border-amber-200",
       },
       finished: {
         label: "Finished",
@@ -153,14 +147,18 @@ export function ConsultationsTable({
       );
     }
     return (
-      <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">
+      <Badge
+        variant="outline"
+        className="bg-yellow-50 text-yellow-600 border-yellow-200"
+      >
         Pending
       </Badge>
     );
   };
 
   const getBillingBadge = (billingStatus: string | null) => {
-    if (!billingStatus) return <span className="text-muted-foreground text-sm">N/A</span>;
+    if (!billingStatus)
+      return <span className="text-muted-foreground text-sm">N/A</span>;
 
     const statusConfig: Record<string, { className: string }> = {
       paid: { className: "bg-green-50 text-green-600 border-green-200" },
@@ -209,7 +207,9 @@ export function ConsultationsTable({
             {isInQueue && (
               <TableHead className="font-semibold">Queue no / Status</TableHead>
             )}
-            {!isInQueue && <TableHead className="font-semibold">Status</TableHead>}
+            {!isInQueue && (
+              <TableHead className="font-semibold">Status</TableHead>
+            )}
             <TableHead className="font-semibold">Name</TableHead>
             <TableHead className="font-semibold">Vitals</TableHead>
             <TableHead className="font-semibold">Gender</TableHead>
@@ -219,9 +219,8 @@ export function ConsultationsTable({
         </TableHeader>
         <TableBody>
           {consultations.map((consultation) => (
-            <motion.tr
+            <tr
               key={consultation.id}
-              variants={rowVariants}
               className="cursor-pointer transition-colors hover:bg-muted/50"
               onClick={() => handleRowClick(consultation.id)}
             >
@@ -230,7 +229,7 @@ export function ConsultationsTable({
                   <div className="flex items-center gap-3">
                     {getQueueNumberBadge(
                       consultation.queue_number,
-                      consultation.status
+                      consultation.status,
                     )}
                     {getStatusBadge(consultation.status)}
                   </div>
@@ -254,7 +253,7 @@ export function ConsultationsTable({
                 {getVitalsBadge(
                   consultation.is_vitals_taken,
                   consultation.id,
-                  null
+                  null,
                 )}
               </TableCell>
               <TableCell>
@@ -287,7 +286,7 @@ export function ConsultationsTable({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="gap-1.5"
+                      className="gap-1.5 border-primary text-primary hover:bg-primary hover:text-white"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleCheckIn(consultation.id);
@@ -302,7 +301,7 @@ export function ConsultationsTable({
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0"
+                        className="gap-1.5 border-primary px-2 rounded-lg  text-primary hover:bg-primary hover:text-white"
                         onClick={(e) => {
                           e.stopPropagation();
                           // TODO: Implement notification feature
@@ -313,7 +312,7 @@ export function ConsultationsTable({
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="gap-1.5 border-primary px-2 rounded-lg  text-primary hover:bg-primary hover:text-white"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleCancel(consultation.id);
@@ -326,7 +325,7 @@ export function ConsultationsTable({
                   )}
                 </div>
               </TableCell>
-            </motion.tr>
+            </tr>
           ))}
         </TableBody>
       </Table>

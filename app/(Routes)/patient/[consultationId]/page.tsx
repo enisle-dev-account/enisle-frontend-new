@@ -281,7 +281,7 @@ export default function ConsultationDetailPage({
           onOpenSurgical={() => openModal(ModalFlow.SURGICAL_CONSULTATION)}
         />
       )}
-{/* 
+      {/* 
       {currentTab === "Vitals" && (
         <VitalList
           vitals={consultation?.vital ? [consultation.vital] : []}
@@ -330,7 +330,6 @@ export default function ConsultationDetailPage({
       )} */}
 
       {/* Encounter Form Modal */}
-     
 
       {/* Action Modals */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
@@ -416,7 +415,18 @@ export default function ConsultationDetailPage({
                   onSubmit={assignForm.handleSubmit(handleAssignSubmit)}
                   className="space-y-4"
                 >
-                  <AssignPatientForm form={assignForm} />
+                  <AssignPatientForm
+                    allowedDepartments={
+                      currentFlow === ModalFlow.PRESCRIBE_MEDICATION
+                        ? ["pharmacy"]
+                        : currentFlow === ModalFlow.REQUEST_INVESTIGATION
+                          ? ["laboratory"]
+                          : currentFlow === ModalFlow.SURGICAL_CONSULTATION
+                            ? ["surgery"]
+                            : []
+                    }
+                    form={assignForm}
+                  />
                   <DialogFooter className="px-6 pb-4">
                     <Button
                       type="button"

@@ -8,50 +8,50 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApiQuery } from "@/hooks/api";
 
-import type { DoctorConsultationResponse, ConsultationStatus } from "@/types";
+import type { SurgeryPatientsDataResponse } from "@/types";
 import { Pagination } from "@/components/pagination";
 import EmptyList from "@/components/empty-list";
-import { ConsultationsTable } from "../consultation/components/consultation-table";
+import { SurgeryTable } from "./components/surgery-table";
 import { DoctorPatientsTableSkeleton } from "../../patient/components/skeletons/table-skeleton";
 
-const CONSULTATION_TABS = [
-  { value: "in_queue", label: "In Queue", color: "bg-amber-500" },
-  { value: "checkout", label: "Checkout", color: "bg-gray-500" },
-  { value: "finished", label: "Finished", color: "bg-green-400" },
-  { value: "canceled", label: "Canceled", color: "bg-red-400" },
+const SURGERY_TABS = [
+  { value: "In - Patients", label: "In - Patients", apiValue: "admitted" },
+  { value: "Out - Patients", label: "Out - Patients", apiValue: "out_patient" },
 ];
 
-export default function DoctorConsultationPage() {
-  const [activeTab, setActiveTab] = useState<ConsultationStatus>("in_queue");
+export default function SurgeryPage() {
+  const [activeTab, setActiveTab] = useState<string>("In - Patients");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(15);
 
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
-    if (activeTab) params.append("status", activeTab);
+    const currentTabConfig = SURGERY_TABS.find(
+      (tab) => tab.value === activeTab,
+    );
+    if (currentTabConfig) {
+      params.append("status", currentTabConfig.apiValue);
+    }
     if (searchQuery.trim()) params.append("search_query", searchQuery);
     params.append("page", currentPage.toString());
     params.append("page_size", pageSize.toString());
     return params;
   }, [activeTab, searchQuery, currentPage, pageSize]);
 
-  const url = `/doctor/consultations/list/?${queryParams.toString()}`;
+  const url = `/surgery/consultations/list/?${queryParams.toString()}`;
 
   const {
     data: resp,
     isLoading,
     error,
     refetch,
-  } = useApiQuery<DoctorConsultationResponse>(
-    [
-      "doctor-consultations",
-      activeTab as string,
-      searchQuery,
-      currentPage.toString(),
-    ],
+  } = useApiQuery<SurgeryPatientsDataResponse>(
+    ["surgery-patients", activeTab, searchQuery, currentPage.toString()],
     url,
   );
+
+  console.log(resp);
 
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -59,18 +59,16 @@ export default function DoctorConsultationPage() {
   }, []);
 
   const handleTabChange = (tab: string) => {
-    setActiveTab(tab as ConsultationStatus);
+    setActiveTab(tab);
     setCurrentPage(1);
   };
 
   const data = resp?.results;
-  const consultations = data?.consultations || [];
+  const surgeries = data?.patients || [];
 
   const tabCounts = {
-    in_queue: data?.in_queue || 0,
-    checkout: data?.checkout || 0,
-    finished: data?.finished || 0,
-    canceled: data?.canceled || 0,
+    "In - Patients": data?.in_patient || 0,
+    "Out - Patients": data?.out_patient || 0,
   };
 
   return (
@@ -79,12 +77,12 @@ export default function DoctorConsultationPage() {
       <div className="p-4 rounded-2xl bg-background">
         {/* Tabs with Colored Badges */}
         <Tabs
-          value={activeTab as string}
+          value={activeTab}
           onValueChange={handleTabChange}
           className="w-full"
         >
           <TabsList className="w-fit justify-start rounded-none bg-transparent p-0 gap-8">
-            {CONSULTATION_TABS.map((tab) => (
+            {SURGERY_TABS.map((tab) => (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
@@ -92,7 +90,9 @@ export default function DoctorConsultationPage() {
               >
                 <span>{tab.label}</span>
                 <span
-                  className={`flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[10px] text-white bg-primary`}
+                  className={`flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[10px] text-white ${
+                    tab.value === "In - Patients" ? "bg-gray-500" : "bg-red-400"
+                  }`}
                 >
                   {tabCounts[tab.value as keyof typeof tabCounts]}
                 </span>
@@ -131,8 +131,8 @@ export default function DoctorConsultationPage() {
                   <Users className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex items-center text-lg gap-x-3">
-                  <p className="font-medium text-muted-foreground capitalize">
-                    {(activeTab as string).replace("_", " ")}
+                  <p className="font-medium text-muted-foreground">
+                    {activeTab}
                   </p>
                   <p className="font-semibold">
                     {String(
@@ -149,29 +149,26 @@ export default function DoctorConsultationPage() {
           <DoctorPatientsTableSkeleton />
         ) : error ? (
           <div className="flex items-center justify-center py-20">
-            <p className="text-destructive">Failed to load consultations</p>
+            <p className="text-destructive">Failed to load surgery patients</p>
           </div>
-        ) : consultations.length === 0 ? (
+        ) : surgeries.length === 0 ? (
           <div className="flex-1 flex items-center justify-center w-full">
             <EmptyList
               showRefresh
               onRefresh={() => refetch()}
-              title="No consultations found"
-              description="New patient consultations will appear here when they are queued."
+              title="No surgery patients found"
+              description="New surgery patients will appear here when they are registered."
             />
           </div>
         ) : (
           <div className="bg-background w-full space-y-2 rounded-2xl px-4">
-            <ConsultationsTable
-              consultations={consultations}
-              activeTab={activeTab}
-            />
+            <SurgeryTable surgeries={surgeries} activeTab={activeTab} />
           </div>
         )}
       </div>
 
       {/* Pagination */}
-      {consultations.length > 0 && (
+      {surgeries.length > 0 && (
         <Pagination
           totalPages={resp?.count ? Math.ceil(resp.count / pageSize) : 1}
           currentPage={currentPage}

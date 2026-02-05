@@ -15,16 +15,16 @@ export function DoctorPatientsTableSkeleton() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Patient Info</TableHead>
-          <TableHead>Gender</TableHead>
-          <TableHead>Contact</TableHead>
-          <TableHead>Address</TableHead>
-          <TableHead>Registered</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead className=" font-medium">Patient ID</TableHead>
+          <TableHead className="font-medium">Name</TableHead>
+          <TableHead className=" font-medium">Admission Date</TableHead>
+          <TableHead className=" font-medium">Gender</TableHead>
+          <TableHead className=" font-medium">Billing Status</TableHead>
+          <TableHead className="  font-medium">Status</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {Array.from({ length: 10 }).map((_, index) => (
+        {Array.from({ length: 6 }).map((_, index) => (
           <TableRow key={index}>
             <TableCell>
               <div className="flex items-center gap-3">

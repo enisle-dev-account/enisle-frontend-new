@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import type {
   DetailedConsultationResponsePatientVital,
   Encounter,
@@ -87,8 +87,8 @@ export default function AllPatientInformation({
 
   if (isLoading) {
     return (
-      <div className="mt-4 pb-10 space-y-9">
-        {[1, 2, 3, 4, 5].map((i) => (
+      <div key={"uniquekey"} className="mt-4 pb-10 space-y-9">
+        {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
             className="w-full bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4"
@@ -117,7 +117,7 @@ export default function AllPatientInformation({
 
             {i % 3 === 0 && (
               <div className="grid grid-cols-4 gap-4 pt-4 border-t">
-                {[1, 2, 3, 4].map((v) => (
+                {[9, 6, 7, 8].map((v) => (
                   <div key={v} className="space-y-1">
                     <Skeleton className="h-3 w-12" />
                     <Skeleton className="h-5 w-16" />
@@ -145,16 +145,22 @@ export default function AllPatientInformation({
         switch (item.type) {
           case "vital":
             return (
-              <div
-                key={`vital-${index}`}
-                className="bg-background border-b-2 border-primary rounded-xl flex flex-col gap-5 p-6"
-              >
-                <p className="font-bold  ">Vitals</p>
-                <VitalDetailPage
-                  vital={item.data as DetailedConsultationResponsePatientVital}
-                  onClose={onRefetch}
-                />
-              </div>
+              <Fragment key={`vital-${index}`}>
+                {item.data.created_at && (item.data as any).taken_by && (
+                  <div
+                    key={`vital-${index}`}
+                    className="bg-background border-b-2 border-primary rounded-xl flex flex-col gap-5 p-6"
+                  >
+                    <p className="font-bold  ">Vitals</p>
+                    <VitalDetailPage
+                      vital={
+                        item.data as DetailedConsultationResponsePatientVital
+                      }
+                      onClose={onRefetch}
+                    />
+                  </div>
+                )}
+              </Fragment>
             );
 
           case "encounter":
@@ -185,6 +191,7 @@ export default function AllPatientInformation({
               <MedicationCard
                 onOpenPrescription={onOpenPrescription}
                 key={`medication-${item.data.id}`}
+                onRefetch={onRefetch}
                 medication={item.data}
               />
             );
@@ -192,6 +199,9 @@ export default function AllPatientInformation({
           case "surgery":
             return (
               <SurgeryCard
+                consultationId={consultationId}
+                currentUserId={currentUserId}
+                onRefetch={onRefetch}
                 key={`surgery-${item.data.id}`}
                 surgery={item.data}
               />
@@ -202,6 +212,7 @@ export default function AllPatientInformation({
               <RadiologyCard
                 key={`scan-${item.data.id}`}
                 radiology={item.data}
+                
               />
             );
 

@@ -1,22 +1,18 @@
 "use client";
 
 import { UseFormReturn } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight } from "lucide-react";
-
+import { ChevronDown, Search, UserCheck } from "lucide-react";
 import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -35,226 +31,154 @@ interface UserInfo {
 
 interface AssignPatientFormProps {
   form: UseFormReturn<AssignPatientFormValues>;
+  allowedDepartments?: string[];
 }
 
-const departments = [
-  {
-    name: "Laboratory",
-    userType: ["laboratory"],
-  },
-  {
-    name: "Imaging Suite",
-    userType: ["radiology"],
-  },
-  {
-    name: "Speciality Clinic",
-    userType: ["radiology", "laboratory", "doctor", "surgery"],
-  },
-  {
-    name: "Surgical Department",
-    userType: ["surgery"],
-  },
-  {
-    name: "Physiotherapy",
-    userType: ["surgery", "doctor", "laboratory", "radiology"],
-  },
-  {
-    name: "Pharmacy",
-    userType: ["pharmacy"],
-  },
+const DEPARTMENTS = [
+  { name: "Laboratory", userTypes: ["laboratory"] },
+  { name: "Imaging Suite", userTypes: ["radiology"] },
+  { name: "Speciality Clinic", userTypes: ["doctor"] },
+  { name: "Surgical Department", userTypes: ["surgery"] },
+  { name: "Pharmacy", userTypes: ["pharmacy"] },
 ];
 
-export function AssignPatientForm({ form }: AssignPatientFormProps) {
-  const [expandedDepartment, setExpandedDepartment] = useState<string | null>(
-    null,
-  );
+export function AssignPatientForm({
+  form,
+  allowedDepartments,
+}: AssignPatientFormProps) {
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: allUsers, isLoading } = useQuery<UserInfo[]>({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const response = await request("/admin/list-users/", {
-        method: "GET",
-      });
-      return response;
-    },
-    refetchOnMount: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+  const {
+    data: allUsers = [],
+    isLoading,
+    isFetching,
+  } = useQuery<UserInfo[]>({
+    queryKey: ["users", searchTerm],
+    queryFn: () =>
+      request(`/admin/list-users/?search=${searchTerm}`, { method: "GET" }),
+    staleTime: 2 * 60 * 1000,
   });
 
+  const selectedDoctorId = form.watch("doctor");
 
-  console.log(allUsers);
-  
+  const groupedDepartments = useMemo(() => {
+    const baseDepts =
+      allowedDepartments && allowedDepartments.length > 0
+        ? DEPARTMENTS.filter((dept) =>
+            dept.userTypes.some((type) => allowedDepartments.includes(type)),
+          )
+        : DEPARTMENTS;
 
-  const selectedDepartment = form.watch("department");
+    return baseDepts.map((dept) => ({
+      ...dept,
+      team: allUsers.filter((user) =>
+        dept.userTypes.includes(user.user_type?.toLowerCase() || ""),
+      ),
+    }));
+  }, [allUsers, allowedDepartments]);
 
-  useEffect(() => {
-    if (selectedDepartment) {
-      setExpandedDepartment(selectedDepartment);
-    }
-  }, [selectedDepartment]);
+  const defaultAccordionValue =
+    allowedDepartments?.length === 1
+      ? DEPARTMENTS.find((dept) =>
+          dept.userTypes.some((type) => allowedDepartments.includes(type)),
+        )?.name
+      : undefined;
 
-  const getTeamForDepartment = (userTypes: string[]) => {
-    if (!allUsers) return [];
-    return allUsers.filter((user) => userTypes.includes(user.user_type));
+  const handleSelectUser = (userId: string, deptName: string) => {
+    const newValue = selectedDoctorId === userId ? "" : userId;
+    form.setValue("doctor", newValue);
+    form.setValue("department", newValue ? deptName : "");
   };
-
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
-  };
-
-  const handleDepartmentSelect = (departmentName: string) => {
-    form.setValue("department", departmentName);
-    form.setValue("doctor", ""); // Reset doctor selection
-    setExpandedDepartment(departmentName);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="p-4 space-y-3">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
-      <div className="px-4 pt-2">
-        <p className="text-xs text-muted-foreground">Send Patient to</p>
-      </div>
-
-      <ScrollArea className="h-62.5 px-4">
-        <FormField
-          control={form.control}
-          name="department"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <div className="space-y-2">
-                  {departments.map((department) => {
-                    const isExpanded = expandedDepartment === department.name;
-                    const isSelected = selectedDepartment === department.name;
-                    const team = getTeamForDepartment(department.userType);
-
-                    return (
-                      <div key={department.name} className="border-b">
-                        {/* Department Header */}
-                        <div
-                          className={cn(
-                            "flex items-center gap-2 py-3 cursor-pointer hover:bg-muted/50 rounded transition-colors",
-                            isSelected && "bg-[#E3EDFF]",
-                          )}
-                          onClick={() =>
-                            handleDepartmentSelect(department.name)
-                          }
-                        >
-                          <RadioGroup
-                            value={field.value}
-                            className="flex items-center w-fit"
-                          >
-                            <RadioGroupItem
-                              value={department.name}
-                              id={department.name}
-                              className="border-[#A7AEC1] w-fit"
-                            />
-                          </RadioGroup>
-                          <Label
-                            htmlFor={department.name}
-                            className={cn(
-                              "text-sm font-normal cursor-pointer flex-1",
-                              isSelected && "text-primary font-medium",
-                            )}
-                          >
-                            {department.name}
-                          </Label>
-                          {team.length > 0 && (
-                            <Badge
-                              variant="secondary"
-                              className="text-xs bg-muted"
-                            >
-                              {team.length}
-                            </Badge>
-                          )}
-                          {isExpanded ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </div>
-
-                        {/* Department Team Members */}
-                        {isExpanded && (
-                          <FormField
-                            control={form.control}
-                            name="doctor"
-                            render={({ field: doctorField }) => (
-                              <FormItem className="pl-6 pb-3 space-y-2">
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={doctorField.onChange}
-                                    value={doctorField.value}
-                                    className="space-y-2"
-                                  >
-                                    {team.map((member) => (
-                                      <div
-                                        key={member.id}
-                                        className="flex items-center justify-between p-2 bg-[#F3F5F8] rounded hover:bg-[#E3EDFF] transition-colors cursor-pointer"
-                                        onClick={() =>
-                                          doctorField.onChange(member.id)
-                                        }
-                                      >
-                                        <div className="flex items-center gap-3">
-                                          <RadioGroupItem
-                                            value={member.id}
-                                            id={member.id}
-                                            className="border-[#A7AEC1]"
-                                          />
-                                          <Avatar className="h-8 w-8">
-                                            <AvatarImage
-                                              src={member.profile_picture || ""}
-                                              alt={`${member.first_name} ${member.last_name}`}
-                                            />
-                                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                                              {getInitials(
-                                                member.first_name,
-                                                member.last_name,
-                                              )}
-                                            </AvatarFallback>
-                                          </Avatar>
-                                          <div>
-                                            <Label
-                                              htmlFor={member.id}
-                                              className="text-sm font-medium cursor-pointer"
-                                            >
-                                              {member.first_name}{" "}
-                                              {member.last_name}
-                                            </Label>
-                                            {member.is_on_duty &&
-                                              !member.is_on_leave && (
-                                                <p className="text-xs text-[#00D261]">
-                                                  On Duty
-                                                </p>
-                                              )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </RadioGroup>
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+      <div className="px-4 relative">
+        <Search
+          className={cn(
+            "absolute left-7 top-3 h-4 w-4 text-muted-foreground",
+            isFetching && "animate-pulse", // Visual cue that search is working
           )}
         />
+        <Input
+          placeholder="Search staff by name..."
+          className="pl-9 bg-muted/40"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      <ScrollArea className="h-100 px-4">
+        {isLoading ? (
+          <div className="space-y-3">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-14 w-full rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <Accordion defaultValue={defaultAccordionValue}  type="single" collapsible className="w-full space-y-2">
+            {groupedDepartments.map((dept) => (
+              <AccordionItem
+                key={dept.name}
+                value={dept.name}
+                className="border border-black/5 bg-transparent rounded-lg px-2 overflow-hidden"
+              >
+                <AccordionTrigger className="hover:no-underline border-0 border-b border-black/5 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold">{dept.name}</span>
+                    <Badge variant="secondary" className="h-5 bg-primary">
+                      {dept.team.length}
+                    </Badge>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pt-1 space-y-1">
+                  {dept.team.length > 0 ? (
+                    dept.team.map((user) => (
+                      <div
+                        key={user.id}
+                        onClick={() => handleSelectUser(user.id, dept.name)}
+                        className={cn(
+                          "flex items-center justify-between p-2 rounded-md transition-all cursor-pointer border border-transparent",
+                          selectedDoctorId === user.id
+                            ? "bg-primary/10 border-primary/20"
+                            : "hover:bg-muted",
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8 border">
+                            <AvatarImage src={user.profile_picture || ""} />
+                            <AvatarFallback  className="text-[10px] text-primary">
+                              {user.first_name[0]}
+                              {user.last_name[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {user.first_name} {user.last_name}
+                            </p>
+                            {user.is_on_duty && (
+                              <span className="text-[10px] text-green-600 font-bold uppercase tracking-tighter">
+                                • On Duty
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {selectedDoctorId === user.id && (
+                          <UserCheck className="h-4 w-4 text-primary" />
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-6 text-center">
+                      <p className="text-xs text-muted-foreground italic">
+                        No available staff in this department
+                      </p>
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        )}
       </ScrollArea>
     </div>
   );

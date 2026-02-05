@@ -29,7 +29,7 @@ const doctorMenu: MenuGroup[] = [
       },
       {
         title: "Patients",
-        url: "/doctor/patient",
+        url: "/patient",
         icon: "users3",
       },
       {
@@ -362,12 +362,12 @@ const surgeonMenu: MenuGroup[] = [
       },
       {
         title: "Surgery",
-        url: "/surgery",
+        url: "/surgery/requests",
         icon: "surgery",
       },
       {
         title: "Patients",
-        url: "/surgery/patients",
+        url: "/patient",
         icon: "users3",
       },
       {
@@ -492,7 +492,7 @@ export const sidebarMenuConfig: Record<UserRole, MenuGroup[]> = {
   admin: adminMenu,
   pharmacy: pharmacistMenu,
   reception: receptionistMenu,
-  surgeon: surgeonMenu,
+  surgery: surgeonMenu,
   store: storeMenu,
   laboratory: laboratoryMenu,
   radiology: radiologyMenu,

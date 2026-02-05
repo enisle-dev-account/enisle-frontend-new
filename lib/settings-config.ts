@@ -29,7 +29,7 @@ export const SETTINGS_MENU: SettingMenuItem[] = [
     description: "Update your personal information",
     url: "/settings/information",
     icon: Info,
-    roles: ["admin", "doctor", "nurse", "cashier", "pharmacy", "reception", "store", "radiology", "laboratory", "surgeon"],
+    roles: ["admin", "doctor", "nurse", "cashier", "pharmacy", "reception", "store", "radiology", "laboratory", "surgery"],
   },
   {
     id: "security",
@@ -37,7 +37,7 @@ export const SETTINGS_MENU: SettingMenuItem[] = [
     description: "Change password and security settings",
     url: "/settings/security",
     icon: ShieldCheck,
-    roles: ["admin", "doctor", "nurse", "cashier", "pharmacy", "reception", "store", "radiology", "laboratory", "surgeon"],
+    roles: ["admin", "doctor", "nurse", "cashier", "pharmacy", "reception", "store", "radiology", "laboratory", "surgery"],
   },
   {
     id: "notifications",
@@ -45,7 +45,7 @@ export const SETTINGS_MENU: SettingMenuItem[] = [
     description: "Manage notification preferences",
     url: "/settings/notifications",
     icon: Bell,
-    roles: ["admin", "doctor", "nurse", "cashier", "pharmacy", "reception", "store", "radiology", "laboratory", "surgeon"],
+    roles: ["admin", "doctor", "nurse", "cashier", "pharmacy", "reception", "store", "radiology", "laboratory", "surgery"],
   },
   {
     id: "permissions",
@@ -61,7 +61,7 @@ export const SETTINGS_MENU: SettingMenuItem[] = [
     description: "Connect external services",
     url: "/settings/integrations",
     icon: Zap,
-    roles: ["admin", "doctor", "nurse", "cashier", "pharmacy", "reception", "store", "radiology", "laboratory", "surgeon"],
+    roles: ["admin", "doctor", "nurse", "cashier", "pharmacy", "reception", "store", "radiology", "laboratory", "surgery"],
   },
   {
     id: "hospital-setup",

@@ -5,7 +5,7 @@ export type UserRole =
   | "admin"
   | "pharmacy"
   | "reception"
-  | "surgeon"
+  | "surgery"
   | "reception"
   | "store"
   | "laboratory"
@@ -24,7 +24,7 @@ export interface User {
   countryCode?: string;
   address?: string;
   speciality?: string;
-  pk:string
+  pk: string;
 }
 
 export interface DepartmentData {
@@ -575,11 +575,6 @@ export interface MedicineResponseData {
   results: MedicinesData[];
 }
 
-
-
-
-
-
 export interface EncounterConsultationDoctor {
   id: string;
   doctor: CreatorInfo;
@@ -655,20 +650,31 @@ export interface LabTest {
   };
 }
 
-export interface Surgery {
-  id: string;
-  additional_fields: Record<string, any>;
-  procedure: string;
-  description: string;
-  created_at: string;
-  updated_at: string;
-  billing_status: string;
-  doctor: CreatorInfo;
-  recovery_notes: string;
-  operative_site: string;
-  anesthesia_type: string;
-  status: string;
-  cpt_code: string;
+
+
+
+export interface Surgery{
+    id: string;
+    consultation: string;
+    doctor: string | CreatorInfo;
+    procedure: string;
+    reason: string;
+    notes: string;
+    description: string;
+    concentration: string;
+    route: string;
+    site: string;
+    quantity: string;
+    recovery_notes: string;
+    operative_site: string;
+    anesthesia_type: string;
+    cpt_code: string;
+    additional_fields: Record<string, string>;
+    status: string;
+    surgery_date: string;
+    created_at: string;
+    updated_at: string;
+    billing_status: string;
 }
 
 export interface RadiologyStudy {
@@ -681,7 +687,6 @@ export interface RadiologyStudy {
   billing_status: string;
   doctor: CreatorInfo;
 }
-
 
 // Doctor Patients API Types
 
@@ -697,6 +702,9 @@ export interface DoctorPatientData {
   email?: string;
   profile_picture_location?: string | null;
   created_at: string;
+  billing_status: "pending" | "completed" | string;
+  status: "admitted" | "in_queue" | "out_patient" | "discharged" | string;
+  admission_date: string | null;
   mrn?: string;
   age?: number;
 }
@@ -708,9 +716,7 @@ export interface DoctorPatientsResponse {
   results: DoctorPatientsResults;
 }
 
-
 export interface DoctorPatientsResults {
-
   data: DoctorPatientData[];
   in_patient: number;
   out_patient: number;
@@ -718,8 +724,6 @@ export interface DoctorPatientsResults {
 }
 
 export type PatientAdmissionStatus = "admitted" | "out_patient" | null;
-
-
 
 export interface DoctorConsultationPatientData {
   id: number;
@@ -732,10 +736,10 @@ export interface DoctorConsultationPatientData {
 }
 
 export interface DoctorConsultationData {
-  id: string; 
+  id: string;
   patient: DoctorConsultationPatientData;
   billing_status: string | null;
-  status: string; 
+  status: string;
   is_vitals_taken: boolean;
   vital_id: string | null;
   queue_number: number | null;
@@ -755,9 +759,12 @@ export interface DoctorConsultationResponse {
   };
 }
 
-export type ConsultationStatus = "in_queue" | "checkout" | "finished" | "canceled" | null;
-
-
+export type ConsultationStatus =
+  | "in_queue"
+  | "checkout"
+  | "finished"
+  | "canceled"
+  | null;
 
 export interface PharmacyPatient {
   id: string;
@@ -807,3 +814,47 @@ export interface PatientsResponse {
   previous: string | null;
   results: PharmacyPatient[];
 }
+
+
+
+
+export interface SurgeryPatientsListData {
+    id: number;
+    patient: {
+        id: number;
+        first_name: string;
+        middle_name: string;
+        surname: string;
+        gender: string;
+        doctor: {
+            first_name: string;
+            last_name: string;
+        };
+        is_admitted: boolean;
+        admission_date: string | null;
+    }
+    billing_status: string;
+    procedure: string;
+    consultation: string;
+}
+
+
+export interface PatientsResultData {
+    patients: SurgeryPatientsListData[];
+    in_patient: number;
+    out_patient: number;
+}
+
+
+export interface SurgeryPatientsDataResponse {
+    count: number
+    next: null | number
+    previous: null | number
+    results: PatientsResultData
+}
+
+
+
+
+
+

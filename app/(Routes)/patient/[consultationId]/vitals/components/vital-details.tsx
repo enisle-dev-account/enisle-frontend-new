@@ -13,7 +13,7 @@ interface VitalDetailModalProps {
 }
 
 export function VitalDetailPage({ vital, onClose }: VitalDetailModalProps) {
-  const createdDate = new Date(vital.created_at);
+
 
   return (
     <div>
@@ -58,10 +58,10 @@ export function VitalDetailPage({ vital, onClose }: VitalDetailModalProps) {
               {/* time taken */}
               <span className="text-muted-foreground">Time Taken: </span>
               <span className="font-medium">
-                {format(
+                {vital.created_at?format(
                   new Date(vital.created_at),
                   "MMM dd, yyyy   'at' hh:mm a",
-                ) || "Unknown"}
+                ) : "Unknown"}
               </span>
             </div>
           </div>

@@ -1,13 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Phone, MapPin, Mail } from "lucide-react";
+import { Phone, MapPin, Mail, SquareArrowOutUpRight } from "lucide-react";
 import type { DetailedConsultationResponsePatient, UserRole } from "@/types";
 import { useRouter } from "next/navigation";
 import countryCodes from "@/lib/country-codes";
 import { Icon } from "@/components/icon";
 import { Separator } from "@/components/ui/separator";
 import { capitalizeNames } from "@/lib/utils";
+import { useAuth } from "@/providers/auth-provider";
 
 interface PatientProfileHeaderProps {
   patientData: DetailedConsultationResponsePatient;
@@ -20,17 +21,20 @@ export function PatientProfileHeader({
 }: PatientProfileHeaderProps) {
   const router = useRouter();
   const mrn = `#${String(patientData.mrn)}`;
-
+  const {user} =useAuth()
   const handleStartVitals = () => {
     console.log("[v0] Start Vitals clicked for patient:", patientData.id);
   };
 
   const getCountryCode = (code: string) => {
-    return countryCodes.find((country) => country.iso2.toLocaleLowerCase() === code)?.label || code;
+    return (
+      countryCodes.find((country) => country.iso2.toLocaleLowerCase() === code)
+        ?.label || code
+    );
   };
 
   const showStartVitalsButton =
-    userRole === "nurse" || userRole === "doctor" || userRole === "surgeon";
+    userRole === "nurse" || userRole === "doctor" || userRole === "surgery";
 
   return (
     <div className="bg-background rounded-xl border-b border-border p-6">
@@ -56,12 +60,18 @@ export function PatientProfileHeader({
           {/* Patient Details */}
           <div className="flex flex-col justify-center">
             <h1 className="text-2xl font-bold">
-              {capitalizeNames(patientData.first_name, patientData.middle_name, patientData.surname)}
+              {capitalizeNames(
+                patientData.first_name,
+                patientData.middle_name,
+                patientData.surname,
+              )}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {patientData.gender}   {"  "} {patientData.age} years old
+              {patientData.gender} {"  "} {patientData.age} years old
             </p>
-            <p className="text-sm font-medium text-muted-foreground mt-1">{mrn}</p>
+            <p className="text-sm font-medium text-muted-foreground mt-1">
+              {mrn}
+            </p>
           </div>
         </div>
 
@@ -96,7 +106,16 @@ export function PatientProfileHeader({
           </div>
 
           {/* Right: Start Vitals Button */}
-          {showStartVitalsButton && (
+
+          {
+            <Button
+              className="bg-[#C4C5C7] hover:bg-[#C4C5C790] text-white rounded-full w-11  h-11 text-sm font-semibold"
+            >
+              <SquareArrowOutUpRight className="h-5! w-5!" size={20} />
+            </Button>
+          }
+
+          {showStartVitalsButton && user?.role==="nurse" && (
             <Button
               onClick={() => {
                 handleStartVitals();
