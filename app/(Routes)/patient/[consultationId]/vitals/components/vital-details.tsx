@@ -68,18 +68,23 @@ export function VitalDetailPage({ vital, onClose }: VitalDetailModalProps) {
           <div className="grid  md:grid-cols-4 gap-x-5 gap-y-6">
             {Object.entries(vital.vital_info || {}).map(([key, value]) => {
               let iconName = "";
+              let unit = ""; 
               switch (key) {
                 case "blood_pressure":
                   iconName = "blood-pressure";
+                  unit = "mmHg";
                   break;
                 case "systolic_bp":
                   iconName = "blood-pressure";
+                  unit = "mmHg";
                   break;
                 case "diastolic_bp":
                   iconName = "blood-pressure";
+                  unit = "mmHg";
                   break;
                 case "pulse":
                   iconName = "heart-rate";
+                  unit = "bpm";
                   break;
                 case "pulse_rhythm":
                   iconName = "heart-rate";
@@ -92,6 +97,7 @@ export function VitalDetailPage({ vital, onClose }: VitalDetailModalProps) {
                   break;
                 case "temperature":
                   iconName = "temperature";
+                  unit = "°C";
                   break;
                 case "temperature_method":
                   iconName = "temperature";
@@ -104,12 +110,15 @@ export function VitalDetailPage({ vital, onClose }: VitalDetailModalProps) {
                   break;
                 case "height":
                   iconName = "height";
+                    unit = "cm";
                   break;
                 case "weight":
                   iconName = "weight-scale";
+                  unit = "kg";
                   break;
                 case "bmi":
                   iconName = "bmi";
+                  unit = "kg/m";
                   break;
                 case "cuff_location":
                   iconName = "bp-monitor";
@@ -135,6 +144,7 @@ export function VitalDetailPage({ vital, onClose }: VitalDetailModalProps) {
                       {typeof value === "object"
                         ? JSON.stringify(value)
                         : String(value)}
+                        {unit && <span className="text-muted-foreground"> {unit}</span>}
                     </p>
                   </div>
                   <div>
