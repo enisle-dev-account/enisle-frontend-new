@@ -22,7 +22,7 @@ export function PatientDetailsPanel({ bed }: PatientDetailsPanelProps) {
 
         {/* Patient Name */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
             <User className="w-6 h-6 text-muted-foreground" />
           </div>
           <div>

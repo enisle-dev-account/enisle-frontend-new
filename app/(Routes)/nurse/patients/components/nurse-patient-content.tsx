@@ -10,6 +10,7 @@ import { PatientsDataResponse } from "@/types";
 import { PatientsTable } from "./patients-table";
 import { useDebouncedValue } from "@/hooks/use-debounce";
 import { Badge } from "@/components/ui/badge";
+import { DoctorPatientsTableSkeleton } from "@/app/(Routes)/patient/components/skeletons/table-skeleton";
 
 export function NursePatientContent() {
   const [activeTab, setActiveTab] = useState<"in_patient" | "out_patient">(
@@ -58,17 +59,12 @@ export function NursePatientContent() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
-        className="w-full"
-      >
-        <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0 gap-8">
+    <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+      <div className="bg-background p-6 rounded-3xl">
+        <TabsList className=" justify-start rounded-none border-b p-0 gap-8 mb-6 bg-background">
           <TabsTrigger
             value="in_patient"
-            className="data-[state=active]:border-b-2 data-[state=active]:text-primary font-bold data-[state=active]:border-primary rounded-none border-0 px-0 py-3 flex gap-x-3"
+            className="data-[state=active]:border-b-2 data-[state=active]:text-primary font-bold data-[state=active]:border-primary rounded-none border-b-2 border-x-0 border-t-0 border-transparent px-0 py-3 flex gap-x-3"
           >
             <span>
               {"In - Patients"}
@@ -80,7 +76,7 @@ export function NursePatientContent() {
           </TabsTrigger>
           <TabsTrigger
             value="out_patient"
-            className="data-[state=active]:border-b-2 data-[state=active]:text-primary font-bold data-[state=active]:border-primary rounded-none border-0 px-0 py-3 flex gap-x-3"
+            className="data-[state=active]:border-b-2 data-[state=active]:text-primary font-bold data-[state=active]:border-primary rounded-none border-b-2 border-x-0 border-t-0 border-transparent px-0 py-3 flex gap-x-3"
           >
             <span>
               {"Out - Patients"}
@@ -92,56 +88,53 @@ export function NursePatientContent() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Content */}
-        <TabsContent value="in_patient" className="mt-6 space-y-4">
-          <SearchAndFilter
-            searchQuery={searchQuery}
-            onSearchChange={handleSearchChange}
-          />
-          {isLoading ? (
-            <div className="text-center py-12">Loading...</div>
-          ) : error ? (
-            <div className="text-center py-12 text-red-600">
-              Error loading patients
-            </div>
-          ) : (
-            <>
-              <PatientsTable patients={patients} type="in_patient" />
-              <PaginationFooter
-                currentPage={page}
-                totalCount={totalCount}
-                pageSize={10}
-                onPageChange={setPage}
-              />
-            </>
-          )}
-        </TabsContent>
+        <SearchAndFilter
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+        />
+      </div>
 
-        <TabsContent value="out_patient" className="mt-6 space-y-4">
-          <SearchAndFilter
-            searchQuery={searchQuery}
-            onSearchChange={handleSearchChange}
-          />
-          {isLoading ? (
-            <div className="text-center py-12">Loading...</div>
-          ) : error ? (
-            <div className="text-center py-12 text-red-600">
-              Error loading patients
-            </div>
-          ) : (
-            <>
-              <PatientsTable patients={patients} type="out_patient" />
-              <PaginationFooter
-                currentPage={page}
-                totalCount={totalCount}
-                pageSize={10}
-                onPageChange={setPage}
-              />
-            </>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
+      {/* Content */}
+      <TabsContent value="in_patient" className="mt-3 space-y-4 bg-background p-6 rounded-3xl">
+        {isLoading ? (
+          <DoctorPatientsTableSkeleton />
+        ) : error ? (
+          <div className="text-center py-12 text-red-600">
+            Error loading patients
+          </div>
+        ) : (
+          <>
+            <PatientsTable patients={patients} type="in_patient" />
+            <PaginationFooter
+              currentPage={page}
+              totalCount={totalCount}
+              pageSize={10}
+              onPageChange={setPage}
+            />
+          </>
+        )}
+      </TabsContent>
+
+      <TabsContent value="out_patient" className="mt-3 space-y-4 bg-background p-6 rounded-3xl">
+        {isLoading ? (
+          <DoctorPatientsTableSkeleton />
+        ) : error ? (
+          <div className="text-center py-12 text-red-600">
+            Error loading patients
+          </div>
+        ) : (
+          <>
+            <PatientsTable patients={patients} type="out_patient" />
+            <PaginationFooter
+              currentPage={page}
+              totalCount={totalCount}
+              pageSize={10}
+              onPageChange={setPage}
+            />
+          </>
+        )}
+      </TabsContent>
+    </Tabs>
   );
 }
 

@@ -12,6 +12,7 @@ import { PatientsTable } from "./patients-table";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import EmptyList from "@/components/empty-list";
+import { DoctorPatientsTableSkeleton } from "@/app/(Routes)/patient/components/skeletons/table-skeleton";
 
 const PATIENT_TABS = [
   { value: "in_queue", label: "In Queue" },
@@ -72,16 +73,16 @@ export function ReceptionPatientsContent() {
   const patients = data?.results.results || [];
 
   return (
-    <main className="rounded-t-2xl bg-background overflow-hidden h-full flex flex-col">
+    <main className="overflow-hidden h-full flex flex-col">
       {/* Header Section */}
-      <div className="p-6 border-b bg-background">
+      <div className="p-6 border-b bg-background rounded-3xl">
         {/* Tabs */}
         <Tabs
           value={activeTab ?? "all"}
           onValueChange={handleTabChange}
-          className="w-full"
+          className="w-full border-b"
         >
-          <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0 gap-8">
+          <TabsList className=" justify-start rounded-none bg-transparent p-0 gap-8">
             {PATIENT_TABS.map((tab) => {
               const displayLabel =
                 tab.value === null ? "All Patients" : tab.label;
@@ -121,36 +122,37 @@ export function ReceptionPatientsContent() {
         </div>
       </div>
 
-      <div className="px-4 py-4 border-b">
-          <Card className="p-4 border-0">
-            <div className="flex items-center gap-3">
+      <div className="bg-background flex-1 flex-col gap-3 overflow-hidden p-6 rounded-3xl mt-3">
+        <Card className=" ring-0 mb-3 py-0 rounded-none">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#E6F0FF] p-2 rounded-md">
               <Users className="h-5 w-5 text-primary" />
-              <div className="flex items-center text-lg gap-x-3">
-                <p className="font-medium text-muted-foreground">
-                  All Patients
-                </p>
-                <p className="font-semibold">{tabCounts.all}</p>
-              </div>
             </div>
-          </Card>
-        </div>
-
-      {/* Table Section */}
-      <div className="flex-1 overflow-auto p-6">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <p className="text-muted-foreground">Loading patients...</p>
+            <div className="flex items-center text-lg gap-x-3">
+              <p className="font-medium text-muted-foreground">All Patients</p>
+              <p className="font-semibold">{tabCounts.all}</p>
+            </div>
           </div>
-        ) : patients.length === 0 ? (
-          <EmptyList title="No patients yet" description="List of patients will appear here when patients are admitted in your hospital." />
-        ) : (
-          <PatientsTable patients={patients} activeTab={activeTab} />
-        )}
+        </Card>
+
+        {/* Table Section */}
+        <div className="flex-1 overflow-auto">
+          {isLoading ? (
+            <DoctorPatientsTableSkeleton />
+          ) : patients.length === 0 ? (
+            <EmptyList
+              title="No patients yet"
+              description="List of patients will appear here when patients are admitted in your hospital."
+            />
+          ) : (
+            <PatientsTable patients={patients} activeTab={activeTab} />
+          )}
+        </div>
       </div>
 
       {/* Pagination */}
       {patients.length > 0 && (
-        <div className="border-t bg-background p-6">
+        <div className=" p-6">
           <TablePagination
             totalItems={totalItems}
             pageSize={pageSize}

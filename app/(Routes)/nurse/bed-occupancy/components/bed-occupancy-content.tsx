@@ -134,7 +134,7 @@ const allBedsInSelection = useMemo(() => {
               <SelectValue placeholder="Room" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all">All Rooms</SelectItem>
               {rooms.map((room) => (
                 <SelectItem key={room.id} value={room.id}>
                   {room.name}
@@ -171,7 +171,7 @@ const allBedsInSelection = useMemo(() => {
           )}
         </div>
 
-        {selectedBed?.patient_consultation ? (
+        {selectedBed?.patient_consultation && selectedBed.state === 'admitted'  ? (
           <div className="w-80 border-l border-border pl-6">
             <PatientDetailsPanel bed={selectedBed} />
           </div>

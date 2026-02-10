@@ -44,11 +44,11 @@ export function VitalsPageContent() {
   const inQueueCount = consultations.length;
 
   return (
-    <main className="rounded-t-2xl bg-background overflow-hidden h-full flex flex-col">
-      <div className="py-6 border-b bg-background">
-        <div className=" mb-6  border-b ">
+    <main className="rounded-t-2xl bg-transparent overflow-hidden h-full flex flex-col">
+      <div className="py-6 border-b bg-background rounded-3xl mb-4">
+        <div className=" mb-4  border-b ">
           <div className="flex px-6 items-center gap-3 pb-3 border-b-2 border-primary w-fit">
-            <h1 className="text-xl font-semibold">Patients</h1>
+            <h1 className="font-bold">Patients</h1>
             <Badge variant="default">{inQueueCount}</Badge>
           </div>
         </div>
@@ -66,10 +66,12 @@ export function VitalsPageContent() {
         </div>
       </div>
 
-      <div className="px-4 py-4 border-b ">
-        <Card className="p-4 border-0">
+      <div className="flex-1 space-y-3 overflow-auto px-6 pb-6 pt-2 bg-background rounded-3xl">
+        <Card className="py-4 ring-0">
           <div className="flex items-center gap-3">
-            <Users className="h-5 w-5 text-primary" />
+            <div className="bg-[#E6F0FF] p-2 rounded-md">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
             <div className="flex items-center text-lg gap-x-3">
               <p className="font-medium text-muted-foreground">In Queue</p>
               <p className="font-semibold">
@@ -78,20 +80,17 @@ export function VitalsPageContent() {
             </div>
           </div>
         </Card>
-      </div>
-
-      <div className="flex-1 overflow-auto p-6">
         <VitalsTable consultations={consultations} isLoading={isLoading} />
       </div>
 
-        <div className="border-t bg-background p-6">
-          <TablePagination
-            totalItems={totalItems}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+      <div className=" bg-transparent p-6">
+        <TablePagination
+          totalItems={totalItems}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
+      </div>
     </main>
   );
 }

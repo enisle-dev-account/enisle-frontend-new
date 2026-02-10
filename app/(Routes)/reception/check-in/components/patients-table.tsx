@@ -113,7 +113,7 @@ export function PatientsTable({ patients, activeTab }: PatientsTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
-        <thead className="border-b bg-muted/50">
+        <thead className="border-b ">
           <tr>
             {isInQueue && (
               <th className="px-4 py-3 text-left font-semibold text-muted-foreground">

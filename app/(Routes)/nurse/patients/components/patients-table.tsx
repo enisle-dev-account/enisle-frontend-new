@@ -66,7 +66,7 @@ export function PatientsTable({ patients, type }: PatientsTableProps) {
       <div className="overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted">
+            <TableRow className="">
               <TableHead>Patient ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Admission Date</TableHead>
