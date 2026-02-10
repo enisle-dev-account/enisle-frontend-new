@@ -93,7 +93,7 @@ export function DoctorPatientsTable({ patients }: DoctorPatientsTableProps) {
             <tr
               key={patient.id}
               className="group border-none hover:bg-slate-50/50 cursor-pointer transition-colors"
-              onClick={() => router.push(`/doctor/patients/${patient.id}`)}
+              onClick={() => router.push(`/patient/${patient.id}`)}
             >
               <TableCell className="py-4 font-medium text-slate-600">
                 {patient.mrn?.split("-").pop() ||

@@ -1,8 +1,6 @@
 "use client";
 
 import { UseFormReturn } from "react-hook-form";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import {
   FormControl,
   FormField,
@@ -12,42 +10,45 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { SurgicalRequestFormValues } from "../../encounter-notes/schemas/encounters.schema";
+import { SurgicalRequestFormValues } from "../tabs/encounter-notes/schemas/encounters.schema";
 
-interface SurgicalRequestFormProps {
+
+interface SurgicalConsultationFormProps {
   form: UseFormReturn<SurgicalRequestFormValues>;
-  surgeries: { label: string; value: string }[];
 }
 
-export function SurgicalRequestForm({
+export function SurgicalConsultationForm({
   form,
-  surgeries,
-}: SurgicalRequestFormProps) {
+}: SurgicalConsultationFormProps) {
   return (
     <div className="p-4 space-y-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p className="text-sm text-blue-900">
+          <strong>Note:</strong> This is a surgical consultation request. Enter your
+          suspected procedure or condition. The assigned surgeon will select the
+          actual procedure after evaluation.
+        </p>
+      </div>
+
       <FormField
         control={form.control}
         name="procedure"
         render={({ field }) => (
           <FormItem>
             <FormLabel>
-              Procedure Name <span className="text-destructive">*</span>
+              Suspected Procedure/Condition{" "}
+              <span className="text-destructive">*</span>
             </FormLabel>
             <FormControl>
               <Input
-                placeholder="Enter procedure name.."
+                placeholder="e.g., Possible appendectomy, Hernia repair evaluation"
                 className="bg-white border-[#E8ECF0]"
                 {...field}
               />
             </FormControl>
+            <p className="text-xs text-muted-foreground">
+              Enter your clinical suspicion or suggested procedure
+            </p>
             <FormMessage />
           </FormItem>
         )}
@@ -63,66 +64,14 @@ export function SurgicalRequestForm({
             </FormLabel>
             <FormControl>
               <Input
-                placeholder="Enter reason for referral"
+                placeholder="Enter reason for surgical consultation"
                 className="bg-white border-[#E8ECF0]"
                 {...field}
               />
             </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="surgery_date"
-        render={({ field }) => (
-          <FormItem className="flex flex-col">
-            <FormLabel>
-              Scheduled Surgery Date <span className="text-destructive">*</span>
-            </FormLabel>
-            <Popover>
-              <PopoverTrigger asChild>
-                <FormControl>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full pl-3 text-left font-normal bg-white border-[#E8ECF0]",
-                      !field.value && "text-muted-foreground"
-                    )}
-                  >
-                    {field.value ? (
-                      format(field.value, "PPP 'at' p")
-                    ) : (
-                      <span>Pick a date and time</span>
-                    )}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </FormControl>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={field.value}
-                  onSelect={field.onChange}
-                  disabled={(date) => date < new Date()}
-                  initialFocus
-                />
-                <div className="p-3 border-t">
-                  <Input
-                    type="time"
-                    value={field.value ? format(field.value, "HH:mm") : ""}
-                    onChange={(e) => {
-                      const [hours, minutes] = e.target.value.split(":");
-                      const newDate = field.value ? new Date(field.value) : new Date();
-                      newDate.setHours(parseInt(hours), parseInt(minutes));
-                      field.onChange(newDate);
-                    }}
-                    className="bg-white"
-                  />
-                </div>
-              </PopoverContent>
-            </Popover>
+            <p className="text-xs text-muted-foreground">
+              Brief clinical indication for surgical review
+            </p>
             <FormMessage />
           </FormItem>
         )}
@@ -133,10 +82,10 @@ export function SurgicalRequestForm({
         name="notes"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Notes</FormLabel>
+            <FormLabel>Additional Notes</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Enter any additional notes..."
+                placeholder="Enter any additional clinical information, relevant history, or special considerations..."
                 className="bg-white border-[#E8ECF0] resize-none"
                 rows={4}
                 {...field}

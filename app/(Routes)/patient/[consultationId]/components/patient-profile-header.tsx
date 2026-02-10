@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Phone, MapPin, Mail, SquareArrowOutUpRight } from "lucide-react";
-import type { DetailedConsultationResponsePatient, UserRole } from "@/types";
+import type { DetailedConsultationResponsePatient, PatientBasicInfo, UserRole } from "@/types";
 import { useRouter } from "next/navigation";
 import countryCodes from "@/lib/country-codes";
 import { Icon } from "@/components/icon";
@@ -11,8 +11,9 @@ import { capitalizeNames } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 
 interface PatientProfileHeaderProps {
-  patientData: DetailedConsultationResponsePatient;
+  patientData: PatientBasicInfo | DetailedConsultationResponsePatient;
   userRole: UserRole;
+  isConsultationView?: boolean;
 }
 
 export function PatientProfileHeader({
@@ -21,7 +22,7 @@ export function PatientProfileHeader({
 }: PatientProfileHeaderProps) {
   const router = useRouter();
   const mrn = `#${String(patientData.mrn)}`;
-  const {user} =useAuth()
+  const { user } = useAuth();
   const handleStartVitals = () => {
     console.log("[v0] Start Vitals clicked for patient:", patientData.id);
   };
@@ -108,14 +109,12 @@ export function PatientProfileHeader({
           {/* Right: Start Vitals Button */}
 
           {
-            <Button
-              className="bg-[#C4C5C7] hover:bg-[#C4C5C790] text-white rounded-full w-11  h-11 text-sm font-semibold"
-            >
+            <Button className="bg-[#C4C5C7] hover:bg-[#C4C5C790] text-white rounded-full w-11  h-11 text-sm font-semibold">
               <SquareArrowOutUpRight className="h-5! w-5!" size={20} />
             </Button>
           }
 
-          {showStartVitalsButton && user?.role==="nurse" && (
+          {showStartVitalsButton && user?.role === "nurse" && (
             <Button
               onClick={() => {
                 handleStartVitals();

@@ -3,7 +3,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { Search } from "lucide-react";
 import { useState } from "react";
-
 import {
   FormControl,
   FormField,
@@ -15,11 +14,13 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { InvestigationRequestFormValues } from "../../encounter-notes/schemas/encounters.schema";
+import { InvestigationRequestFormValues } from "../tabs/encounter-notes/schemas/encounters.schema";
+import { LabTest } from "@/types";
+import { LabTestRequest } from "@/types/laboratory";
 
 interface InvestigationRequestFormProps {
   form: UseFormReturn<InvestigationRequestFormValues>;
-  labTests: { label: string; value: string }[];
+  labTests: LabTestRequest[];
 }
 
 export function InvestigationRequestForm({
@@ -28,8 +29,10 @@ export function InvestigationRequestForm({
 }: InvestigationRequestFormProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
+  console.log(labTests,"these are test");
+  
   const filteredTests = labTests.filter((test) =>
-    test.label.toLowerCase().includes(searchQuery.toLowerCase()),
+    test.test_name?.toLowerCase().includes(searchQuery.toLowerCase()) || false
   );
 
   return (
@@ -46,7 +49,7 @@ export function InvestigationRequestForm({
         </div>
       </div>
 
-      <ScrollArea className="h-57.5 px-4">
+      <ScrollArea className="h-37.5 px-4">
         <FormField
           control={form.control}
           name="investigation_type"
@@ -60,20 +63,20 @@ export function InvestigationRequestForm({
                 >
                   {filteredTests.map((test) => (
                     <div
-                      key={test.value}
+                      key={test.test_name}
                       className="flex items-center space-x-3 border-b pb-3 cursor-pointer hover:bg-muted/50 rounded px-2 py-1"
-                      onClick={() => field.onChange(test.value)}
+                      onClick={() => field.onChange(test.id.toString())}
                     >
                       <RadioGroupItem
-                        value={test.value}
-                        id={test.value}
+                        value={test.id.toString()}
+                        id={test.id.toString()}
                         className="border-[#A7AEC1]"
                       />
                       <Label
-                        htmlFor={test.value}
+                        htmlFor={test.id.toString()}
                         className="text-sm font-normal cursor-pointer flex-1"
                       >
-                        {test.label}
+                        {test.test_name}
                       </Label>
                     </div>
                   ))}

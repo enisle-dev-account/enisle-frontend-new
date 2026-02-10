@@ -232,14 +232,6 @@ export interface ConsultationVitalsDataResponse {
   results: NurseConsultationData[];
 }
 
-export interface CreatorInfo {
-  id: string;
-  first_name: string;
-  last_name: string;
-  is_on_duty: boolean;
-  is_on_leave: boolean;
-  profile_picture: string;
-}
 
 export interface DetailedConsultationResponsePatientVital {
   id: string;
@@ -658,6 +650,7 @@ export interface Surgery{
     consultation: string;
     doctor: string | CreatorInfo;
     procedure: string;
+    selected_procedure_pricing:number;
     reason: string;
     notes: string;
     description: string;
@@ -677,18 +670,7 @@ export interface Surgery{
     billing_status: string;
 }
 
-export interface RadiologyStudy {
-  id: string;
-  study_type: string;
-  status: string;
-  notes: string;
-  created_at: string;
-  updated_at: string;
-  billing_status: string;
-  doctor: CreatorInfo;
-}
 
-// Doctor Patients API Types
 
 export interface DoctorPatientData {
   id: number;
@@ -856,5 +838,136 @@ export interface SurgeryPatientsDataResponse {
 
 
 
+// Updated types for patient consultation data
+
+export interface CreatorInfo {
+  id: string;
+  first_name: string;
+  last_name: string;
+  is_on_duty?: boolean;
+  is_on_leave?: boolean;
+  profile_picture: string | null;
+}
+
+export interface DetailedConsultationResponsePatientVital {
+  id: string;
+  vital_info: Record<string, any>;
+  other_notes: string;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  billing_status: string;
+  is_admitted: boolean;
+  taken_by: CreatorInfo;
+}
+
+
+
+export interface InvestigationRequest {
+  request_type: string;
+  notes: string;
+}
+
+export interface LabTest {
+  id: string;
+  test: string;
+  status: string;
+  result: Record<string, string>[];
+  billing_status: string;
+  created_at: string;
+  updated_at: string;
+  is_admitted: boolean;
+  doctor: CreatorInfo;
+  investigation_request: InvestigationRequest;
+}
+
+
+
+export interface MedicationPrescription {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  consultation: string;
+  billing_status: string;
+  status: string;
+  prescribed_medicines: PrescribedMedicine[];
+  is_admitted: boolean;
+  doctor: CreatorInfo;
+}
+
+
+export interface RadiologyResult {
+  [key: string]: any;
+}
+
+export interface RadiologyStudy {
+  id: string;
+  study_type: string;
+  request_type: string;
+  notes?: string;
+  status: string;
+  billing_status: string;
+  created_at: string;
+  updated_at: string;
+  imaged_on?: string;
+  doctor: CreatorInfo;
+  results: RadiologyResult[];
+}
+
+export interface PatientBasicInfo {
+  id: string;
+  first_name: string;
+  middle_name: string;
+  surname: string;
+  gender: string;
+  age: number;
+  address: string;
+  phone: string;
+  country_code: string;
+  email: string;
+  profile_picture_location: string | null;
+  created_at: string;
+  billing_status: string;
+  mrn: string;
+  status: string;
+  admission_date?: string;
+}
+
+export interface DetailedPatientConsultationInfoResponse {
+  patient: PatientBasicInfo;
+  vitals: DetailedConsultationResponsePatientVital[];
+  encounters: Encounter[];
+  labs: LabTest[];
+  scans: RadiologyStudy[];
+  surgeries: Surgery[];
+  medications: MedicationPrescription[];
+}
+
+export interface DetailedConsultationResponse {
+  patient: PatientBasicInfo;
+  vital?: DetailedConsultationResponsePatientVital;
+  encounter?: Encounter;
+  labs: LabTest[];
+  scans: RadiologyStudy[];
+  surgeries: Surgery[];
+  medications: MedicationPrescription[];
+}
+
+export interface DetailedConsultationResponsePatient {
+    id: string;
+    first_name: string;
+    middle_name: string;
+    surname: string;
+    gender: string;
+    age: number;
+    address: string;
+    phone: string;
+    country_code: string;
+    email: string;
+    profile_picture_location: string;
+    created_at: string;
+    billing_status: string;
+    vital: DetailedConsultationResponsePatientVital
+}
 
 

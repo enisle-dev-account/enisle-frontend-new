@@ -431,7 +431,7 @@ const laboratoryMenu: MenuGroup[] = [
       },
       {
         title: "Perform Test",
-        url: "/laboratory/lab-tests",
+        url: "/laboratory/perform-tests",
         icon: "syringe",
       },
       {

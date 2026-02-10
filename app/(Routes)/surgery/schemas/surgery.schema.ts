@@ -5,6 +5,7 @@ export const surgerySchema = z.object({
   cpt_code: z.string().optional(),
   anesthesia_type: z.string().optional(),
   operative_site: z.string().optional(),
+  selected_procedure_pricing:z.number().optional(),
   description: z.string().min(1, "Procedure description is required"),
   recovery_notes: z.string().optional(),
   reason: z.string().optional(),

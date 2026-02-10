@@ -33,7 +33,7 @@ import {
   PrescribeMedicationFormValues,
   frequencyOptions,
   medicineTypeOptions,
-} from "../../encounter-notes/schemas/encounters.schema";
+} from "../tabs/encounter-notes/schemas/encounters.schema";
 
 interface PrescribeMedicationFormProps {
   form: UseFormReturn<PrescribeMedicationFormValues>;

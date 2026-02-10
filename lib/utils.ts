@@ -107,3 +107,16 @@ export const getStatusColor = (status: string) => {
   };
   return colors[status] || "bg-gray-100 text-gray-800";
 };
+
+
+export function zFill(num: number | string, width: number): string {
+  const numStr = String(num);
+  return numStr.padStart(width, "0");
+}
+
+export function toTitleCase(str: string): string {
+  return str
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
