@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
-import { AddTestForm } from './add-test'
+import { AddBatchTestForm } from './add-test'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ArrowLeft, MessageSquare, Share2, FileText, Download, Send } from 'lucide-react'
 import Link from 'next/link'
@@ -14,11 +14,13 @@ import { LaboratoryRequestData, SingleLaboratoryRequestData } from '@/types/labo
 
 interface TestRequestDetailsProps {
   testRequest: SingleLaboratoryRequestData
+  consultationId:string
   onRefresh?: () => void
 }
 
 export function TestRequestDetails({
   testRequest,
+  consultationId,
   onRefresh,
 }: TestRequestDetailsProps) {
   const [noteModalOpen, setNoteModalOpen] = useState(false)
@@ -118,7 +120,7 @@ export function TestRequestDetails({
           </TabsList>
 
           <TabsContent value="form" className="p-6">
-            <AddTestForm requestId={testRequest.id} onSuccess={onRefresh} />
+            <AddBatchTestForm data={[testRequest]} consultationId={consultationId}   onSuccess={onRefresh} />
           </TabsContent>
 
           <TabsContent value="result" className="p-6">

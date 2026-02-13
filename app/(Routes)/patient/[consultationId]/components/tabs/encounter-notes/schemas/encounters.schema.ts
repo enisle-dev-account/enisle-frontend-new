@@ -77,7 +77,9 @@ export const surgicalRequestSchema = z.object({
 });
 
 export const investigationRequestSchema = z.object({
-  investigation_type: z.string().min(1, "Investigation type is required"),
+  investigation_type: z
+    .array(z.string())
+    .min(1, "Please select at least one test"),
 });
 
 export const assignPatientSchema = z.object({

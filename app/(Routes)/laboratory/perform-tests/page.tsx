@@ -12,16 +12,14 @@ import { Pagination } from "@/components/pagination";
 import { TestRequestsTable } from "./components/requests-table";
 import EmptyList from "@/components/empty-list";
 import type { LaboratoryRequestData } from "@/types/laboratory";
+import { DoctorPatientsTableSkeleton } from "../../patient/components/skeletons/table-skeleton";
 
 interface TestRequestsResponse {
   results: LaboratoryRequestData[];
   count: number;
 }
 
-const TEST_TABS = [
-  { value: "all", label: "Patients" },
-
-];
+const TEST_TABS = [{ value: "all", label: "Patients" }];
 
 export default function PerformTestPage() {
   const router = useRouter();
@@ -47,9 +45,8 @@ export default function PerformTestPage() {
     error,
   } = useApiQuery<TestRequestsResponse>(
     ["lab-test-requests", activeTab, searchQuery, currentPage.toString()],
-    url
+    url,
   );
-  
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -61,8 +58,8 @@ export default function PerformTestPage() {
     setCurrentPage(1);
   };
 
-  const handleTestClick = (testId: number) => {
-    router.push(`/laboratory/perform-tests/${testId}`);
+  const handleTestClick = (consultationId: string) => {
+    router.push(`/laboratory/perform-tests/${consultationId}`);
   };
 
   const testRequests = resp?.results || [];
@@ -82,7 +79,9 @@ export default function PerformTestPage() {
                 className="data-[state=active]:border-b-2 data-[state=active]:text-primary font-bold data-[state=active]:border-primary rounded-none border-0 px-0 py-3 flex gap-x-2 items-center"
               >
                 <span>{tab.label}</span>
-                <span className="bg-primary h-4 text-[12px] rounded-full text-white flex items-center justify-center px-2">{totalCount}</span>
+                <span className="bg-primary h-4 text-[12px] rounded-full text-white flex items-center justify-center px-2">
+                  {totalCount}
+                </span>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -153,11 +152,7 @@ export default function PerformTestPage() {
         </div>
 
         {isLoading ? (
-          <div className="w-full p-4 space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full" />
-            ))}
-          </div>
+          <DoctorPatientsTableSkeleton />
         ) : error ? (
           <div className="flex items-center justify-center py-20">
             <p className="text-destructive">Failed to load test requests</p>

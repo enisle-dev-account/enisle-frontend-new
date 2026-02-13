@@ -6,6 +6,7 @@ import { SuccessModalProvider } from "@/providers/success-modal-provider";
 import { ConfirmProvider } from "@/providers/confirm-box-provider";
 import { Toaster } from "@/components/ui/sonner"
 
+
 const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -39,7 +40,10 @@ export default function RootLayout({
       >
         <QueryProvider>
           <SuccessModalProvider>
-            <ConfirmProvider>{children}</ConfirmProvider>
+            <ConfirmProvider>
+              {children}
+              <Toaster />
+            </ConfirmProvider>
           </SuccessModalProvider>
         </QueryProvider>
          <Toaster />

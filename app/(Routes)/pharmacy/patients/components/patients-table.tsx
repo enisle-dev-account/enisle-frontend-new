@@ -25,7 +25,7 @@ export function PatientsTable({
     if (consultationStatus === "in_queue") {
       return (
         <Badge className="bg-[#FFF7E1] text-[#E58116] hover:bg-[#FFF7E1]">
-          Not Present
+          In Queue
         </Badge>
       );
     }

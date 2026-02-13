@@ -18,20 +18,43 @@ import type { DetailedConsultationResponsePatientVital } from "@/types";
 import { getAdmissionStatusColor, getBillingStatusColor } from "@/lib/utils";
 import EmptyList from "@/components/empty-list";
 import { VitalDetailPage } from "./vital-details";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { VitalsFormView } from "./vitals-form-view";
 
 interface VitalsTabViewProps {
   vitals: DetailedConsultationResponsePatientVital[];
   isLoading: boolean;
+  consultationId: string;
   isConsultationView: boolean;
 }
 
 export default function VitalsTabView({
   vitals,
   isLoading,
+  consultationId,
   isConsultationView,
 }: VitalsTabViewProps) {
   const [selectedVital, setSelectedVital] =
     useState<DetailedConsultationResponsePatientVital | null>(null);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const isNewVitals = searchParams.get("new-vitals") === "true";
+
+  const handleCancel = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("new-vitals");
+
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  if (isNewVitals) {
+    return (
+      <VitalsFormView consultationId={consultationId} onCancel={handleCancel} />
+    );
+  }
 
   if (isLoading) {
     return (

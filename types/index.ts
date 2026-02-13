@@ -153,6 +153,7 @@ export interface ConsultationData {
   nurse: string;
   parent_consultation: string;
   created_by: string;
+  consultation_id:string
 }
 
 export interface RegisterPatientPayload {

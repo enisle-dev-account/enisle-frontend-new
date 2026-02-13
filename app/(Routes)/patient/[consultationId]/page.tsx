@@ -171,6 +171,7 @@ export default function PatientViewPage({ params }: PatientViewPageProps) {
           {activeTab === "vitals" && (
             <VitalsTabView
               vitals={patientData.vitals || []}
+              consultationId={consultationId as string}
               isLoading={isLoading}
               isConsultationView={isConsultationView}
             />

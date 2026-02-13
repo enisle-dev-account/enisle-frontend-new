@@ -15,7 +15,6 @@ export function PatientsTable({ data, onPatientClick }: PatientsTableProps) {
         <thead className="sticky top-0 z-10 bg-background">
           <tr className="text-sm font-medium text-muted-foreground border-b">
             <th className="px-6 py-4 text-left">No</th>
-            <th className="px-6 py-4 text-left">Hospital Number</th>
             <th className="px-6 py-4 text-left">Name</th>
             <th className="px-6 py-4 text-left">Gender</th>
             <th className="px-6 py-4 text-left">Action</th>
@@ -30,9 +29,7 @@ export function PatientsTable({ data, onPatientClick }: PatientsTableProps) {
               <td className="px-6 py-4">
                 <p className="font-medium">{String(index + 1).padStart(3, "0")}</p>
               </td>
-              <td className="px-6 py-4">
-                <p className="font-medium">{patient.id}</p>
-              </td>
+         
               <td className="px-6 py-4">
                 <p className="font-medium">
                   {patient.first_name} {patient.surname}
