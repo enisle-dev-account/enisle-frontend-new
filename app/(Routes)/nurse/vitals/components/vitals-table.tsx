@@ -116,7 +116,7 @@ export function VitalsTable({ consultations, isLoading }: VitalsTableProps) {
                     }
                     className="border-primary text-primary bg-transparent hover:bg-primary/10"
                   >
-                    <Link href={`/patient/${consultation.id}/vitals`}>
+                    <Link href={`/patient/${consultation.id}?tab=vitals`}>
                       Start Vitals
                     </Link>
                   </Button>

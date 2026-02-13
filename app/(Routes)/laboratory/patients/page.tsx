@@ -12,6 +12,7 @@ import { Pagination } from "@/components/pagination";
 import { PatientsTable } from "./components/patients-table";
 import EmptyList from "@/components/empty-list";
 import type { LaboratoryRequestPatient } from "@/types/laboratory";
+import { DoctorPatientsTableSkeleton } from "../../patient/components/skeletons/table-skeleton";
 
 interface PatientsResponse {
   results: LaboratoryRequestPatient[];
@@ -40,7 +41,7 @@ export default function PatientsPage() {
     error,
   } = useApiQuery<PatientsResponse>(
     ["laboratory-patients", searchQuery, currentPage.toString()],
-    url
+    url,
   );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,7 +139,9 @@ export default function PatientsPage() {
                   <p className="font-medium text-muted-foreground">
                     Total Patients
                   </p>
-                  <p className="font-semibold">{String(totalCount).padStart(2, "0")}</p>
+                  <p className="font-semibold">
+                    {String(totalCount).padStart(2, "0")}
+                  </p>
                 </div>
               </div>
             )}
@@ -146,11 +149,7 @@ export default function PatientsPage() {
         </div>
 
         {isLoading ? (
-          <div className="w-full p-4 space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full" />
-            ))}
-          </div>
+          <DoctorPatientsTableSkeleton />
         ) : error ? (
           <div className="flex items-center justify-center py-20">
             <p className="text-destructive">Failed to load patients</p>
@@ -164,7 +163,10 @@ export default function PatientsPage() {
           </div>
         ) : (
           <div className="bg-background w-full space-y-2 rounded-2xl px-4">
-            <PatientsTable data={patients} onPatientClick={handlePatientClick} />
+            <PatientsTable
+              data={patients}
+              onPatientClick={handlePatientClick}
+            />
           </div>
         )}
       </div>

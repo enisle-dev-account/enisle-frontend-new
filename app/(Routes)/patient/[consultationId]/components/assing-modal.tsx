@@ -112,7 +112,7 @@ export function UnifiedAssignModal({
   const investigationForm = useForm<InvestigationRequestFormValues>({
     resolver: zodResolver(investigationRequestSchema),
     defaultValues: {
-      investigation_type: "",
+      investigation_type: [],
     },
   });
 

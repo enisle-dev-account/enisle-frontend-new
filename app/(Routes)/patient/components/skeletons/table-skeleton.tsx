@@ -15,12 +15,22 @@ export function DoctorPatientsTableSkeleton() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className=" font-medium">Patient ID</TableHead>
-          <TableHead className="font-medium">Name</TableHead>
-          <TableHead className=" font-medium">Admission Date</TableHead>
-          <TableHead className=" font-medium">Gender</TableHead>
-          <TableHead className=" font-medium">Billing Status</TableHead>
-          <TableHead className="  font-medium">Status</TableHead>
+          <TableHead className=" font-medium">
+            <Skeleton className="h-4 w-48" />
+          </TableHead>
+          <TableHead className=" font-medium">
+            <Skeleton className="h-4 w-48" />
+          </TableHead>
+          <TableHead className=" font-medium">
+            <Skeleton className="h-4 w-48" />
+          </TableHead>
+          <TableHead className=" font-medium">
+            <Skeleton className="h-4 w-48" />
+          </TableHead>
+          <TableHead className=" font-medium">
+            <Skeleton className="h-4 w-48" />
+          </TableHead>
+         
         </TableRow>
       </TableHeader>
       <TableBody>

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, X, CalendarIcon } from "lucide-react";
+import { Plus, X, CalendarIcon, CheckCircle2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 
@@ -56,6 +56,7 @@ interface SurgeryFormProps {
   onSuccess: () => void;
   onCancel: () => void;
   isConsultationView?: boolean;
+  patientName?: string;
 }
 
 interface AdditionalField {
@@ -70,8 +71,11 @@ export function SurgeryForm({
   onSuccess,
   onCancel,
   isConsultationView = true,
+  patientName,
 }: SurgeryFormProps) {
-  const [additionalFields, setAdditionalFields] = useState<AdditionalField[]>([]);
+  const [additionalFields, setAdditionalFields] = useState<AdditionalField[]>(
+    [],
+  );
   const [showAddFieldDialog, setShowAddFieldDialog] = useState(false);
   const [newFieldName, setNewFieldName] = useState("");
   const [newFieldRequired, setNewFieldRequired] = useState(false);
@@ -81,35 +85,34 @@ export function SurgeryForm({
   const { confirm } = useConfirm();
   const isCompleted = surgery?.status === "completed";
 
-  // Fetch surgery procedures from pricing
-  const { data: surgeryProcedures = [] } = useQuery({
-    queryKey: ["surgery-procedures"],
-    queryFn: async () => {
-      const response = await request("/hospital/pricing?categories=surgery");
-      return response.map((item: any) => ({
-        label: `${item.item} - ${item.currency || ""}${item.price}`,
-        value: String(item.id),
-        name: item.item,
-        price: item.price,
-      }));
-    },
-  });
+  const { data: surgeryProcedures = [], isLoading: proceduresLoading } =
+    useQuery({
+      queryKey: ["surgery-procedures"],
+      queryFn: async () => {
+        const response = await request("/hospital/pricing?categories=surgery");
+        return response
+          .filter((item: any) => item.is_active !== false)
+          .map((item: any) => ({
+            label: item.item,
+            value: String(item.id),
+            price: item.price,
+            currency: item.currency || "NGN",
+          }));
+      },
+    });
 
   const form = useForm<SurgeryFormValues>({
     resolver: zodResolver(surgerySchema),
     defaultValues: {
       procedure: "",
-     cpt_code: "",
+      selected_procedure_pricing: undefined,
+      cpt_code: "",
       anesthesia_type: "",
       operative_site: "",
       description: "",
       recovery_notes: "",
       reason: "",
       notes: "",
-      concentration: "",
-      route: "",
-      site: "",
-      quantity: "",
       additional_fields: {},
     },
   });
@@ -122,7 +125,7 @@ export function SurgeryForm({
         showSuccess("Surgery details created successfully");
         onSuccess();
       },
-    }
+    },
   );
 
   const updateMutation = useApiMutation(
@@ -133,18 +136,18 @@ export function SurgeryForm({
         showSuccess("Surgery details updated successfully");
         onSuccess();
       },
-    }
+    },
   );
 
   const completeMutation = useApiMutation(
     "PATCH",
     `/surgery/surgery-result/${surgery?.id}/complete/`,
     {
-      onSuccess: () => {
-        showSuccess("Surgery completed and billing updated!");
+      onSuccess: (data) => {
+        showSuccess(`Surgery completed successfully.`);
         onSuccess();
       },
-    }
+    },
   );
 
   useEffect(() => {
@@ -159,10 +162,6 @@ export function SurgeryForm({
         recovery_notes: surgery.recovery_notes || "",
         reason: surgery.reason || "",
         notes: surgery.notes || "",
-        concentration: surgery.concentration || "",
-        route: surgery.route || "",
-        site: surgery.site || "",
-        quantity: surgery.quantity || "",
         surgery_date: surgery.surgery_date
           ? new Date(surgery.surgery_date)
           : undefined,
@@ -174,7 +173,7 @@ export function SurgeryForm({
           name: key,
           label: key
             .split("_")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
             .join(" "),
           required: false,
         }));
@@ -185,19 +184,16 @@ export function SurgeryForm({
 
   const handleAddField = () => {
     if (!newFieldName.trim()) return;
-
     const fieldName = newFieldName.trim().toLowerCase().replace(/\s+/g, "_");
     const fieldLabel = newFieldName
       .trim()
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
-
     setAdditionalFields([
       ...additionalFields,
       { name: fieldName, label: fieldLabel, required: newFieldRequired },
     ]);
-
     setNewFieldName("");
     setNewFieldRequired(false);
     setShowAddFieldDialog(false);
@@ -206,82 +202,65 @@ export function SurgeryForm({
   const handleRemoveField = (fieldName: string) => {
     setAdditionalFields(additionalFields.filter((f) => f.name !== fieldName));
     const currentFields = form.getValues("additional_fields") || {};
-    const { [fieldName]: removed, ...rest } = currentFields;
+    const { [fieldName]: _, ...rest } = currentFields;
     form.setValue("additional_fields", rest);
   };
 
-  const onSubmit = (data: SurgeryFormValues) => {
+  const handleCompleteSurgery = async () => {
+    const selectedPricingId = form.getValues("selected_procedure_pricing");
+    if (!selectedPricingId) {
+      showSuccess("Please select the specific procedure for billing.");
+      return;
+    }
+
+    const isConfirmed = await confirm({
+      title: "Complete Surgery?",
+      message:
+        "This will finalize documentation and create a billing transaction. You cannot edit this after completion.",
+      confirmText: "Complete & Lock",
+      variant: "destructive",
+    });
+
+    if (!isConfirmed) return;
+
+    const data = form.getValues();
     const payload = {
       ...data,
-      surgery_date: data.surgery_date ? data.surgery_date.toISOString() : undefined,
+      procedure_id: selectedPricingId,
+      surgery_date: data.surgery_date
+        ? data.surgery_date.toISOString()
+        : undefined,
     };
 
-    if (surgery) {
-      updateMutation.mutate(payload);
-    } else {
-      createMutation.mutate(payload);
-    }
-  };
-
-  const handleCompleteSurgery = async () => {
-    if (surgery) {
-      const selectedPricing = form.getValues("selected_procedure_pricing");
-      
-      if (!selectedPricing) {
-        showSuccess("Please select an actual procedure before completing surgery");
-        return;
-      }
-
-      const isConfirmed = await confirm({
-        title: "Complete Surgery?",
-        message:
-          "Are you sure you want to mark this surgery as complete? This will create the final billing transaction. You will not be able to edit these details once completed.",
-        confirmText: "Complete & Lock",
-        cancelText: "Go Back",
-        variant: "destructive",
-      });
-
-      if (!isConfirmed) return;
-
-      const data = form.getValues();
-      const payload = {
-        ...data,
-        surgery_date: data.surgery_date ? data.surgery_date.toISOString() : undefined,
-      };
-
-      updateMutation.mutate(payload, {
-        onSuccess: () => {
-          completeMutation.mutate({});
-        },
-      });
-    }
+    updateMutation.mutate(payload, {
+      onSuccess: () => {
+        completeMutation.mutate({ procedure_id: selectedPricingId });
+      },
+    });
   };
 
   const isSubmitting =
     createMutation.isPending ||
     updateMutation.isPending ||
     completeMutation.isPending;
+  const selectedProcId = form.watch("selected_procedure_pricing");
+  const selectedProcedureData = surgeryProcedures.find(
+    (p: any) => p.value === String(selectedProcId),
+  );
 
-  const procedureValue = form.watch("procedure");
-  const shouldShowProceed =
-    procedureValue && procedureValue.trim().length > 0 && !showAllFields;
-
-  // Show different content for read-only vs editable
   if (!isConsultationView && surgery?.status === "pending") {
     return (
       <Card className="border-b-2 border-b-[#04DA00]">
         <CardHeader>
           <h3 className="font-bold">Surgery Details</h3>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center py-9">
-          <div className="text-center">
-            <p className="text-muted-foreground mb-2">
-              Awaiting Surgical Evaluation
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Doctor's Suggestion: <strong>{surgery.procedure}</strong>
-            </p>
-          </div>
+        <CardContent className="flex flex-col items-center justify-center py-9 text-center">
+          <p className="text-muted-foreground mb-2">
+            Awaiting Surgical Evaluation
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Doctor's Suggestion: <strong>{surgery.procedure}</strong>
+          </p>
         </CardContent>
       </Card>
     );
@@ -292,21 +271,58 @@ export function SurgeryForm({
       <Card className="border-b-2 border-b-[#04DA00]">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold">Surgery Details</h3>
+            <h3 className="font-bold flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              Surgery Details
+            </h3>
             <div className="flex items-center gap-3">
               {showAllFields && !isCompleted && isConsultationView && (
-                <Button
-                  type="button"
-                  size="sm"
-                  className="bg-background hover:bg-background text-primary border border-primary rounded-full hover:text-black"
-                  onClick={() => setShowAddFieldDialog(true)}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Field
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full border-primary text-primary"
+                    onClick={() => setShowAddFieldDialog(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-1" /> Add Field
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={form.handleSubmit((d) =>
+                      surgery
+                        ? updateMutation.mutate({
+                            ...d,
+                            surgery_date: d.surgery_date?.toISOString(),
+                          })
+                        : createMutation.mutate({
+                            ...d,
+                            surgery_date: d.surgery_date?.toISOString(),
+                          }),
+                    )}
+                    disabled={isSubmitting}
+                    variant="outline"
+                    className="rounded-full"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleCompleteSurgery}
+                    disabled={isSubmitting}
+                    className="rounded-full bg-primary hover:bg-primary/90"
+                  >
+                    {completeMutation.isPending
+                      ? "Completing..."
+                      : "Complete Surgery"}
+                  </Button>
+                </>
               )}
-
-              {shouldShowProceed && (
+              {!showAllFields && (
                 <Button
                   type="button"
                   variant="outline"
@@ -316,345 +332,255 @@ export function SurgeryForm({
                   Proceed
                 </Button>
               )}
-
-              {showAllFields && !isCompleted && isConsultationView && (
-                <>
-                  <Button
-                    type="button"
-                    onClick={form.handleSubmit(onSubmit)}
-                    disabled={isSubmitting}
-                    variant="outline"
-                    className="rounded-full border-primary text-primary hover:bg-primary/5"
-                  >
-                    {isSubmitting ? "Saving..." : "Save Changes"}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    onClick={handleCompleteSurgery}
-                    disabled={isSubmitting}
-                    className="rounded-full bg-primary hover:bg-primary/90"
-                  >
-                    {isSubmitting ? "Processing..." : "Complete Surgery"}
-                  </Button>
-                </>
-              )}
             </div>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-4 pb-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Doctor's Original Suggestion (Read-only) */}
+            <form className="space-y-4">
+              {patientName && (
+                <div className="bg-muted/50 p-3 rounded-lg">
+                  <p className="text-xs text-muted-foreground uppercase font-semibold">
+                    Patient
+                  </p>
+                  <p className="font-bold">{patientName}</p>
+                </div>
+              )}
+
               {surgery && (
-                <div className="bg-muted p-4 rounded-lg space-y-2">
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    Doctor's Suggested Procedure:
+                <div className="bg-muted p-4 rounded-lg">
+                  <p className="text-xs font-bold text-muted-foreground uppercase">
+                    Doctor's Original Suggestion:
                   </p>
                   <p className="font-medium text-lg">{surgery.procedure}</p>
                   {surgery.reason && (
-                    <>
-                      <p className="text-sm font-semibold text-muted-foreground mt-3">
-                        Reason for Referral:
-                      </p>
-                      <p className="text-sm">{surgery.reason}</p>
-                    </>
+                    <p className="text-sm mt-2 opacity-80">{surgery.reason}</p>
                   )}
                 </div>
               )}
 
-              {/* Surgeon Selects Actual Procedure */}
               {showAllFields && (
-                <>
+                <div className="space-y-6">
                   <FormField
                     control={form.control}
                     name="selected_procedure_pricing"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          Actual Procedure (Select from approved list){" "}
+                        <FormLabel className="font-bold">
+                          Actual Procedure Performed{" "}
                           <span className="text-destructive">*</span>
                         </FormLabel>
                         <Select
-                          onValueChange={(val)=>field.onChange(Number(val))}
-                          value={String(field.value)}
+                          onValueChange={(val) => field.onChange(Number(val))}
+                          value={field.value ? String(field.value) : ""}
                           disabled={isCompleted}
                         >
                           <FormControl>
                             <SelectTrigger className="bg-white">
-                              <SelectValue placeholder="Select actual procedure to be performed" />
+                              <SelectValue placeholder="Select procedure for billing" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {surgeryProcedures.map((proc: any) => (
                               <SelectItem key={proc.value} value={proc.value}>
-                                {proc.label}
+                                <div className="flex justify-between w-full gap-4">
+                                  <span>{proc.label}</span>
+                                  <span className="text-xs opacity-60">
+                                    {proc.currency}{" "}
+                                    {proc.price.toLocaleString()}
+                                  </span>
+                                </div>
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        <p className="text-xs text-muted-foreground">
-                          This will be used for final billing
-                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  {/* Surgery Date/Time */}
-                  <FormField
-                    control={form.control}
-                    name="surgery_date"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>
-                          Scheduled Surgery Date & Time{" "}
-                          <span className="text-destructive">*</span>
-                        </FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                disabled={isCompleted}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal bg-white border-[#E8ECF0]",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP 'at' p")
-                                ) : (
-                                  <span>Pick a date and time</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) => date < new Date() || isCompleted}
-                              initialFocus
-                            />
-                            <div className="p-3 border-t">
-                              <Input
-                                type="time"
-                                disabled={isCompleted}
-                                value={field.value ? format(field.value, "HH:mm") : ""}
-                                onChange={(e) => {
-                                  const [hours, minutes] = e.target.value.split(":");
-                                  const newDate = field.value
-                                    ? new Date(field.value)
-                                    : new Date();
-                                  newDate.setHours(parseInt(hours), parseInt(minutes));
-                                  field.onChange(newDate);
-                                }}
-                                className="bg-white"
+                  {selectedProcedureData && (
+                    <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg flex justify-between items-center">
+                      <div className="text-xs font-bold text-primary uppercase">
+                        Transaction Amount
+                      </div>
+                      <div className="text-2xl font-black text-primary">
+                        {selectedProcedureData.currency}{" "}
+                        {selectedProcedureData.price.toLocaleString()}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="surgery_date"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Surgery Date & Time</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  disabled={isCompleted}
+                                  className={cn(
+                                    "w-full pl-3 text-left bg-white",
+                                    !field.value && "text-muted-foreground",
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP p")
+                                  ) : (
+                                    <span>Pick date/time</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) =>
+                                  date < new Date() || isCompleted
+                                }
                               />
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Rest of the fields... (keeping your existing implementation) */}
-                  {/* Basic Surgery Details */}
-                  <div className="grid grid-cols-2 gap-4">
+                              <div className="p-3 border-t">
+                                <Input
+                                  type="time"
+                                  value={
+                                    field.value
+                                      ? format(field.value, "HH:mm")
+                                      : ""
+                                  }
+                                  onChange={(e) => {
+                                    const [h, m] = e.target.value.split(":");
+                                    const d = field.value
+                                      ? new Date(field.value)
+                                      : new Date();
+                                    d.setHours(parseInt(h), parseInt(m));
+                                    field.onChange(d);
+                                  }}
+                                />
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="cpt_code"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>CPT/ICD-10 codes</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter codes"
-                              {...field}
-                              disabled={isCompleted}
-                            />
-                          </FormControl>
-                          <FormMessage />
+                          <Input {...field} disabled={isCompleted} />
                         </FormItem>
                       )}
                     />
+                  </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="operative_site"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Operative site</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter operative site"
-                              {...field}
-                              disabled={isCompleted}
-                            />
-                          </FormControl>
-                          <FormMessage />
+                          <Input {...field} disabled={isCompleted} />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="anesthesia_type"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Anesthesia type</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter anesthesia type"
-                              {...field}
-                              disabled={isCompleted}
-                            />
-                          </FormControl>
-                          <FormMessage />
+                          <Input {...field} disabled={isCompleted} />
                         </FormItem>
                       )}
                     />
                   </div>
 
-                  {/* Procedure Description */}
                   <FormField
                     control={form.control}
                     name="description"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Procedure description{" "}
+                          Procedure Description{" "}
                           <span className="text-destructive">*</span>
                         </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Enter detailed procedure description"
-                            className="min-h-20 resize-none"
-                            {...field}
-                            disabled={isCompleted}
-                          />
-                        </FormControl>
+                        <Textarea
+                          className="min-h-25"
+                          {...field}
+                          disabled={isCompleted}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  {/* Post-Operative Section */}
-                  <div>
-                    <h4 className="font-semibold text-sm mb-4">
-                      Post-Operative Section
-                    </h4>
-                    <FormField
-                      control={form.control}
-                      name="recovery_notes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Recovery notes</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Enter recovery notes"
-                              className="min-h-20 resize-none"
-                              {...field}
-                              disabled={isCompleted}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Additional Notes */}
                   <FormField
                     control={form.control}
-                    name="notes"
+                    name="recovery_notes"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Notes</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Enter additional notes"
-                            className="min-h-20 resize-none"
-                            {...field}
-                            disabled={isCompleted}
-                          />
-                        </FormControl>
-                        <FormMessage />
+                        <FormLabel>Recovery Notes</FormLabel>
+                        <Textarea {...field} disabled={isCompleted} />
                       </FormItem>
                     )}
                   />
 
-                  {/* Additional Fields */}
-                  {additionalFields.map((field) => (
+                  {additionalFields.map((f) => (
                     <FormField
-                      key={field.name}
+                      key={f.name}
                       control={form.control}
-                      name={`additional_fields.${field.name}` as any}
-                      render={({ field: formField }) => (
+                      name={`additional_fields.${f.name}` as any}
+                      render={({ field: ff }) => (
                         <FormItem>
                           <div className="flex items-center justify-between">
                             <FormLabel>
-                              {field.label}
-                              {field.required && (
-                                <span className="text-destructive">*</span>
-                              )}
+                              {f.label}
+                              {f.required && "*"}
                             </FormLabel>
-                            {!isCompleted && isConsultationView && (
+                            {!isCompleted && (
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleRemoveField(field.name)}
+                                onClick={() => handleRemoveField(f.name)}
                               >
                                 <X className="h-4 w-4" />
                               </Button>
                             )}
                           </div>
-                          <FormControl>
-                            <Textarea
-                              placeholder={`Enter ${field.label.toLowerCase()}`}
-                              className="min-h-20 resize-none"
-                              {...formField}
-                              disabled={isCompleted}
-                            />
-                          </FormControl>
-                          <FormMessage />
+                          <Textarea {...ff} disabled={isCompleted} />
                         </FormItem>
                       )}
                     />
                   ))}
 
-                  {isConsultationView && (
-                    <div className="flex gap-2 pt-4">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={onCancel}
-                        disabled={isSubmitting}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  )}
-                </>
+                  <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-xs text-blue-800">
+                    <strong>Note:</strong> Completion creates an automatic
+                    transaction in the billing system.
+                  </div>
+                </div>
               )}
             </form>
           </Form>
         </CardContent>
       </Card>
 
-      {/* Add Field Dialog */}
       <Dialog open={showAddFieldDialog} onOpenChange={setShowAddFieldDialog}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Add New Field</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Field Title</label>
@@ -664,45 +590,27 @@ export function SurgeryForm({
                 onChange={(e) => setNewFieldName(e.target.value)}
               />
             </div>
-
             <div className="flex items-center justify-between">
               <span className="text-sm">Is Required</span>
               <button
                 type="button"
                 onClick={() => setNewFieldRequired(!newFieldRequired)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
-                  newFieldRequired ? "bg-primary" : "bg-gray-200"
-                }`}
+                className={`relative h-6 w-11 rounded-full ${newFieldRequired ? "bg-primary" : "bg-gray-200"}`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    newFieldRequired ? "translate-x-6" : "translate-x-1"
-                  }`}
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${newFieldRequired ? "translate-x-6" : "translate-x-1"}`}
                 />
               </button>
             </div>
           </div>
-
           <DialogFooter>
             <Button
-              type="button"
               variant="outline"
-              onClick={() => {
-                setShowAddFieldDialog(false);
-                setNewFieldName("");
-                setNewFieldRequired(false);
-              }}
+              onClick={() => setShowAddFieldDialog(false)}
             >
               Cancel
             </Button>
-            <Button
-              type="button"
-              onClick={handleAddField}
-              disabled={!newFieldName.trim()}
-              className="rounded-full"
-            >
-              Add Field
-            </Button>
+            <Button onClick={handleAddField}>Add Field</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

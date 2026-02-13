@@ -7,15 +7,13 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { InvestigationRequestFormValues } from "../tabs/encounter-notes/schemas/encounters.schema";
-import { LabTest } from "@/types";
 import { LabTestRequest } from "@/types/laboratory";
 
 interface InvestigationRequestFormProps {
@@ -29,11 +27,26 @@ export function InvestigationRequestForm({
 }: InvestigationRequestFormProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  console.log(labTests,"these are test");
-  
-  const filteredTests = labTests.filter((test) =>
-    test.test_name?.toLowerCase().includes(searchQuery.toLowerCase()) || false
+  const filteredTests = labTests.filter(
+    (test) =>
+      test.test_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      false,
   );
+
+  const selectedTests = form.watch("investigation_type") || [];
+
+  const toggleTest = (testId: string) => {
+    const currentTests = [...selectedTests];
+    const index = currentTests.indexOf(testId);
+
+    if (index > -1) {
+      currentTests.splice(index, 1);
+    } else {
+      currentTests.push(testId);
+    }
+
+    form.setValue("investigation_type", currentTests);
+  };
 
   return (
     <div className="space-y-4">
@@ -49,38 +62,50 @@ export function InvestigationRequestForm({
         </div>
       </div>
 
-      <ScrollArea className="h-37.5 px-4">
+      {/* Selected count indicator */}
+      {selectedTests.length > 0 && (
+        <div className="px-4">
+          <div className="bg-primary/10 text-primary px-3 py-2 rounded-md text-sm font-medium">
+            {selectedTests.length} test{selectedTests.length > 1 ? "s" : ""}{" "}
+            selected
+          </div>
+        </div>
+      )}
+
+      <ScrollArea className="h-96 px-4">
         <FormField
           control={form.control}
           name="investigation_type"
           render={({ field }) => (
             <FormItem className="space-y-3">
               <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="space-y-2"
-                >
-                  {filteredTests.map((test) => (
-                    <div
-                      key={test.test_name}
-                      className="flex items-center space-x-3 border-b pb-3 cursor-pointer hover:bg-muted/50 rounded px-2 py-1"
-                      onClick={() => field.onChange(test.id.toString())}
-                    >
-                      <RadioGroupItem
-                        value={test.id.toString()}
-                        id={test.id.toString()}
-                        className="border-[#A7AEC1]"
-                      />
-                      <Label
-                        htmlFor={test.id.toString()}
-                        className="text-sm font-normal cursor-pointer flex-1"
+                <div className="space-y-2">
+                  {filteredTests.map((test) => {
+                    const testId = test.id.toString();
+                    const checkboxId = `investigation-${testId}`;
+
+                    return (
+                      <div
+                        key={test.id}
+                        className="flex items-center space-x-3 border-b rounded px-2"
                       >
-                        {test.test_name}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+                        <Checkbox
+                          id={checkboxId}
+                          checked={selectedTests.includes(testId)}
+                          onCheckedChange={() => toggleTest(testId)}
+                          className="border-[#A7AEC1]"
+                        />
+
+                        <Label
+                          htmlFor={checkboxId}
+                          className="text-sm font-normal cursor-pointer flex-1 w-full py-4"
+                        >
+                          {test.test_name}
+                        </Label>
+                      </div>
+                    );
+                  })}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

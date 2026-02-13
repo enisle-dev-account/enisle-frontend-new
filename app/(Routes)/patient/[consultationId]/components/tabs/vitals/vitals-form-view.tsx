@@ -176,7 +176,7 @@ export function VitalsFormView({
     is_draft: boolean;
   }>("POST", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vitals", consultationId] });
+      queryClient.invalidateQueries({ queryKey: ["patient-data", consultationId] });
       showSuccess("Vitals added successfully");
       onCancel();
     },
