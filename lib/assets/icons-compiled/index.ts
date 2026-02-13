@@ -1,6 +1,7 @@
 export { default as Logo } from "./Logo";
 export { default as WeightScale } from "./WeightScale";
 export { default as Add } from "./Add";
+export { default as AltLogo } from "./AltLogo";
 export { default as Analytics } from "./Analytics";
 export { default as Bed } from "./Bed";
 export { default as BloodPressure } from "./BloodPressure";

@@ -59,6 +59,7 @@ import {
   InfoCircle,
   Ward,
   MeetingRoom,
+  AltLogo
 } from "@/lib/assets/icons-compiled";
 
 // Icon registry - now all components work the same way
@@ -110,6 +111,7 @@ const iconRegistry = {
     "info-circle": InfoCircle,
     ward: Ward,
     "meeting-room": MeetingRoom,
+    "alt-logo": AltLogo,
   // Lucide icons
   "lucide-star": LucideStar,
   "lucide-heart": LucideHeart,
