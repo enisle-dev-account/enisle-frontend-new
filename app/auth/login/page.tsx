@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input"
 import { BrandingCarousel } from "@/components/branding-carousel"
 import { Icon } from "@/components/icon"
 import { useLogin } from "@/hooks/api"
+import { ApiError } from "@/lib/aux-classes"
+import { toast } from "sonner"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -22,7 +24,6 @@ type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const router = useRouter()
 
   const form = useForm<LoginFormValues>({
@@ -38,12 +39,19 @@ export default function LoginPage() {
       router.push("/admin")
     },
     onError: (error) => {
-      setErrorMessage(error.message || "Login failed. Please check your credentials.")
+        if (error instanceof ApiError) {
+          if (error.data.non_field_errors) {
+            toast.error(error.data.non_field_errors[0], {
+                position: "top-right",
+            })
+            form.setError("email", { message: error.data.non_field_errors[0] })
+            form.setError("password", { message: error.data.non_field_errors[0] })
+          }
+        }
     },
   })
 
   const onSubmit = async (values: LoginFormValues) => {
-    setErrorMessage(null)
     loginMutation.mutate({
       email: values.email,
       password: values.password,
@@ -64,16 +72,6 @@ export default function LoginPage() {
             <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
             <p className="text-gray-500">Sign in to your Enisle account</p>
           </div>
-
-          {errorMessage && (
-            <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold">Sign in failed</p>
-                <p className="text-xs mt-1">{errorMessage}</p>
-              </div>
-            </div>
-          )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
