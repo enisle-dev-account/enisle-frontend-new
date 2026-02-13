@@ -1,7 +1,5 @@
 "use client";
 
-// File: app/laboratory/perform-tests/consultation/[consultationId]/page.tsx
-
 import { useParams, useRouter } from "next/navigation";
 import { useApiQuery } from "@/hooks/api";
 import { Button } from "@/components/ui/button";
