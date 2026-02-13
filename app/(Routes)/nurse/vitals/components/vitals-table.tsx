@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { useState } from "react";
 import Link from "next/link";
 import { getBillingStatusColor, getConsultationStatusColor } from "@/lib/utils";
+import { DoctorPatientsTableSkeleton } from "@/app/(Routes)/patient/components/skeletons/table-skeleton";
 
 interface VitalsTableProps {
   consultations: NurseConsultationData[];
@@ -33,9 +34,7 @@ export function VitalsTable({ consultations, isLoading }: VitalsTableProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">Loading consultations...</p>
-      </div>
+      <DoctorPatientsTableSkeleton />
     );
   }
 
@@ -51,15 +50,15 @@ export function VitalsTable({ consultations, isLoading }: VitalsTableProps) {
     <div className=" overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted/50">
-            <TableHead className="font-semibold">Patient ID</TableHead>
-            <TableHead className="font-semibold">Name</TableHead>
-            <TableHead className="font-semibold">Date</TableHead>
-            <TableHead className="font-semibold">Doctor</TableHead>
-            <TableHead className="font-semibold">Gender</TableHead>
-            <TableHead className="font-semibold">Billing Status</TableHead>
-            <TableHead className="font-semibold">Status</TableHead>
-            <TableHead className="text-right font-semibold">Action</TableHead>
+          <TableRow className="">
+            <TableHead className="font-semibold text-gray-400">Patient ID</TableHead>
+            <TableHead className="font-semibold text-gray-400">Name</TableHead>
+            <TableHead className="font-semibold text-gray-400">Date</TableHead>
+            <TableHead className="font-semibold text-gray-400">Doctor</TableHead>
+            <TableHead className="font-semibold text-gray-400">Gender</TableHead>
+            <TableHead className="font-semibold text-gray-400">Billing Status</TableHead>
+            <TableHead className="font-semibold text-gray-400">Status</TableHead>
+            <TableHead className="text-right font-semibold text-gray-400">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

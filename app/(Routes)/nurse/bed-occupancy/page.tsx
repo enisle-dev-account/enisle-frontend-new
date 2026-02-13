@@ -22,6 +22,7 @@ export default function BedOccupancyPage() {
   }, [wards, selectedWardId]);
 
   return (
+    <main className="rounded-t-2xl bg-background overflow-hidden p-6 h-full">
     <div className="flex h-full gap-6">
       <div className="w-56 border-r border-border pr-6 overflow-y-auto">
         <div className="flex items-center gap-2 mb-6">
@@ -40,7 +41,7 @@ export default function BedOccupancyPage() {
                 onClick={() => setSelectedWardId(ward.id)}
                 className={`w-full text-left px-4 py-4 rounded-md transition-colors text-sm ${
                   selectedWardId === ward.id
-                    ? "bg-primary text-primary-foreground font-medium"
+                    ? "bg-[#f3f3f4] text-foreground font-medium"
                     : "text-muted-foreground hover:bg-muted"
                 }`}
               >
@@ -61,5 +62,7 @@ export default function BedOccupancyPage() {
         )}
       </div>
     </div>
+
+    </main>
   );
 }
