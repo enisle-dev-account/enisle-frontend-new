@@ -4,10 +4,11 @@ import {
   type UseMutationOptions,
   type UseQueryOptions,
 } from "@tanstack/react-query";
-
+import { toast } from "sonner";
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 import Cookies from "js-cookie";
+import { ApiError } from "@/lib/aux-classes";
 
 const getToken = () => {
   if (typeof window === "undefined") return null;
@@ -87,22 +88,34 @@ export const request = async (url: string, options: RequestInit = {}) => {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const res = await fetch(`${BASE_URL}${url}`, {
-    ...options,
-    headers,
-    credentials: "include",
-  });
-  if (res.status === 204) {
-    return null; // Don't call .json()
-  }
-  const data = await res.json();
-  if (!res.ok) {
-    if (res.status === 401 && data.code === "token_not_valid") {
-      clearTokens();
+  try {
+    const res = await fetch(`${BASE_URL}${url}`, {
+      ...options,
+      headers,
+      credentials: "include",
+    });
+    if (res.status === 204) {
+      return null; // Don't call .json()
     }
-    throw new Error(data.message || "Request failed");
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401 && data.code === "token_not_valid") {
+        toast.error("Session expired. Please login again.");
+        clearTokens();
+      }
+      throw new ApiError(res.status, data);
+    }
+    return data;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    
+    if (error instanceof TypeError) {
+      const msg = "Network error. Please check your connection.";
+      toast.error(msg);
+      throw new Error(msg);
+    }
+    throw error;
   }
-  return data;
 };
 
 export const useApiQuery = <T>(

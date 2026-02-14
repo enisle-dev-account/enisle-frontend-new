@@ -96,4 +96,5 @@ export interface TransactionItem {
   itemId?: string | null
   quantity: number
   price: number
+  details?: string
 }

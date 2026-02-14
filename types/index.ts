@@ -957,4 +957,21 @@ export interface DetailedConsultationResponsePatient {
     vital: DetailedConsultationResponsePatientVital
 }
 
-
+export interface HospitalDetailsResponse {
+id: string;
+name: string;
+registration_number?: string;
+slug?: string;
+email?: string;
+bank_name?: string | null;
+bank_account_number?: string | null;
+bank_account_name?: string | null;
+hospital_type?: string;
+country?: string;
+city?: string;
+state?: string;
+postal_code?: string;
+mobile?: string;
+currency?: string;
+integrations?: Record<string, any>;
+}

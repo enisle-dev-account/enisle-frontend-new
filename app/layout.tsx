@@ -4,7 +4,8 @@ import "./globals.css";
 import { QueryProvider } from "@/providers/react-query";
 import { SuccessModalProvider } from "@/providers/success-modal-provider";
 import { ConfirmProvider } from "@/providers/confirm-box-provider";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner"
+
 
 const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
@@ -45,6 +46,7 @@ export default function RootLayout({
             </ConfirmProvider>
           </SuccessModalProvider>
         </QueryProvider>
+         <Toaster />
       </body>
     </html>
   );
