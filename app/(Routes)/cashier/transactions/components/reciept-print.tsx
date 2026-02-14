@@ -229,7 +229,7 @@ export function ReceiptPrint({
       {/* ── Totals ── */}
       <div style={{ marginBottom: "6px" }}>
         <Row label="Subtotal" value={fmt(total)} />
-        <Row label="Amount Paid" value={fmt(paid)} />
+        {/* <Row label="Amount Paid" value={fmt(paid)} /> */}
         {balance > 0 && (
           <Row
             label="Balance Due"
@@ -311,7 +311,7 @@ export function ReceiptPrint({
           * * * KEEP THIS RECEIPT * * *
         </div>
         <div style={{ marginTop: "8px", fontSize: "9px", color: "#555" }}>
-          Powered by MedSync
+          Powered by Enisle
         </div>
       </div>
     </div>
