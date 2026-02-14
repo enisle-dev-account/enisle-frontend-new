@@ -1,160 +1,137 @@
 "use client";
 
-import { format } from "date-fns";
-import { MoreVertical } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Beaker, Droplet, Heart, Activity } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { LabTest } from "@/types";
+  DetailedConsultationResponsePatientEncounterLabs,
+} from "@/types/laboratory";
+import { LabParameterCard } from "./lab-parameter";
+import { LabDetailedView } from "./lab-detail";
 
-interface LabCardProps {
-  lab: LabTest;
-  currentUserId?: string;
-    isConsultationView?: boolean;
+// Icon mapping
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  beaker: Beaker,
+  droplet: Droplet,
+  heart: Heart,
+  activity: Activity,
+};
 
+// Color mapping
+const COLOR_MAP: Record<string, string> = {
+  blue: "#3B82F6",
+  purple: "#A855F7",
+  green: "#10B981",
+  orange: "#F59E0B",
+  pink: "#EC4899",
+  cyan: "#06B6D4",
+  red: "#EF4444",
+};
+
+interface LabTestCardProps {
+  labTest: DetailedConsultationResponsePatientEncounterLabs;
+  patientHistory?: DetailedConsultationResponsePatientEncounterLabs[]; // Can be empty array
+  showInsights?: boolean;
 }
 
-export function LabCard({ lab, currentUserId }: LabCardProps) {
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
-  };
+export default function LabTestCard({
+  labTest,
+  patientHistory = [],
+  showInsights = true,
+}: LabTestCardProps) {
+  const [selectedParameter, setSelectedParameter] = useState<string | null>(null);
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      pending: "bg-yellow-100 text-yellow-800",
-      completed: "bg-green-100 text-green-800",
-      in_progress: "bg-blue-100 text-blue-800",
-      cancelled: "bg-red-100 text-red-800",
-    };
-    return colors[status] || "bg-gray-100 text-gray-800";
-  };
+  const config = labTest.investigation_request?.test_config;
+  const IconComponent = config ? ICON_MAP[config.icon] || Beaker : Beaker;
+  const themeColor = config ? COLOR_MAP[config.color_theme] || COLOR_MAP.blue : COLOR_MAP.blue;
+
+  // Combine current lab with history for calculations
+  const allLabs = [labTest, ...patientHistory];
+
+  if (!config) {
+    return (
+      <Card className="border-2">
+        <CardContent className="p-6">
+          <p className="text-muted-foreground">Test configuration not available</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Card className="border-b-2 border-b-cyan-500">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage
-                src={lab.doctor.profile_picture || ""}
-                alt={`${lab.doctor.first_name} ${lab.doctor.last_name}`}
-              />
-              <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                {getInitials(lab.doctor.first_name, lab.doctor.last_name)}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <div className="flex items-center gap-2">
-                <p className="font-bold text-md">
-                  Dr. {lab.doctor.first_name} {lab.doctor.last_name}
-                </p>
-                <span className="text-sm text-muted-foreground">requested</span>
-                <span className="text-sm text-cyan-600">Lab Scientist</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge className={getStatusColor(lab.status)}>{lab.status}</Badge>
-            <div className="text-sm text-muted-foreground flex items-center gap-2">
-              <span className="border-r pr-3">
-                {format(new Date(lab.created_at), "MMM dd, yyyy")}
-              </span>
-              <span>{format(new Date(lab.created_at), "hh:mm a")}</span>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>View Details</DropdownMenuItem>
-                <DropdownMenuItem>Add Field</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-4 pb-6">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold">Notes</h3>
-        </div>
-
-        <Separator />
-
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm font-semibold text-muted-foreground mb-1">
-              {lab.investigation_request.request_type}
-            </p>
-          </div>
-
-          {lab.investigation_request.notes && (
-            <div>
-              <p className="text-sm">{lab.investigation_request.notes}</p>
-            </div>
-          )}
-
-          {lab.result && lab.result.length > 0 && (
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground mb-2">
-                Test Results
-              </p>
-              <div className="space-y-2">
-                {lab.result.map((result, index) => (
+    <AnimatePresence mode="wait">
+      {!selectedParameter ? (
+        <motion.div
+          key="card-view"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="border-2 hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
                   <div
-                    key={index}
-                    className="border rounded-lg p-3 bg-gray-50"
+                    className="p-2 rounded-lg"
+                    style={{ backgroundColor: `${themeColor}20` }}
                   >
-                    {Object.entries(result).map(([key, value]) => (
-                      <div key={key} className="flex justify-between text-sm">
-                        <span className="font-medium capitalize">
-                          {key.replace(/_/g, " ")}:
-                        </span>
-                        <span>{String(value)}</span>
-                      </div>
-                    ))}
+                    <IconComponent className="h-5 w-5" style={{ color: themeColor }} />
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-lg font-semibold">{config.test_name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {labTest.doctor.first_name} {labTest.doctor.last_name} submitted{" "}
+                      <Badge variant="secondary" className="ml-1">
+                        Lab Result
+                      </Badge>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>{new Date(labTest.test_date).toLocaleDateString()}</span>
+                  <span>
+                    {new Date(labTest.created_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+            </CardHeader>
 
-export function LabCardSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-48" />
-              <Skeleton className="h-3 w-32" />
-            </div>
-          </div>
-          <Skeleton className="h-6 w-20" />
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Skeleton className="h-6 w-24" />
-        <Separator />
-        <Skeleton className="h-20 w-full" />
-      </CardContent>
-    </Card>
+            <CardContent className="space-y-4">
+              {labTest.result.map((result) => {
+                const paramConfig = config.parameters.find((p) => p.name === result.parameter_name);
+                if (!paramConfig) return null;
+
+                return (
+                  <LabParameterCard
+                    key={result.parameter_name}
+                    parameter={result}
+                    config={paramConfig}
+                    allLabs={allLabs}
+                    testName={labTest.test}
+                    themeColor={themeColor}
+                    onViewDetails={() => setSelectedParameter(result.parameter_name)}
+                  />
+                );
+              })}
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        <LabDetailedView
+          key="detailed-view"
+          labTest={labTest}
+          allLabs={allLabs}
+          selectedParameterName={selectedParameter}
+          onBack={() => setSelectedParameter(null)}
+          showInsights={showInsights}
+        />
+      )}
+    </AnimatePresence>
   );
 }

@@ -4,12 +4,12 @@ import { Fragment, useMemo } from "react";
 import {
   DetailedConsultationResponsePatientVital,
   Encounter,
-  LabTest,
   MedicationPrescription,
   Surgery,
   RadiologyStudy,
   DetailedPatientConsultationInfoResponse,
 } from "@/types";
+import { DetailedConsultationResponsePatientEncounterLabs } from "@/types/laboratory";
 
 import { VitalDetailPage } from "./vitals/vital-details";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,7 +17,7 @@ import { EncounterCard } from "./encounter-notes/encounter-card";
 import { MedicationCard } from "./medication/medication-card";
 import { SurgeryCard } from "./surgery/surgery-card";
 import { RadiologyCard } from "./scans/scans-card";
-import { LabCard } from "./lab/lab-card";
+import LabTestCard from "./lab/lab-card";
 
 interface AllPatientInformationProps {
   data: DetailedPatientConsultationInfoResponse;
@@ -25,7 +25,7 @@ interface AllPatientInformationProps {
   isConsultationView: boolean;
   currentUserId?: string;
   onRefetch: () => void;
-  consultaionId:string |null
+  consultaionId: string | null;
   onOpenPrescription?: () => void;
   onOpenInvestigation?: () => void;
   onOpenSurgical?: () => void;
@@ -34,7 +34,7 @@ interface AllPatientInformationProps {
 type CombinedItem =
   | { type: "vital"; data: DetailedConsultationResponsePatientVital }
   | { type: "encounter"; data: Encounter }
-  | { type: "lab"; data: LabTest }
+  | { type: "lab"; data: DetailedConsultationResponsePatientEncounterLabs }
   | { type: "medication"; data: MedicationPrescription }
   | { type: "surgery"; data: Surgery }
   | { type: "scan"; data: RadiologyStudy };
@@ -67,7 +67,8 @@ export default function AllPatientInformation({
     );
     data.scans?.forEach((scan) => items.push({ type: "scan", data: scan }));
 
-    if(data.encounters.length===0 && isConsultationView) items.push({type:"encounter",data:{} as any})
+    if (data.encounters.length === 0 && isConsultationView)
+      items.push({ type: "encounter", data: {} as any });
     // Sort by created_at or updated_at (newest first)
     return items.sort((a, b) => {
       const getDate = (item: CombinedItem) => {
@@ -141,14 +142,13 @@ export default function AllPatientInformation({
             return (
               <Fragment key={`vital-${index}`}>
                 {item.data.created_at && (item.data as any).taken_by && (
-                
-                    <VitalDetailPage
+                  <VitalDetailPage
                     key={`vital-${index}`}
-                      vital={
-                        item.data as DetailedConsultationResponsePatientVital
-                      }
-                      onClose={onRefetch}
-                    />
+                    vital={
+                      item.data as DetailedConsultationResponsePatientVital
+                    }
+                    onClose={onRefetch}
+                  />
                 )}
               </Fragment>
             );
@@ -158,11 +158,7 @@ export default function AllPatientInformation({
               <EncounterCard
                 key={`encounter-${index}`}
                 encounter={item.data}
-                consultationId={
-                  isConsultationView
-                    ? consultaionId|| ""
-                    : ""
-                }
+                consultationId={isConsultationView ? consultaionId || "" : ""}
                 currentUserId={currentUserId}
                 onRefetch={onRefetch}
                 onOpenPrescription={onOpenPrescription}
@@ -173,14 +169,25 @@ export default function AllPatientInformation({
             );
 
           case "lab":
-            return (
-              <LabCard
-                key={`lab-${item.data.id}`}
-                lab={item.data}
-                currentUserId={currentUserId}
-                isConsultationView={isConsultationView}
-              />
-            );
+            {
+              // Get patient history for this test type from all labs
+              const currentLab = item.data;
+              const allLabsOfType = data.labs?.filter(
+                (lab) => lab.test === currentLab.test
+              ) || [];
+              const history = allLabsOfType.filter(
+                (lab) => lab.id !== currentLab.id
+              );
+
+              return (
+                <LabTestCard
+                  key={`lab-${item.data.id}`}
+                  labTest={currentLab}
+                  patientHistory={history}
+                  showInsights={false} 
+                />
+              );
+            }
 
           case "medication":
             return (
@@ -198,7 +205,7 @@ export default function AllPatientInformation({
               <SurgeryCard
                 consultationId={
                   isConsultationView
-                    ? (item.data as Surgery).consultation|| ""
+                    ? (item.data as Surgery).consultation || ""
                     : ""
                 }
                 currentUserId={currentUserId}

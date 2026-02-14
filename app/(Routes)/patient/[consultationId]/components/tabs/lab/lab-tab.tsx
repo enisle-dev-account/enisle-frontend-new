@@ -14,13 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MoveLeft } from "lucide-react";
-import type { LabTest } from "@/types";
-import { LabCard } from "./lab-card";
 import { getBillingStatusColor, getStatusColor } from "@/lib/utils";
 import EmptyList from "@/components/empty-list";
+import { DetailedConsultationResponsePatientEncounterLabs } from "@/types/laboratory";
+import LabTestCard from "./lab-card";
 
 interface LabsTabViewProps {
-  labs: LabTest[];
+  labs: DetailedConsultationResponsePatientEncounterLabs[];
   isLoading: boolean;
   isConsultationView: boolean;
   currentUserId?: string;
@@ -32,7 +32,7 @@ export default function LabsTabView({
   isConsultationView,
   currentUserId,
 }: LabsTabViewProps) {
-  const [selectedLab, setSelectedLab] = useState<LabTest | null>(null);
+  const [selectedLab, setSelectedLab] = useState<DetailedConsultationResponsePatientEncounterLabs | null>(null);
 
   if (isLoading) {
     return (
@@ -43,18 +43,28 @@ export default function LabsTabView({
     );
   }
 
-  // If consultation view and only one lab, show card directly
+  // Single lab in consultation view - show directly
   if (isConsultationView && labs.length === 1 && !selectedLab) {
+    // Get history (other labs of same test type)
+    const history = labs.filter(
+      (lab) => lab.test === labs[0].test && lab.id !== labs[0].id
+    );
+    
     return (
       <div className="space-y-6">
         <h2 className="text-lg font-bold">Lab Results</h2>
-        <LabCard lab={labs[0]} currentUserId={currentUserId} />
+        <LabTestCard labTest={labs[0]} patientHistory={history} />
       </div>
     );
   }
 
-  // If viewing a selected lab
+  // Selected lab view
   if (selectedLab) {
+    // Get patient history for this test type
+    const history = labs.filter(
+      (lab) => lab.test === selectedLab.test && lab.id !== selectedLab.id
+    );
+
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
@@ -68,7 +78,7 @@ export default function LabsTabView({
             Back to List
           </Button>
         </div>
-        <LabCard lab={selectedLab} currentUserId={currentUserId} />
+        <LabTestCard labTest={selectedLab} patientHistory={history} />
       </div>
     );
   }
@@ -98,7 +108,9 @@ export default function LabsTabView({
               <TableHead className="text-[#9C9C9D]">Request Type</TableHead>
               <TableHead className="text-[#9C9C9D]">Billing Status</TableHead>
               <TableHead className="text-[#9C9C9D]">Status</TableHead>
-              <TableHead className="text-right text-[#9C9C9D]">Action</TableHead>
+              <TableHead className="text-right text-[#9C9C9D]">
+                Action
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -116,7 +128,9 @@ export default function LabsTabView({
                   <TableCell>
                     Dr. {lab.doctor.first_name} {lab.doctor.last_name}
                   </TableCell>
-                  <TableCell>{lab.test || lab.investigation_request?.request_type}</TableCell>
+                  <TableCell>
+                    {lab.test || lab.investigation_request?.request_type}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       variant="outline"

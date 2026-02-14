@@ -1,3 +1,5 @@
+import { DetailedConsultationResponsePatientEncounterLabs, InvestigationRequestWithConfig } from "./laboratory";
+
 export type UserRole =
   | "doctor"
   | "nurse"
@@ -627,22 +629,6 @@ export interface MedicationPrescription {
   doctor: CreatorInfo;
 }
 
-export interface LabTest {
-  id: string;
-  test: string;
-  status: string;
-  result: Record<string, string>[];
-  billing_status: string;
-  created_at: string;
-  updated_at: string;
-  is_admitted: boolean;
-  doctor: CreatorInfo;
-  investigation_request: {
-    request_type: string;
-    notes: string;
-  };
-}
-
 
 
 
@@ -879,7 +865,7 @@ export interface LabTest {
   updated_at: string;
   is_admitted: boolean;
   doctor: CreatorInfo;
-  investigation_request: InvestigationRequest;
+  investigation_request: InvestigationRequestWithConfig;
 }
 
 
@@ -938,7 +924,7 @@ export interface DetailedPatientConsultationInfoResponse {
   patient: PatientBasicInfo;
   vitals: DetailedConsultationResponsePatientVital[];
   encounters: Encounter[];
-  labs: LabTest[];
+  labs: DetailedConsultationResponsePatientEncounterLabs[];
   scans: RadiologyStudy[];
   surgeries: Surgery[];
   medications: MedicationPrescription[];

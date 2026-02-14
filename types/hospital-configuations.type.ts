@@ -1,7 +1,10 @@
 export interface HospitalLabTest {
   id: number;
   test_name: string;
-  parameters: { name: string; range: string }[];
+  test_category?:string
+  color_theme?:string
+  icon?:string
+  parameters: Parameter[];
   created_at: string;
   updated_at: string;
   created_by?: number;
@@ -19,9 +22,28 @@ export interface HospitalPricing {
   updated_by?: number;
 }
 
+export type ParameterType = "numeric" | "categorical" | "text" | "ratio";
+
+export interface Parameter {
+  name: string;
+  type: ParameterType;
+  unit?: string;
+  min?: number;
+  max?: number;
+  options?: string[];
+  normal_values?: string[];
+  display_decimals?: number;
+  // Legacy support
+  range?: string;
+}
+
+
 
 export interface EditingTest {
   id: number | null;
   test_name: string;
-  parameters: Array<{ name: string; range: string }>;
+  test_category?: string;
+  color_theme?: string;
+  icon?: string;
+  parameters: Parameter[];
 }

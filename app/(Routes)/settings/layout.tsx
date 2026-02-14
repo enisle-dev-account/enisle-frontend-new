@@ -23,10 +23,10 @@ export default function SettingsLayout({
   const currentPath = pathname.replace("/settings", "").replace("/", "") || "information"
 
   return (
-    <main className="rounded-t-2xl bg-background overflow-hidden h-full">
+    <main className="rounded-t-2xl bg-background  h-full">
       <div className="flex gap-6 p-6 h-full">
         {/* Settings Sidebar */}
-        <aside className="w-64 border-r border-border pr-4">
+        <aside className="w-64 sticky top-20 h-fit border-r border-border pr-4">
           <nav className="flex flex-col gap-2">
             {accessibleSettings.map((item) => {
               const isActive = currentPath === item.id

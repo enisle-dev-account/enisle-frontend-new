@@ -192,23 +192,77 @@ export interface Machine {
   hospital_id: number;
 }
 
+
+
+export interface PatientLaboratoryInfoResponse {
+  patient: DetailedConsultationResponsePatient;
+  labs: DetailedConsultationResponsePatientEncounterLabs[];
+}
+
+
+
+export interface LabParameter {
+  name: string;
+  type: "numeric" | "categorical" | "text" | "ratio";
+  unit?: string;
+  min?: number;
+  max?: number;
+  display_decimals?: number;
+  options?: string[];
+  normal_values?: string[];
+}
+
+export interface TestConfiguration {
+  test_name: string;
+  test_category: string;
+  color_theme: string;
+  icon: string;
+  parameters: LabParameter[];
+}
+
+export interface ParameterResult {
+  parameter_name: string;
+  value: string;
+}
+
+export interface InvestigationRequestWithConfig {
+  request_id: number;
+  request_type: string;
+  notes: string;
+  test_config: TestConfiguration;
+}
+
 export interface DetailedConsultationResponsePatientEncounterLabs {
-  id: string;
+  id: number;
   test: string;
   status: string;
-  result: Record<string, string>[];
+  result: ParameterResult[];
   billing_status: string;
   created_at: string;
   updated_at: string;
+  test_date: string;
   is_admitted: boolean;
   doctor: CreatorInfo;
-  investigation_request: {
-    request_type: string;
-    notes: string;
-  };
+  investigation_request: InvestigationRequestWithConfig;
+  consultation: string;
 }
 
 export interface PatientLaboratoryInfoResponse {
   patient: DetailedConsultationResponsePatient;
   labs: DetailedConsultationResponsePatientEncounterLabs[];
+}
+
+export interface ParameterHistory {
+  date: string;
+  value: number | string;
+  status?: "normal" | "abnormal";
+}
+
+export interface RiskInsight {
+  date: string;
+  risk_level: "low" | "medium" | "high" | "critical";
+  title: string;
+  description: string;
+  percentage?: number;
+  impact?: "Strong Impact" | "Medium Impact" | "Low Impact";
 }
